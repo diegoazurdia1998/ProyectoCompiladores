@@ -1,0 +1,58 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto\\ProyectoConsola\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyecto\\proyectoconsola\\proyectoconsola\\filesmanagers\\filemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\filesmanagers\\filemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyecto\\proyectoconsola\\proyectoconsola\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "FileManager.cs",
+              "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto\\ProyectoConsola\\ProyectoConsola\\FilesManagers\\FileManager.cs",
+              "RelativeDocumentMoniker": "ProyectoConsola\\FilesManagers\\FileManager.cs",
+              "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto\\ProyectoConsola\\ProyectoConsola\\FilesManagers\\FileManager.cs",
+              "RelativeToolTip": "ProyectoConsola\\FilesManagers\\FileManager.cs",
+              "ViewState": "AQIAADEAAAAAAAAAAAAgwEQAAABsAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-12T05:49:49.966Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto\\ProyectoConsola\\ProyectoConsola\\Program.cs",
+              "RelativeDocumentMoniker": "ProyectoConsola\\Program.cs",
+              "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto\\ProyectoConsola\\ProyectoConsola\\Program.cs",
+              "RelativeToolTip": "ProyectoConsola\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAHAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-12T05:48:51.671Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

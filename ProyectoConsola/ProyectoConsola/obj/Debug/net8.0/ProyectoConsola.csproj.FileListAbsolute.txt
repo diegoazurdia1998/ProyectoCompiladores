@@ -1,0 +1,14 @@
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\ProyectoConsola.exe
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\ProyectoConsola.deps.json
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\ProyectoConsola.runtimeconfig.json
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\ProyectoConsola.dll
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\ProyectoConsola.pdb
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.AssemblyInfoInputs.cache
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.AssemblyInfo.cs
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.csproj.CoreCompileInputs.cache
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.dll
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\refint\ProyectoConsola.dll
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.pdb
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.genruntimeconfig.cache
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ref\ProyectoConsola.dll
