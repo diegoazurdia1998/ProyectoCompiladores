@@ -1,46 +1,119 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using ProyectoConsola.Estructuras;
 
 namespace ProyectoConsola.Managers
-{
+    {/// <summary>
+    /// Clase SectionsManager, responsable de gestionar las secciones de un archivo de configuración.
+    /// </summary>
     public class SectionsManager
     {
-        //Atributos
-        public string compilerName;
-        public string commentStarSymbol, commentFinalSymbol;
-        public List<string> terminals, //Lista de simbolos terminales
-            keywords, // KEYWORDS identificados
-            tokens_simple; //
-        private static Dictionary<string, List<string>> sections; //Secciones
-        public Dictionary<string, List<string>> sets, //SETS identificados
-            nonTerminals; //Lista de simbolos no terminales
-        public List<Token> tokens;
+        /// <summary>
+        /// Nombre del compilador.
+        /// </summary>
+        public string _compilerName;
+
+        /// <summary>
+        /// Símbolo de inicio de comentario.
+        /// </summary>
+        public string _commentStart;
+
+        /// <summary>
+        /// Símbolo de fin de comentario.
+        /// </summary>
+        public string _commentEnd;
+
+        /// <summary>
+        /// Lista de símbolos terminales.
+        /// </summary>
+        public List<string> _terminals;
+
+        /// <summary>
+        /// Lista de palabras clave identificadas.
+        /// </summary>
+        public List<string> _keywords;
+
+        /// <summary>
+        /// Lista de tokens simples.
+        /// </summary>
+        public List<string> _tokens_simple;
+
+        /// <summary>
+        /// Diccionario de secciones.
+        /// </summary>
+        private static Dictionary<string, List<string>> sections;
+
+        /// <summary>
+        /// Diccionario de conjuntos identificados.
+        /// </summary>
+        public Dictionary<string, List<string>> _sets;
+
+        /// <summary>
+        /// Diccionario de símbolos no terminales.
+        /// </summary>
+        public Dictionary<string, List<string>> _nonTerminals;
+
+        /// <summary>
+        /// Lista de tokens.
+        /// </summary>
+        public List<Token> _tokens;
+        /// <summary>
+        /// Simbolo de extension para inicio de las derivaciones
+        /// </summary>
+        public string _startSymbol;
 
         //Constructores
-
+        /// <summary>
+        /// Constructor de la clase SectionsManager.
+        /// </summary>
+        /// <param name="param_Sections">Diccionario de secciones.</param>
         public SectionsManager(Dictionary<string, List<string>> param_Sections) 
         { 
             sections = param_Sections;
-            sets = new Dictionary<string, List<string>>();
-            terminals = new List<string>();
-            nonTerminals = new Dictionary<string, List<string>>();
-            compilerName = sections["COMPILER"].ToArray()[0];
-            tokens = new List<Token>();
-            keywords = new List<string>();
-            tokens_simple = new List<string>();
-            commentFinalSymbol = "";
-            commentStarSymbol = "";
+            _sets = new Dictionary<string, List<string>>();
+            _terminals = new List<string>();
+            _terminals.Add("eof");
+            _nonTerminals = new Dictionary<string, List<string>>();
+            _nonTerminals.Add("SimboloInicial", new List<string>());
+            _startSymbol = "SimboloInicial";
+            _compilerName = sections["COMPILER"].ToArray()[0];
+            _tokens = new List<Token>();
+            _keywords = new List<string>();
+            _tokens_simple = new List<string>();
+            _commentEnd = "";
+            _commentStart = "";
             StartManagers();
         }
-        
-        //
+        /// <summary>
+        /// Imprime las secciones del lenguaje de programación en consola.
+        /// </summary>
+        public void PrintSections()
+        {
+            Console.WriteLine("Nombre del compilador: " + _compilerName + "\n");
+            Console.WriteLine("Simbolos de comentario:\n\tInicio: " + _commentStart + "\n\tFin: " + _commentEnd + "\n");
+            Console.WriteLine("Simbolos no terminales: \n" + string.Join(", ", _nonTerminals.Keys) + "\n");
+            Console.WriteLine("Palabras reservadas: \n" + string.Join(", ", _keywords) + "\n");
+            Console.WriteLine("Sets: ");
+            foreach (var set in _sets)
+            {
+                Console.WriteLine(set.Key + ": " + string.Join(", ", set.Value));
+            }
+            Console.WriteLine("\nTokens: ");
+            foreach (var token in _tokens)
+            {
+                Console.WriteLine("ID: " + token.identifier + " VALUE: " + token.production + " ACTION: " + token.associativity);
+            }
+            Console.WriteLine("\nProducciones: ");
+            foreach (var production in _nonTerminals)
+            {
+                Console.WriteLine(production.Key + ": " + string.Join(" | ", production.Value));
+            }
+
+        }
+        // Métodos
+        /// <summary>
+        /// Método que inicia la gestión de secciones.
+        /// </summary>
         public void StartManagers()
         {
             //Sets
@@ -64,6 +137,10 @@ namespace ProyectoConsola.Managers
             }
         }
         
+        /// <summary>
+        /// Método que verifica la sección de conjuntos.
+        /// </summary>
+        /// <returns>True si la sección es válida, false 
         private bool VerifySets()
         {
             bool ok = false;
@@ -89,7 +166,9 @@ namespace ProyectoConsola.Managers
             }
             return ok;
         }
-
+        /// <summary>
+        /// Método que identifica los conjuntos en la sección de conjuntos.
+        /// </summary>
         private void IdentifySets() 
         {
             string auxIdentifier, auxRightSide;
@@ -108,7 +187,7 @@ namespace ProyectoConsola.Managers
                 universalMatch = wordRegex.Match(auxIdentifier);
                 int identifierIndex = universalMatch.Index + universalMatch.Length;
                 auxIdentifier = auxIdentifier.Substring(0, identifierIndex).Trim();
-                sets.Add(auxIdentifier, new List<string>());
+                _sets.Add(auxIdentifier, new List<string>());
                 auxRightSide = set.Substring(rightSide).Trim();
                 universalMatchCollection = rightSideRegex.Matches(auxRightSide);
                 foreach (Match match in universalMatchCollection) 
@@ -124,12 +203,12 @@ namespace ProyectoConsola.Managers
                                 {
                                     string[] parts = part.Split("..");
                                     string aux = '[' + parts[0].Trim('\'') + '-' + parts[1].Trim('\'') + ']';
-                                    sets[auxIdentifier].Add(aux);
+                                    _sets[auxIdentifier].Add(aux);
                                 }
                                 else
                                 {
                                     string aux = '[' + part.Substring(0, part.Length - 2).Trim('\'') + ']';
-                                    sets[auxIdentifier].Add(aux);
+                                    _sets[auxIdentifier].Add(aux);
                                 }
                             }
 
@@ -139,19 +218,19 @@ namespace ProyectoConsola.Managers
                             string[] parts = match.Value.Split('+');
                             foreach (string part in parts)
                             {
-                                sets[auxIdentifier].Add('[' + part.Trim('\'') + ']');
+                                _sets[auxIdentifier].Add('[' + part.Trim('\'') + ']');
                             }
                         }
                         else if (match.Value.Contains(".."))
                         {
                             string[] parts = match.Value.Split("..");
                             string aux = '[' + parts[0].Trim('\'') + '-' + parts[1].Substring(0, parts[1].Length - 1).Trim('\'') + ']';
-                            sets[auxIdentifier].Add(aux);
+                            _sets[auxIdentifier].Add(aux);
 
                         }
                         else
                         {
-                            sets[auxIdentifier].Add('[' + match.Value.Trim('\'') + ']');
+                            _sets[auxIdentifier].Add('[' + match.Value.Trim('\'') + ']');
                         }
                     }
                     else if (match.Value.Contains("chr")) // CASO: (chr\(\d(\d|\d{2})?\)((\.\.|\+)chr(\(\d(\d|\d{2})?\)  <-->  chr(32)..chr(254)
@@ -175,7 +254,7 @@ namespace ProyectoConsola.Managers
                                 if (int.TryParse(aux, out int asciiCode))
                                 {
                                     char asciiValue = Convert.ToChar(asciiCode);
-                                    sets[auxIdentifier].Add('[' + asciiValue.ToString() + ']');
+                                    _sets[auxIdentifier].Add('[' + asciiValue.ToString() + ']');
                                 }
                                 else
                                 {
@@ -189,7 +268,7 @@ namespace ProyectoConsola.Managers
                             char minLimit = Convert.ToChar(Convert.ToInt32(parts[0].Substring(4).Trim(')'))),
                                 maxLimit = Convert.ToChar(Convert.ToInt32(parts[1].Substring(4).Trim(';').Trim(')')));
                             string aux = "[" + minLimit + '-' + maxLimit + ']';
-                            sets[auxIdentifier].Add(aux);
+                            _sets[auxIdentifier].Add(aux);
                         }
                         else
                         {
@@ -197,7 +276,7 @@ namespace ProyectoConsola.Managers
                             if (int.TryParse(aux, out int asciiCode))
                             {
                                 char asciiValue = Convert.ToChar(asciiCode);
-                                sets[auxIdentifier].Add(asciiValue.ToString());
+                                _sets[auxIdentifier].Add(asciiValue.ToString());
                             }
                             else
                             {
@@ -216,7 +295,11 @@ namespace ProyectoConsola.Managers
                 IdentifyTokens();
             }
         }
-
+        // Métodos para la sección de tokens
+        /// <summary>
+        /// Método que verifica la sección de tokens.
+        /// </summary>
+        /// <returns>True si la sección es válida, false
         private bool VerifyTokens() 
         {
             bool ok = false;
@@ -246,7 +329,9 @@ namespace ProyectoConsola.Managers
             }
             return ok;
         }
-
+        /// <summary>
+        /// Método que identifica los tokens en la sección de tokens.
+        /// </summary>
         private void IdentifyTokens()
         {
             string auxIdentifier, auxRightSide;
@@ -270,11 +355,11 @@ namespace ProyectoConsola.Managers
                     {
                         string action = auxRightSide.Substring(universalMatch.Index, universalMatch.Length - 1);
                         auxRightSide = auxRightSide.Substring(0, (auxRightSide.Length  - universalMatch.Length));
-                        tokens.Add(new Token(auxIdentifier, auxRightSide.Trim(';'), action));
+                        _tokens.Add(new Token(auxIdentifier, auxRightSide.Trim(';'), action));
                     }
                     else
                     {
-                        tokens.Add(new Token(auxIdentifier, auxRightSide.Trim(';'), ""));
+                        _tokens.Add(new Token(auxIdentifier, auxRightSide.Trim(';'), ""));
                     }
                 }
                 else
@@ -296,12 +381,12 @@ namespace ProyectoConsola.Managers
                     {
                         if (Left)
                         {
-                            tokens.Add(new Token("", part.Trim('\''), "LEFT"));
+                            _tokens.Add(new Token("", part.Trim('\''), "LEFT"));
                             
                         }
                         else
                         {
-                            tokens.Add(new Token("", part.Trim('\''), "RIGHT"));
+                            _tokens.Add(new Token("", part.Trim('\''), "RIGHT"));
                         }
                     }
 
@@ -316,6 +401,11 @@ namespace ProyectoConsola.Managers
                 IdentifyKeywords();
             }
         }
+        // Métodos para la sección de palabras clave
+        /// <summary>
+        /// Método que verifica la sección de palabras clave.
+        /// </summary>
+        /// <returns>True si la sección es válida, false en caso contrario.</returns>
 
         private bool VerifyKeywords()
         {
@@ -331,7 +421,9 @@ namespace ProyectoConsola.Managers
             }
             return ok;
         }
-
+        /// <summary>
+        /// Método que identifica las palabras clave en la sección de palabras clave.
+        /// </summary>
         private void IdentifyKeywords()
         {
             Regex keywordRegex = new(@"('\w+')|(Comments\s*'.+'\s*TO\s*'.+'\s*\w+;)");
@@ -350,13 +442,13 @@ namespace ProyectoConsola.Managers
                             MatchCollection tempMc = tempRegex.Matches(m.Value);
                             if (tempMc.Count == 2)
                             {
-                                commentStarSymbol = tempMc[0].Value.Trim('\'');
-                                commentFinalSymbol = tempMc[1].Value.Trim('\'');
+                                _commentStart = tempMc[0].Value.Trim('\'');
+                                _commentEnd = tempMc[1].Value.Trim('\'');
                             }
                         }
                         else
                         {
-                            keywords.Add(m.Value.Trim().Trim('\''));
+                            _keywords.Add(m.Value.Trim().Trim('\''));
                         }
                     }
                 }
@@ -371,7 +463,11 @@ namespace ProyectoConsola.Managers
                 IdentifyProductions();
             }
         }
-
+        // Métodos para la sección de producciones
+        /// <summary>
+        /// Método que verifica la sección de producciones.
+        /// </summary>
+        /// <returns>True si la sección es válida, false en caso contrario.</returns>
         private bool VerifyProductions()
         {
             bool ok = true;
@@ -390,7 +486,9 @@ namespace ProyectoConsola.Managers
 
             return ok;
         }
-
+        /// <summary>
+        /// Método que identifica las producciones en la sección de producciones.
+        /// </summary>
         private void IdentifyProductions()
         {
             int rightSidendex;
@@ -402,15 +500,24 @@ namespace ProyectoConsola.Managers
                 tokenRegex = new(@"[A-Za-z]\w*");
             Match match;
             MatchCollection matchCollection;
+            identifier = prodictionsList[0];
+            match = identifierRegex.Match(identifier);
+            if (match.Success)
+            {
+                rightSidendex = match.Index + match.Length;
+                identifier = identifier.Trim();
+                identifier = identifier.Substring(0, rightSidendex - 2).Trim();
+                _nonTerminals["SimboloInicial"].Add(identifier + " eof");
+            }
             foreach (string production in prodictionsList)
             {
                 match = identifierRegex.Match(production);
                 rightSidendex = match.Index + match.Length;
                 identifier = production.Trim();
                 identifier = identifier.Substring(0, rightSidendex -2).Trim().Trim('<').Trim('>');
-                if(!nonTerminals.Keys.Contains(identifier))
+                if(!_nonTerminals.Keys.Contains(identifier))
                 {
-                    nonTerminals.Add(identifier, new List<string>());
+                    _nonTerminals.Add(identifier, new List<string>());
                 }
                 rightSide = production.Trim();
                 rightSide = production.Substring(rightSidendex).Trim();
@@ -421,7 +528,7 @@ namespace ProyectoConsola.Managers
                         string[] tempProductionsArray = rightSide.Split('|');
                         foreach (string tempProductions in tempProductionsArray)
                         {
-                            nonTerminals[identifier].Add(tempProductions.Trim());
+                            _nonTerminals[identifier].Add(tempProductions.Trim());
                         }
                     }
                     else
@@ -431,29 +538,67 @@ namespace ProyectoConsola.Managers
                             string[] tempProductionsArray = rightSide.Split('|');
                             foreach (string tempProductions in tempProductionsArray)
                             {
-                                nonTerminals[identifier].Add(tempProductions.Trim());
+                                _nonTerminals[identifier].Add(tempProductions.Trim());
                             }
                         }
                         else
                         {
-                            Regex auxRegex = new(@"\(\s*<\w+>\s*(\|\s*<\w+>\s*)*\)");
-                            match = auxRegex.Match(rightSide);
-                            if(match.Success)
+                            // Buscamos la posición del primer paréntesis que no está dentro de otro paréntesis
+                            int startIndex = 0;
+                            int balance = 0;
+                            for (int i = 0; i < rightSide.Length; i++)
                             {
-                                string temp = match.Value;
-                                rightSide = rightSide.Replace(temp, "°");
-                                string[] tempProductionsArray = rightSide.Split('|');
-                                foreach (string tempProductions in tempProductionsArray)
+                                if (rightSide[i] == '(')
                                 {
-                                    nonTerminals[identifier].Add(tempProductions.Replace("°", temp).Trim());
+                                    balance++;
                                 }
+                                else if (rightSide[i] == ')')
+                                {
+                                    balance--;
+                                }
+                                if (balance == 1 && rightSide[i] == '(')
+                                {
+                                    startIndex = i;
+                                    break;
+                                }
+                            }
+
+                            // Extraemos la parte dentro del paréntesis
+                            string innerPart = rightSide.Substring(startIndex + 1, rightSide.IndexOf(')', startIndex) - startIndex - 1);
+
+                            // Extraemos las partes separadas por "|"
+                            string[] tempProductionsArray = innerPart.Split('|');
+
+                            // Extraemos la parte después del paréntesis, solo la primera parte
+                            string afterParenthesis = rightSide.Substring(rightSide.IndexOf(')', startIndex) + 1).Trim();
+
+                            // Separamos las producciones en dos partes: la parte dentro del paréntesis y la parte después del paréntesis
+                            string[] productionsArray = afterParenthesis.Split('|');
+                            afterParenthesis = afterParenthesis.Split('|')[0].Trim();
+                            // La primera producción es la que contiene el paréntesis
+                            string productionWithParenthesis = productionsArray[0];
+
+                            // Las demás producciones son las que no contienen paréntesis
+                            string[] otherProductions = new string[productionsArray.Length - 1];
+                            Array.Copy(productionsArray, 1, otherProductions, 0, productionsArray.Length - 1);
+
+                            // Agregamos las producciones
+                            foreach (string tempProduction in tempProductionsArray)
+                            {
+                                _nonTerminals[identifier].Add(tempProduction.Trim() + " " + afterParenthesis);
+                            }
+
+                            // Agregamos las demás producciones
+                            foreach (string otherProduction in otherProductions)
+                            {
+                                _nonTerminals[identifier].Add(otherProduction.Trim());
                             }
                         }
                     }
                 }
                 else
                 {
-                    nonTerminals[identifier].Add(rightSide);
+                    _nonTerminals[identifier].Add(rightSide);
                 }
 
                 string auxTrim;
@@ -461,28 +606,28 @@ namespace ProyectoConsola.Managers
                 foreach(Match nonTerminal in matchCollection)
                 {
                     auxTrim = nonTerminal.Value.Trim('<').Trim('>');
-                    if (!nonTerminals.Keys.Contains(auxTrim))
+                    if (!_nonTerminals.Keys.Contains(auxTrim))
                     {
-                        nonTerminals.Add(auxTrim, new List<string>());
+                        _nonTerminals.Add(auxTrim, new List<string>());
                     }
                 }
                 matchCollection = terminalRegex.Matches(rightSide);
                 foreach(Match matchTerminal in matchCollection)
                 {
                     auxTrim = matchTerminal.Value.Trim('\'');
-                    if(!terminals.Contains(auxTrim))
+                    if(!_terminals.Contains(auxTrim))
                     {
-                        terminals.Add(auxTrim);
+                        _terminals.Add(auxTrim);
                     }
                 }
                 matchCollection = tokenRegex.Matches(rightSide);
                 foreach(Match matchToken in matchCollection)
                 {
                     auxTrim = matchToken.Value.Trim('<').Trim('>');
-                    if(!terminals.Contains(auxTrim) && !tokens_simple.Contains(auxTrim) && 
-                        !nonTerminals.Keys.Contains(auxTrim))
+                    if(!_terminals.Contains(auxTrim) && !_tokens_simple.Contains(auxTrim) && 
+                        !_nonTerminals.Keys.Contains(auxTrim))
                     {
-                        tokens_simple.Add(auxTrim);
+                        _tokens_simple.Add(auxTrim);
                     }
                 }
             }

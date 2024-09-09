@@ -13,6 +13,7 @@ public class NFFTableManager
     public Dictionary<string, HashSet<string>> _follow; // Tabla de Follow
     private Dictionary<string, bool> _computedFollow; // Tabla para evitar la recursividad infinita en la generación de la tabla de Follow
     private SectionsManager _sectionsManager; // Referencia al administrador de secciones
+    private string _startSymbol; //Simbolo no terminal del que parte la gramatica
 
     /// <summary>
     /// Constructor de la clase NFFTableManager.
@@ -25,8 +26,9 @@ public class NFFTableManager
         _follow = new Dictionary<string, HashSet<string>>();
         _computedFollow = new Dictionary<string, bool>();
         _sectionsManager = manager;
+        _startSymbol = manager._startSymbol;
         // Inicializar tablas para cada no terminal
-        foreach (string nonTerminal in manager.nonTerminals.Keys)
+        foreach (string nonTerminal in manager._nonTerminals.Keys)
         {
             _nullable[nonTerminal] = false;
             _first[nonTerminal] = new HashSet<string>();
@@ -34,7 +36,21 @@ public class NFFTableManager
         }
         GenertaeTables();
     }
+    /// <summary>
+    /// Imprime las tablas de Nullable, First y Follow en consola.
+    /// </summary>
+    public void PrintTables()
+    {
+        Console.WriteLine("\nTabla de Nullable, First y Follow:");
 
+        foreach (string nonTerminal in _sectionsManager._nonTerminals.Keys)
+        {
+            Console.Write("\nSimbolo No Terminal: " + nonTerminal + "\n\tNullable: ");
+            Console.Write(_nullable[nonTerminal] + "\n\tFirst: ");
+            Console.Write(string.Join(", ", _first[nonTerminal]) + "\n\tFollow: ");
+            Console.WriteLine(string.Join(", ", _follow[nonTerminal]));
+        }
+    }
     /// <summary>
     /// Genera las tablas de Nullable, First y Follow.
     /// </summary>
@@ -53,8 +69,8 @@ public class NFFTableManager
     /// </summary>
     private void GenerateNullableTable()
     {
-        Dictionary<string, List<string>> producciones = _sectionsManager.nonTerminals;
-        foreach (string nonTerminal in _sectionsManager.nonTerminals.Keys)
+        Dictionary<string, List<string>> producciones = _sectionsManager._nonTerminals;
+        foreach (string nonTerminal in _sectionsManager._nonTerminals.Keys)
         {
             if (producciones[nonTerminal].Contains("ε"))
             {
@@ -68,9 +84,9 @@ public class NFFTableManager
     /// </summary>
     private void GenerateFirstTable()
     {
-        Dictionary<string, List<string>> producciones = _sectionsManager.nonTerminals;
+        Dictionary<string, List<string>> producciones = _sectionsManager._nonTerminals;
 
-        foreach (string nonTerminal in _sectionsManager.nonTerminals.Keys.Reverse())
+        foreach (string nonTerminal in _sectionsManager._nonTerminals.Keys.Reverse())
         {
             foreach (string production in producciones[nonTerminal])
             {
@@ -102,7 +118,7 @@ public class NFFTableManager
         if (_first[firstNonTerminalSymbol].Count == 0)
         {
             // Se extraen producciones del first que es símbolo no terminal
-            List<string> firstNonterminalSymbolProductions = _sectionsManager.nonTerminals[firstNonTerminalSymbol];
+            List<string> firstNonterminalSymbolProductions = _sectionsManager._nonTerminals[firstNonTerminalSymbol];
             if (firstNonterminalSymbolProductions == null || firstNonterminalSymbolProductions.Count == 0)
             {
                 // Si el no terminal symbol tiene no producciones, devuelve un conjunto vacío
@@ -141,10 +157,10 @@ public class NFFTableManager
     private bool IsTerminal(string symbol)
     {
         bool isTerminal = true;
-        if (!_sectionsManager.terminals.Contains(symbol))
+        if (!_sectionsManager._terminals.Contains(symbol))
         {
             isTerminal = false;
-            foreach (Token token in _sectionsManager.tokens)
+            foreach (Token token in _sectionsManager._tokens)
             {
                 if (token.CompareTo(symbol))
                 {
@@ -162,8 +178,8 @@ public class NFFTableManager
     /// </summary>
     private void GenerateFollowTable()
     {
-        Dictionary<string, List<string>> producciones = _sectionsManager.nonTerminals;
-        foreach (string nonTerminal in _sectionsManager.nonTerminals.Keys)
+        Dictionary<string, List<string>> producciones = _sectionsManager._nonTerminals;
+        foreach (string nonTerminal in _sectionsManager._nonTerminals.Keys)
         {
             ComputeFollowForNonTerminal(nonTerminal);
         }
@@ -172,7 +188,7 @@ public class NFFTableManager
     /// <summary>
     /// Calcula el conjunto de Follow para un no terminal.
     /// </summary>
-    /// <param name="nonTerminal">No terminal para el cual se calcula el conjunto de Follow.</param>
+    /// <param name="nonTerminal">No terminal para el que se calcula el conjunto de Follow.</param>
     private void ComputeFollowForNonTerminal(string nonTerminal)
     {
         if (_computedFollow.ContainsKey(nonTerminal) && _computedFollow[nonTerminal])
@@ -182,60 +198,48 @@ public class NFFTableManager
 
         _computedFollow[nonTerminal] = true;
 
-        Dictionary<string, List<string>> producciones = _sectionsManager.nonTerminals;
+        Dictionary<string, List<string>> producciones = _sectionsManager._nonTerminals;
+
         foreach (string production in producciones[nonTerminal])
         {
             string[] symbols = production.Split(' ');
-            for (int i = 0; i < symbols.Length - 1; i++)
+            
+            for (int i = 0; i < symbols.Length; i++)
             {
-                string currentSymbol = symbols[i];
-                string nextSymbol = symbols[i + 1];
-                if (IsNonTerminal(currentSymbol) && IsTerminal(nextSymbol))
+                if (IsNonTerminal(symbols[i].Trim('(').Trim('\'').Trim('<').Trim('>')))
                 {
-                    AddToFollow(currentSymbol, nextSymbol);
-                }
-                else if (IsNonTerminal(currentSymbol) && IsNonTerminal(nextSymbol))
-                {
-                    ComputeFollowForNonTerminal(nextSymbol);
-                    UnionFollowSets(currentSymbol, nextSymbol);
+                    if (i < symbols.Length - 1)
+                    {
+                        string nextSymbol = symbols[i + 1].Trim('(').Trim('\'').Trim('<').Trim('>');
+
+                        if (IsTerminal(nextSymbol))
+                        {
+                            _follow[nonTerminal].Add(nextSymbol);
+                        }
+                        else
+                        {
+                            _follow[nonTerminal].UnionWith(_first[nextSymbol]);
+
+                            if (_nullable[nextSymbol])
+                            {
+                                ComputeFollowForNonTerminal(nextSymbol);
+                                _follow[nonTerminal].UnionWith(_follow[nextSymbol]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ComputeFollowForNonTerminal(symbols[i].Trim('(').Trim('\'').Trim('<').Trim('>'));
+                        _follow[nonTerminal].UnionWith(_follow[symbols[i].Trim('(').Trim('\'').Trim('<').Trim('>')]);
+                    }
                 }
             }
-            // Caso especial: si la producción termina con un no terminal,
-            // debemos agregar el conjunto de símbolos terminales que pueden seguir
-            // al no terminal final a la tabla de Follow
-            if (IsNonTerminal(symbols[symbols.Length - 1]))
-            {
-                string lastNonTerminal = symbols[symbols.Length - 1];
-                ComputeFollowForNonTerminal(lastNonTerminal);
-                UnionFollowSets(nonTerminal, lastNonTerminal);
-            }
         }
-    }
 
-    /// <summary>
-    /// Agrega un símbolo a la tabla de Follow para un no terminal.
-    /// </summary>
-    /// <param name="nonTerminal">No terminal para el cual se agrega el símbolo.</param>
-    /// <param name="symbol">Símbolo a agregar.</param>
-    private void AddToFollow(string nonTerminal, string symbol)
-    {
-        if (!_follow.ContainsKey(nonTerminal))
+        // Si el no terminal es el símbolo inicial, agrega el símbolo de fin de cadena (eof) al conjunto de Follow
+        if (nonTerminal == _startSymbol)
         {
-            _follow[nonTerminal] = new HashSet<string>();
-        }
-        _follow[nonTerminal].Add(symbol);
-    }
-
-    /// <summary>
-    /// Une dos conjuntos de Follow.
-    /// </summary>
-    /// <param name="nonTerminal1">Primer no terminal.</param>
-    /// <param name="nonTerminal2">Segundo no terminal.</param>
-    private void UnionFollowSets(string nonTerminal1, string nonTerminal2)
-    {
-        if (_follow.ContainsKey(nonTerminal1) && _follow.ContainsKey(nonTerminal2))
-        {
-            _follow[nonTerminal1].UnionWith(_follow[nonTerminal2]);
+            _follow[nonTerminal].Add("eof");
         }
     }
 
@@ -246,6 +250,10 @@ public class NFFTableManager
     /// <returns>True si el símbolo es no terminal, false en caso contrario.</returns>
     private bool IsNonTerminal(string symbol)
     {
-        return _sectionsManager.nonTerminals.ContainsKey(symbol);
+        return _sectionsManager._nonTerminals.ContainsKey(symbol);
     }
+
+    
+
 }
+
