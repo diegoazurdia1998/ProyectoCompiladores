@@ -12,6 +12,7 @@ public class NFFTableManager
     public Dictionary<string, HashSet<string>> _first; // Tabla de First
     public Dictionary<string, HashSet<string>> _follow; // Tabla de Follow
     private Dictionary<string, bool> _computedFollow; // Tabla para evitar la recursividad infinita en la generación de la tabla de Follow
+    public Dictionary<string, HashSet<string>> _followGenerationAux;
     private SectionsManager _sectionsManager; // Referencia al administrador de secciones
     private string _startSymbol; //Simbolo no terminal del que parte la gramatica
 
@@ -25,6 +26,7 @@ public class NFFTableManager
         _first = new Dictionary<string, HashSet<string>>();
         _follow = new Dictionary<string, HashSet<string>>();
         _computedFollow = new Dictionary<string, bool>();
+        _followGenerationAux = new Dictionary<string, HashSet<string>>();
         _sectionsManager = manager;
         _startSymbol = manager._startSymbol;
         // Inicializar tablas para cada no terminal
@@ -42,13 +44,14 @@ public class NFFTableManager
     public void PrintTables()
     {
         Console.WriteLine("\nTabla de Nullable, First y Follow:");
-
+        int i = 1;
         foreach (string nonTerminal in _sectionsManager._nonTerminals.Keys)
         {
-            Console.Write("\nSimbolo No Terminal: " + nonTerminal + "\n\tNullable: ");
+            Console.Write("\nSimbolo No Terminal --    " + i + "    --: \n\t\t\t\t\t" + nonTerminal + "\n\tNullable: ");
             Console.Write(_nullable[nonTerminal] + "\n\tFirst: ");
             Console.Write(string.Join(", ", _first[nonTerminal]) + "\n\tFollow: ");
             Console.WriteLine(string.Join(", ", _follow[nonTerminal]));
+            i++;
         }
     }
     /// <summary>
@@ -84,69 +87,83 @@ public class NFFTableManager
     /// </summary>
     private void GenerateFirstTable()
     {
-        Dictionary<string, List<string>> producciones = _sectionsManager._nonTerminals;
-
-        foreach (string nonTerminal in _sectionsManager._nonTerminals.Keys.Reverse())
+        foreach (var nonTerminal in _sectionsManager._nonTerminals.Keys)
         {
-            foreach (string production in producciones[nonTerminal])
+            
+            if (_first[nonTerminal].Count < 1)
             {
-                string firstSymbol = production.Split(' ')[0].Trim('(').Trim('\'').Trim('<').Trim('>');
-                if (firstSymbol != "")
-                {
-                    if (IsTerminal(firstSymbol))
-                    {
-                        _first[nonTerminal].Add(firstSymbol);
-                    }
-                    else // En caso que t NO sea terminal
-                    {
-                        _first[nonTerminal].UnionWith(GetFirstForNonTerminal(firstSymbol, nonTerminal));
-                    }
-                }
+                
+                _first[nonTerminal] = GenerateFirstForNonTerminal(nonTerminal);
             }
         }
     }
 
-    /// <summary>
-    /// Obtiene el conjunto de First para un no terminal.
-    /// </summary>
-    /// <param name="firstNonTerminalSymbol">Símbolo no terminal.</param>
-    /// <param name="originalNonTerminal">No terminal original.</param>
-    /// <returns>Conjunto de First para el no terminal.</returns>
-    private HashSet<string> GetFirstForNonTerminal(string firstNonTerminalSymbol, string originalNonTerminal)
+    private HashSet<string> GenerateFirstForNonTerminal(string nonTerminal)
     {
-        // Si el first no terminal aún no tiene First
-        if (_first[firstNonTerminalSymbol].Count == 0)
+        HashSet<string> firstofNonTeminal = new HashSet<string>();
+        foreach (var item in _sectionsManager._nonTerminals[nonTerminal])
         {
-            // Se extraen producciones del first que es símbolo no terminal
-            List<string> firstNonterminalSymbolProductions = _sectionsManager._nonTerminals[firstNonTerminalSymbol];
-            if (firstNonterminalSymbolProductions == null || firstNonterminalSymbolProductions.Count == 0)
+            string[] production = item.Split(' ');
+            string firstSymbol = production[0];
+            if ((firstSymbol.Contains("<") || firstSymbol.Contains(">")) && firstSymbol.Contains("\'"))
             {
-                // Si el no terminal symbol tiene no producciones, devuelve un conjunto vacío
-                return new HashSet<string>();
+                firstSymbol = production[0].Trim().Trim('\'').Trim('(');
             }
-
-            foreach (string production in firstNonterminalSymbolProductions) // por cada producción del first no terminal
+            else
             {
-                // Se calcula el primer símbolo de la producción
-                string firstSymbol = production.Split(' ')[0].Trim('(').Trim('\'').Trim('<').Trim('>');
-                if (firstSymbol != "")
+                firstSymbol = production[0].Trim().Trim('\'').Trim('(').Trim('<').Trim('>');
+            }
+            if (IsTerminal(firstSymbol) && !firstSymbol.Equals("ε") && !firstSymbol.Equals(""))
+            {
+                firstofNonTeminal.Add(firstSymbol);
+            }
+            else if (IsNonTerminal(firstSymbol))
+            {
+                if (_first[nonTerminal].Count < 1)
                 {
-                    if (IsTerminal(firstSymbol))
+                    _first[firstSymbol] = GenerateFirstForNonTerminal(firstSymbol);
+                }
+                firstofNonTeminal.UnionWith(_first[firstSymbol]);
+                if (_nullable[firstSymbol] && production.Length > 1)
+                {
+                    firstofNonTeminal.UnionWith(GenerateFirstForNullableNonTerminal(nonTerminal, production));
+
+                }
+
+            }
+        }
+        return firstofNonTeminal;
+    }
+
+    private HashSet<string> GenerateFirstForNullableNonTerminal(string nonTerminal, string[] production)
+    {
+        string nextSymbol;
+        HashSet<string> firstofNullableNonTeminal = new HashSet<string>();
+        for (int i = 1; i < production.Length; i++)
+        {
+            nextSymbol = production[i].Trim().Trim('\'').Trim('(').Trim('<').Trim('>');
+            if (!nextSymbol.Equals(nonTerminal))
+            {
+                if (IsTerminal(nextSymbol))
+                {
+                    firstofNullableNonTeminal.Add(nextSymbol);
+                    break;
+                }
+                else if (IsNonTerminal(nextSymbol))
+                {
+                    if (_first[nextSymbol].Count < 1)
                     {
-                        _first[firstNonTerminalSymbol].Add(firstSymbol);
+                        _first[nextSymbol] = GenerateFirstForNonTerminal(nextSymbol);
                     }
-                    else // En caso que t NO sea terminal
+                    firstofNullableNonTeminal.UnionWith(_first[nextSymbol]);
+                    if (!_nullable[nextSymbol])
                     {
-                        // Para evitar la recursividad infinita, solo recursa si el primer símbolo no es el mismo que el no terminal actual
-                        if (firstSymbol != firstNonTerminalSymbol)
-                        {
-                            _first[firstNonTerminalSymbol].UnionWith(GetFirstForNonTerminal(firstSymbol, originalNonTerminal));
-                        }
+                        break;
                     }
                 }
             }
         }
-        return _first[firstNonTerminalSymbol];
+        return firstofNullableNonTeminal;
     }
 
     /// <summary>
@@ -181,66 +198,145 @@ public class NFFTableManager
         Dictionary<string, List<string>> producciones = _sectionsManager._nonTerminals;
         foreach (string nonTerminal in _sectionsManager._nonTerminals.Keys)
         {
-            ComputeFollowForNonTerminal(nonTerminal);
+            _followGenerationAux.Add(nonTerminal, new HashSet<string>());
+            _followGenerationAux[nonTerminal] = GenerateProductionsNonTermial(nonTerminal);
+        }
+        foreach (string nonTerminal in _sectionsManager._nonTerminals.Keys)
+        {
+            if (_follow[nonTerminal].Count == 0)
+            {
+                _follow[nonTerminal] = ComputeFollowForNonTerminal(nonTerminal);
+            }
         }
     }
-
+    private HashSet<string> GenerateProductionsNonTermial(string symbol)
+    {
+        HashSet<string> result = new HashSet<string>();
+        Dictionary<string, List<string>> producciones = _sectionsManager._nonTerminals;
+        foreach (string ProductionsKey in _sectionsManager._nonTerminals.Keys)
+        {
+            List<string> productions = _sectionsManager._nonTerminals[ProductionsKey];
+            foreach (string production in productions)
+            {
+                if (production.Contains('<' + symbol + '>'))
+                {
+                    result.Add(ProductionsKey + '=' + production);
+                }
+            }
+        }
+        return result;
+    }
+    private bool ProductionsOfNT1CointainsNT2(string NT1, string NT2)
+    {
+        bool result = false;
+        List<string> productionsNT1 = _sectionsManager._nonTerminals[NT1];
+        foreach (var production in productionsNT1)
+        {
+            if (production.Contains(NT2))
+            {
+                result = true;
+            }
+        }
+        return result;
+    }
     /// <summary>
     /// Calcula el conjunto de Follow para un no terminal.
     /// </summary>
     /// <param name="nonTerminal">No terminal para el que se calcula el conjunto de Follow.</param>
-    private void ComputeFollowForNonTerminal(string nonTerminal)
+    private HashSet<string> ComputeFollowForNonTerminal(string nonTerminal)
     {
-        if (_computedFollow.ContainsKey(nonTerminal) && _computedFollow[nonTerminal])
+        HashSet<string> productionWhereNonTerminalAppears = _followGenerationAux[nonTerminal],
+            followOfNonTerminal = new HashSet<string>();
+        foreach (string production in productionWhereNonTerminalAppears)
         {
-            return;
-        }
+            string identifier = production.Substring(0, production.IndexOf('=')).Trim();
+            string[] realProduction = production.Substring(production.IndexOf('=') + 1).Trim().Split(' ');
+            int nonTerminalIndex = Array.IndexOf(realProduction, '<' + nonTerminal + '>');
 
-        _computedFollow[nonTerminal] = true;
-
-        Dictionary<string, List<string>> producciones = _sectionsManager._nonTerminals;
-
-        foreach (string production in producciones[nonTerminal])
-        {
-            string[] symbols = production.Split(' ');
-            
-            for (int i = 0; i < symbols.Length; i++)
+            if (nonTerminalIndex == realProduction.Length - 1)
             {
-                if (IsNonTerminal(symbols[i].Trim('(').Trim('\'').Trim('<').Trim('>')))
+                if (_follow[identifier].Count == 0 && !identifier.Equals(nonTerminal))
                 {
-                    if (i < symbols.Length - 1)
+                    if(!ProductionsOfNT1CointainsNT2(identifier, nonTerminal) && !ProductionsOfNT1CointainsNT2(nonTerminal, identifier))
                     {
-                        string nextSymbol = symbols[i + 1].Trim('(').Trim('\'').Trim('<').Trim('>');
-
-                        if (IsTerminal(nextSymbol))
-                        {
-                            _follow[nonTerminal].Add(nextSymbol);
-                        }
-                        else
-                        {
-                            _follow[nonTerminal].UnionWith(_first[nextSymbol]);
-
-                            if (_nullable[nextSymbol])
-                            {
-                                ComputeFollowForNonTerminal(nextSymbol);
-                                _follow[nonTerminal].UnionWith(_follow[nextSymbol]);
-                            }
-                        }
+                        _follow[identifier] = ComputeFollowForNonTerminal(identifier);                        
                     }
                     else
                     {
-                        ComputeFollowForNonTerminal(symbols[i].Trim('(').Trim('\'').Trim('<').Trim('>'));
-                        _follow[nonTerminal].UnionWith(_follow[symbols[i].Trim('(').Trim('\'').Trim('<').Trim('>')]);
+                        _follow[nonTerminal].UnionWith(followOfNonTerminal);
+                        _follow[nonTerminal].UnionWith(_follow[identifier]);
+                        _follow[identifier].UnionWith(_follow[nonTerminal]);
+                        
+                    }
+                }
+                followOfNonTerminal.UnionWith(_follow[identifier]);
+            }
+            else if (nonTerminalIndex < realProduction.Length - 1)
+            {
+                int nextNonTerminalIndex = nonTerminalIndex + 1;
+                string nextNonTerminal = realProduction[nextNonTerminalIndex].Trim().Trim('\'').Trim('(').Trim('<').Trim('>');
+                if (IsTerminal(nextNonTerminal))
+                {
+                    followOfNonTerminal.Add(nextNonTerminal);
+                }
+                else if (IsNonTerminal(nextNonTerminal))
+                {
+                    followOfNonTerminal.UnionWith(_first[nextNonTerminal]);
+                    if (_nullable[nextNonTerminal])
+                    {
+                        followOfNonTerminal.UnionWith(GenerateFollowForNullableNonTerminal(nonTerminal, nextNonTerminalIndex, identifier, realProduction));
                     }
                 }
             }
+
+        }
+        return followOfNonTerminal;
+    }
+
+    private HashSet<string> GenerateFollowForNullableNonTerminal(string nonTermial, int nextNonTerminalIndex, string identifier, string[] production)
+    {
+        HashSet<string> followOfNullableNonTerminal = new HashSet<string>();
+
+        for (int i = nextNonTerminalIndex; i < production.Length; i++)
+        {
+            string nextSymbol = production[i].Trim().Trim('\'').Trim('(').Trim('<').Trim('>');
+            if (IsTerminal(nextSymbol))
+            {
+                followOfNullableNonTerminal.Add(nextSymbol);
+            }
+            else if (IsNonTerminal(nextSymbol))
+            {
+                if (i != production.Length - 1)
+                {
+                    followOfNullableNonTerminal.UnionWith(_first[nextSymbol]);
+                    if (!_nullable[nextSymbol])
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    followOfNullableNonTerminal.UnionWith(_first[nextSymbol]);
+                    if (_nullable[nextSymbol])
+                    {
+                        if (_follow[nextSymbol].Count == 0)
+                        {
+                            _follow[nextSymbol] = ComputeFollowForNonTerminal(nextSymbol);
+                            
+                        }
+                        if (!nextSymbol.Equals(nonTermial))
+                        {
+                            followOfNullableNonTerminal.UnionWith(_follow[nextSymbol]);
+
+                        }
+                    }
+                }
+            }
+            
+            
         }
 
-        // Si el no terminal es el símbolo inicial, agrega el símbolo de fin de cadena (eof) al conjunto de Follow
-        if (nonTerminal == _startSymbol)
-        {
-            _follow[nonTerminal].Add("eof");
-        }
+        return followOfNullableNonTerminal;
     }
 
     /// <summary>

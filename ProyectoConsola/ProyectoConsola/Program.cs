@@ -8,5 +8,5 @@ Dictionary<string, List<string>> seccionesProcesadas = fileManager.ProcesarArchi
 
 SectionsManager sm = new SectionsManager(seccionesProcesadas);
 NFFTableManager nFFTableManager = new NFFTableManager(sm);
-sm.PrintSections();
+//sm.PrintSections();
 nFFTableManager.PrintTables();

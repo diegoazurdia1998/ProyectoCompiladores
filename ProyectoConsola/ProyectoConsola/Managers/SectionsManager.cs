@@ -94,6 +94,7 @@ namespace ProyectoConsola.Managers
             Console.WriteLine("Simbolos no terminales: \n" + string.Join(", ", _nonTerminals.Keys) + "\n");
             Console.WriteLine("Palabras reservadas: \n" + string.Join(", ", _keywords) + "\n");
             Console.WriteLine("Sets: ");
+            int i = 1;
             foreach (var set in _sets)
             {
                 Console.WriteLine(set.Key + ": " + string.Join(", ", set.Value));
@@ -106,7 +107,9 @@ namespace ProyectoConsola.Managers
             Console.WriteLine("\nProducciones: ");
             foreach (var production in _nonTerminals)
             {
-                Console.WriteLine(production.Key + ": " + string.Join(" | ", production.Value));
+                Console.WriteLine(i + ".\n<" + production.Key + "> = \n\t " + string.Join("\n\t", production.Value));
+                Console.WriteLine();
+                i++;
             }
 
         }
