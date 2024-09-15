@@ -12,3 +12,18 @@ C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\Pr
 C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.pdb
 C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.genruntimeconfig.cache
 C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ref\ProyectoConsola.dll
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\ProyectoConsola.exe
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\ProyectoConsola.deps.json
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\ProyectoConsola.runtimeconfig.json
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\ProyectoConsola.dll
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\ProyectoConsola.pdb
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.GeneratedMSBuildEditorConfig.editorconfig
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.AssemblyInfoInputs.cache
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.AssemblyInfo.cs
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.csproj.CoreCompileInputs.cache
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.sourcelink.json
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.dll
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\refint\ProyectoConsola.dll
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.pdb
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.genruntimeconfig.cache
+C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ref\ProyectoConsola.dll
