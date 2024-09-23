@@ -51,7 +51,10 @@ namespace ProyectoConsola.Managers
         /// <summary>
         /// Diccionario de símbolos no terminales.
         /// </summary>
+        protected Dictionary<string, List<string>> _nonTerminalsWithActions;
         public Dictionary<string, List<string>> _nonTerminals;
+
+        public Dictionary<string, List<string>> _nonTerminalActions;
 
         /// <summary>
         /// Lista de tokens.
@@ -72,11 +75,14 @@ namespace ProyectoConsola.Managers
             sections = param_Sections;
             _sets = new Dictionary<string, List<string>>();
             _terminals = new List<string>();
-            _terminals.Add("eof");
+            _nonTerminalsWithActions = new Dictionary<string, List<string>>();
             _nonTerminals = new Dictionary<string, List<string>>();
-            _nonTerminals.Add("SimboloInicial", new List<string>());
-            _startSymbol = "SimboloInicial";
-            _compilerName = sections["COMPILER"].ToArray()[0];
+            _nonTerminalActions = new Dictionary<string, List<string>>();
+            _startSymbol = "";
+            if (sections.Keys.Contains("COMPILER"))
+                _compilerName = sections["COMPILER"].ToArray()[0];
+            else
+                _compilerName = "default_name";
             _tokens = new List<Token>();
             _keywords = new List<string>();
             _tokens_simple = new List<string>();
@@ -92,7 +98,8 @@ namespace ProyectoConsola.Managers
             Console.WriteLine("Nombre del compilador: " + _compilerName + "\n");
             Console.WriteLine("Simbolos de comentario:\n\tInicio: " + _commentStart + "\n\tFin: " + _commentEnd + "\n");
             Console.WriteLine("Simbolos no terminales: \n" + string.Join(", ", _nonTerminals.Keys) + "\n");
-            Console.WriteLine("Palabras reservadas: \n" + string.Join(", ", _keywords) + "\n");
+            Console.WriteLine("Simbolos terminales: \n" + string.Join(", ", _terminals) + "\n");
+            Console.WriteLine("Palabras reservadas: \n" + string.Join(", ", _keywords));
             Console.WriteLine("Sets: ");
             int i = 1;
             foreach (var set in _sets)
@@ -107,7 +114,11 @@ namespace ProyectoConsola.Managers
             Console.WriteLine("\nProducciones: ");
             foreach (var production in _nonTerminals)
             {
-                Console.WriteLine(i + ".\n<" + production.Key + "> = \n\t " + string.Join("\n\t", production.Value));
+                Console.WriteLine(i + ".\n<" + production.Key + ">\n\t= " + string.Join("\n\t= ", production.Value));
+                if(_nonTerminalActions.ContainsKey(production.Key))
+                {
+                    Console.WriteLine("\t\tActions:\n\t\t-\t" + string.Join("\n\t\t-\t", _nonTerminalActions[production.Key]));
+                }
                 Console.WriteLine();
                 i++;
             }
@@ -133,10 +144,10 @@ namespace ProyectoConsola.Managers
         private void SetsManager() 
         {
             //Verificar SETS
-            if (VerifySets())
+            if (sections.Keys.Contains("SETS"))
             {
                 //Identificar SETS
-                IdentifySets();
+                if(VerifySets()) IdentifySets();
             }
         }
         
@@ -293,9 +304,12 @@ namespace ProyectoConsola.Managers
         //Metodos para seccion: TOKENS
         private void TokensManager()
         {
-            if (VerifyTokens())
+            if (sections.Keys.Contains("TOKENS"))
             {
-                IdentifyTokens();
+                if (VerifyTokens())
+                {
+                    IdentifyTokens();
+                }
             }
         }
         // Métodos para la sección de tokens
@@ -399,9 +413,12 @@ namespace ProyectoConsola.Managers
         //Metodos para seccion:KEYWORDS
         public void KeywordsManager()
         {
-            if (VerifyKeywords())
-            {
-                IdentifyKeywords();
+            if (sections.Keys.Contains("KEYWORDS")) 
+            { 
+                if (VerifyKeywords())
+                {
+                    IdentifyKeywords();
+                }
             }
         }
         // Métodos para la sección de palabras clave
@@ -461,9 +478,13 @@ namespace ProyectoConsola.Managers
         //Metodos para seccion: PRODUCTIONS
         private void ProductionsManager()
         {
-            if (VerifyProductions())
-            {
-                IdentifyProductions();
+            if (sections.Keys.Contains("PRODUCTIONS")) 
+            { 
+                if (VerifyProductions())
+                {
+                    IdentifyProductions();
+                    IdentifyActions();
+                }
             }
         }
         // Métodos para la sección de producciones
@@ -475,7 +496,7 @@ namespace ProyectoConsola.Managers
         {
             bool ok = true;
             List<string> prodictionsList = sections["PRODUCTIONS"];
-            Regex prodictionsRegex = new(@"(\s*<[A-Za-z][A-Za-z_]+>\s*=\s*)((\(?(\s*'(([A-Za-z][A-Za-z_]+)|([.:,;()<>*""+/-=])|:=|<>|<=|>=)'\s*|\s*<[A-Za-z][A-Za-z_]+>\s*|\s*[A-Za-z]+\s*|\s*ε\s*)\)?\|?)+)");
+            Regex prodictionsRegex = new(@"(\s*<[A-Za-z][A-Za-z_]*'?>\s*=\s*)((\(?(\s*'(([A-Za-z][A-Za-z_]*)|([.:,;()<>*""+/-=])|:=|<>|<=|>=)'\s*|\s*<[A-Za-z][A-Za-z_]*>\s*|\s*[A-Za-z]+\s*|\s*ε\s*)\)?\|?)+)");
             Match match;
             foreach (string production in prodictionsList)
             {
@@ -497,7 +518,7 @@ namespace ProyectoConsola.Managers
             int rightSidendex;
             string identifier, rightSide;
             List<string> prodictionsList = sections["PRODUCTIONS"];
-            Regex identifierRegex = new(@"(\s*<[A-Za-z]\w*>\s*=\s*)"),
+            Regex identifierRegex = new(@"(\s*<[A-Za-z]\w*'?>\s*=\s*)"),
                 nonTerminalRegex = new(@"<[A-Za-z]\w*>"),
                 terminalRegex = new(@"'(([A-Za-z]\w*)|:=|<>|<=|>=)'|'\W'|ε"),
                 tokenRegex = new(@"[A-Za-z]\w*");
@@ -507,20 +528,33 @@ namespace ProyectoConsola.Managers
             match = identifierRegex.Match(identifier);
             if (match.Success)
             {
+                string[] tempProduction = identifier.Trim().Split(' ');
                 rightSidendex = match.Index + match.Length;
                 identifier = identifier.Trim();
                 identifier = identifier.Substring(0, rightSidendex - 2).Trim();
-                _nonTerminals["SimboloInicial"].Add(identifier + " eof");
+                if (tempProduction.Contains("'$'") || tempProduction.Contains("eof"))
+                {
+                    string tempIdentifier = identifier.Trim().Trim('<').Trim('>');
+                    _nonTerminalsWithActions.Add(tempIdentifier, new List<string>());
+                    _startSymbol = tempIdentifier;
+                }
+                else
+                {
+                    _nonTerminalsWithActions.Add("SimboloInicial", new List<string>());
+                    _startSymbol = "SimboloInicial";
+                    _nonTerminalsWithActions["SimboloInicial"].Add(identifier + " '$'");
+
+                }
             }
             foreach (string production in prodictionsList)
             {
                 match = identifierRegex.Match(production);
                 rightSidendex = match.Index + match.Length;
                 identifier = production.Trim();
-                identifier = identifier.Substring(0, rightSidendex -2).Trim().Trim('<').Trim('>');
-                if(!_nonTerminals.Keys.Contains(identifier))
+                identifier = identifier.Substring(0, rightSidendex - 2).Trim().Trim('<').Trim('>');
+                if(!_nonTerminalsWithActions.Keys.Contains(identifier))
                 {
-                    _nonTerminals.Add(identifier, new List<string>());
+                    _nonTerminalsWithActions.Add(identifier, new List<string>());
                 }
                 rightSide = production.Trim();
                 rightSide = production.Substring(rightSidendex).Trim();
@@ -531,7 +565,7 @@ namespace ProyectoConsola.Managers
                         string[] tempProductionsArray = rightSide.Split('|');
                         foreach (string tempProductions in tempProductionsArray)
                         {
-                            _nonTerminals[identifier].Add(tempProductions.Trim());
+                            _nonTerminalsWithActions[identifier].Add(tempProductions.Trim());
                         }
                     }
                     else
@@ -541,7 +575,7 @@ namespace ProyectoConsola.Managers
                             string[] tempProductionsArray = rightSide.Split('|');
                             foreach (string tempProductions in tempProductionsArray)
                             {
-                                _nonTerminals[identifier].Add(tempProductions.Trim());
+                                _nonTerminalsWithActions[identifier].Add(tempProductions.Trim());
                             }
                         }
                         else
@@ -588,20 +622,20 @@ namespace ProyectoConsola.Managers
                             // Agregamos las producciones
                             foreach (string tempProduction in tempProductionsArray)
                             {
-                                _nonTerminals[identifier].Add(tempProduction.Trim() + " " + afterParenthesis);
+                                _nonTerminalsWithActions[identifier].Add(tempProduction.Trim() + " " + afterParenthesis);
                             }
 
                             // Agregamos las demás producciones
                             foreach (string otherProduction in otherProductions)
                             {
-                                _nonTerminals[identifier].Add(otherProduction.Trim());
+                                _nonTerminalsWithActions[identifier].Add(otherProduction.Trim());
                             }
                         }
                     }
                 }
                 else
                 {
-                    _nonTerminals[identifier].Add(rightSide);
+                    _nonTerminalsWithActions[identifier].Add(rightSide);
                 }
 
                 string auxTrim;
@@ -609,9 +643,9 @@ namespace ProyectoConsola.Managers
                 foreach(Match nonTerminal in matchCollection)
                 {
                     auxTrim = nonTerminal.Value.Trim('<').Trim('>');
-                    if (!_nonTerminals.Keys.Contains(auxTrim))
+                    if (!_nonTerminalsWithActions.Keys.Contains(auxTrim))
                     {
-                        _nonTerminals.Add(auxTrim, new List<string>());
+                        _nonTerminalsWithActions.Add(auxTrim, new List<string>());
                     }
                 }
                 matchCollection = terminalRegex.Matches(rightSide);
@@ -628,9 +662,46 @@ namespace ProyectoConsola.Managers
                 {
                     auxTrim = matchToken.Value.Trim('<').Trim('>');
                     if(!_terminals.Contains(auxTrim) && !_tokens_simple.Contains(auxTrim) && 
-                        !_nonTerminals.Keys.Contains(auxTrim))
+                        !_nonTerminalsWithActions.Keys.Contains(auxTrim))
                     {
                         _tokens_simple.Add(auxTrim);
+                    }
+                }
+            }
+        }
+
+        private void IdentifyActions()
+        {
+            var actionRegex = new Regex(@"\{[^}]+\}");
+            foreach (var productionKey in _nonTerminalsWithActions.Keys)
+            {
+                foreach (var production in _nonTerminalsWithActions[productionKey])
+                {
+                    var actionMatch = actionRegex.Match(production);
+                    if (actionMatch.Success)
+                    {
+                        
+                        var actions = actionMatch.Value.Trim('}').Trim('{').Split(','); // split actions by comma
+                        string realProduction = production.Substring(0, actionMatch.Index),
+                            actionIdentifier = productionKey + " = " + realProduction;
+                        if (!_nonTerminalActions.ContainsKey(productionKey))
+                        {
+                            _nonTerminalActions.Add(actionIdentifier, new List<string>());                            
+                        }
+                        if (!_nonTerminals.ContainsKey(productionKey))
+                        {
+                            _nonTerminals.Add(productionKey, new List<string>());
+                        }
+                        foreach (var action in actions)
+                        {
+                            _nonTerminalActions[actionIdentifier].Add(action.Trim()); // trim each action
+                        }
+                        _nonTerminals[productionKey].Add(realProduction.Trim());
+                    }
+                    else
+                    {
+                        if(!_nonTerminals.ContainsKey(productionKey)) _nonTerminals.Add(productionKey, new List<string>());
+                        _nonTerminals[productionKey].Add(production.Trim());
                     }
                 }
             }

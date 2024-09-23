@@ -17,7 +17,7 @@ public class FileManager
     {
         // Inicializa una lista vacía para almacenar las secciones procesadas.
         List<List<string>> seccionesProcesadas = new List<List<string>>();
-
+        bool isEmpty = false;
         try
         {
             // Abre el archivo de texto en modo lectura.
@@ -26,7 +26,7 @@ public class FileManager
                 // Inicializa una lista vacía para almacenar la sección actual.
                 List<string> seccionActual = new List<string>();
                 // Patrón regular para identificar las secciones del archivo.
-                string patron = @"^\s*(UNITS|SETS|TOKENS|KEYWORDS|PRODUCTIONS)\s*";
+                string patron = @"^\s*(COMPILER|UNITS|SETS|TOKENS|KEYWORDS|PRODUCTIONS)\s*";
 
                 // Lee el archivo línea por línea.
                 string lineaActual;
@@ -35,25 +35,32 @@ public class FileManager
                     // Verifica si la línea actual es una sección.
                     if (Regex.IsMatch(lineaActual, patron))
                     {
+                        
                         // Si la sección actual no está vacía, la agrega a la lista de secciones procesadas.
-                        if (seccionActual.Count > 0)
+                        if (seccionActual.Count > 1 || isEmpty)
                         {
-                            seccionesProcesadas.Add(seccionActual);
+                            if(!isEmpty) seccionesProcesadas.Add(seccionActual);
                             // Reinicia la sección actual.
                             seccionActual = new List<string>();
-                            // Agrega la línea actual a la sección actual.
-                            seccionActual.Add(lineaActual.Trim());
+                            
                         }
+                        else
+                        {
+                            isEmpty = true;
+                        }
+                        // Agrega EL TITULO a la sección actual.
+                        seccionActual.Add(lineaActual.Trim());
                     }
                     else
                     {
+                        isEmpty = false;
                         // Agrega la línea actual a la sección actual.
                         seccionActual.Add(lineaActual.Trim());
                     }
                 }
 
                 // Agrega la última sección si no es vacía.
-                if (seccionActual.Count > 0)
+                if (seccionActual.Count > 1)
                 {
                     seccionesProcesadas.Add(seccionActual);
                 }

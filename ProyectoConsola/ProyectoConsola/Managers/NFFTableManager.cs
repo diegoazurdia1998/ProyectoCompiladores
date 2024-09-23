@@ -111,7 +111,10 @@ public class NFFTableManager
             }
             else
             {
-                firstSymbol = production[0].Trim().Trim('\'').Trim('(').Trim('<').Trim('>');
+                if(!firstSymbol.Contains("("))
+                    firstSymbol = production[0].Trim().Trim('\'').Trim('(').Trim('<').Trim('>');
+                else
+                    firstSymbol = production[0].Trim().Trim('\'').Trim('<').Trim('>');
             }
             if (IsTerminal(firstSymbol) && !firstSymbol.Equals("ε") && !firstSymbol.Equals(""))
             {
@@ -119,7 +122,7 @@ public class NFFTableManager
             }
             else if (IsNonTerminal(firstSymbol))
             {
-                if (_first[nonTerminal].Count < 1)
+                if (_first[nonTerminal].Count < 1 && !nonTerminal.Equals(firstSymbol))
                 {
                     _first[firstSymbol] = GenerateFirstForNonTerminal(firstSymbol);
                 }
@@ -290,9 +293,36 @@ public class NFFTableManager
             }
 
         }
+        if(_sectionsManager._startSymbol.Equals(nonTerminal))
+        {
+            if (ContainsSymbol(nonTerminal, "eof"))
+                followOfNonTerminal.Add("eof");
+            else if (ContainsSymbol(nonTerminal, "$"))
+                followOfNonTerminal.Add("$");
+            else if (ContainsSymbol(nonTerminal, "'$'"))
+                followOfNonTerminal.Add("$");
+        }
+        if(productionWhereNonTerminalAppears.Count == 0)
+        {
+            followOfNonTerminal.Add("$");
+        }
         return followOfNonTerminal;
     }
-
+    private bool ContainsSymbol(string nonTerminal, string symbol)
+    {
+        bool contains = false;
+        List<string> productions = _sectionsManager._nonTerminals[nonTerminal];
+        foreach (string production in productions)
+        {
+            string[] aux = production.Split(' ');
+            if(aux.Contains(symbol))
+            {
+                contains = true; 
+                break; 
+            }
+        }
+        return contains;
+    }
     private HashSet<string> GenerateFollowForNullableNonTerminal(string nonTermial, int nextNonTerminalIndex, string identifier, string[] production)
     {
         HashSet<string> followOfNullableNonTerminal = new HashSet<string>();

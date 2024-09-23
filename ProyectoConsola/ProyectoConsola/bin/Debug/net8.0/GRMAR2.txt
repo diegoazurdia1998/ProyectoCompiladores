@@ -1,0 +1,8 @@
+PRODUCTIONS
+<S'>	= <E> '$'
+<E> 	= <E> '+' <T>		{sum_e_and_t_save_value}
+<E>	= <T>			{save_value_t_on_e}
+<T>  	= <T> '*' <F>		{mult_f_and_t_save_value}
+<T>	= <F>			{save_value_f_on_t}
+<F>	= '(' <E> ')'			{save_value_e_on_f}
+<F>	= 'num'			{save_value_num_on_f}
