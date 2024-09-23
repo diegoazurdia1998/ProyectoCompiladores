@@ -8,6 +8,7 @@ namespace ProyectoConsola.Estructuras
 {
     public class LALRTransition
     {
+        //SHIFT / GOTO
         public int FromStateId { get; set; }
         public int ToStateId { get; set; }
         public string Symbol { get; set; }

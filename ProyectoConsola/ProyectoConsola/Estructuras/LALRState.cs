@@ -15,6 +15,7 @@ namespace ProyectoConsola.Estructuras
 
         public LALRState(int index, string identifier, string productions, List<string> lookahead)
         {
+            _identifier = identifier;
             _actualIndex = index;
             _productions = productions;
             this._lookahead = lookahead;

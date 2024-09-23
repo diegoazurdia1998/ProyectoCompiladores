@@ -10,6 +10,7 @@ namespace ProyectoConsola.Estructuras
     {
         public int StateId { get; set; }
         public string Symbol { get; set; }
+        public int ProductionId { get; set; }
 
 
     }
