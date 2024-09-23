@@ -116,7 +116,7 @@ public class NFFTableManager
                 else
                     firstSymbol = production[0].Trim().Trim('\'').Trim('<').Trim('>');
             }
-            if (IsTerminal(firstSymbol) && !firstSymbol.Equals("ε") && !firstSymbol.Equals(""))
+            if (IsTerminal(firstSymbol) && !firstSymbol.Equals(""))
             {
                 firstofNonTeminal.Add(firstSymbol);
             }
@@ -174,7 +174,7 @@ public class NFFTableManager
     /// </summary>
     /// <param name="symbol">Símbolo a verificar.</param>
     /// <returns>True si el símbolo es terminal, false en caso contrario.</returns>
-    private bool IsTerminal(string symbol)
+    public bool IsTerminal(string symbol)
     {
         bool isTerminal = true;
         if (!_sectionsManager._terminals.Contains(symbol))
@@ -374,7 +374,7 @@ public class NFFTableManager
     /// </summary>
     /// <param name="symbol">Símbolo a verificar.</param>
     /// <returns>True si el símbolo es no terminal, false en caso contrario.</returns>
-    private bool IsNonTerminal(string symbol)
+    public bool IsNonTerminal(string symbol)
     {
         return _sectionsManager._nonTerminals.ContainsKey(symbol);
     }

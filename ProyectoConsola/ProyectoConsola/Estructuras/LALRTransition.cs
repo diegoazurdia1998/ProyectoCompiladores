@@ -12,5 +12,14 @@ namespace ProyectoConsola.Estructuras
         public int FromStateId { get; set; }
         public int ToStateId { get; set; }
         public string Symbol { get; set; }
+        
+        
+        
+        public LALRTransition(int currentState, int nextState, string consumedSymbol) 
+        {
+            FromStateId = currentState;
+            ToStateId = nextState;
+            Symbol = consumedSymbol;
+        }
     }
 }
