@@ -6,7 +6,7 @@
 public class FileManager
 {
     // Atributo que almacena las secciones procesadas del archivo.
-    private Dictionary<string, List<string>> SECCIONES;
+    private Dictionary<string, List<string>> SECCIONES = new Dictionary<string, List<string>>();
 
     /// <summary>
     /// Procesa un archivo de texto y devuelve una lista de listas con las secciones del archivo procesadas.
@@ -32,17 +32,22 @@ public class FileManager
                 string lineaActual;
                 while ((lineaActual = reader.ReadLine()) != null)
                 {
+                    // Verificar si la línea actual es nula
+                    if (lineaActual == null)
+                    {
+                        continue;
+                    }
                     // Verifica si la línea actual es una sección.
                     if (Regex.IsMatch(lineaActual, patron))
                     {
-                        
+
                         // Si la sección actual no está vacía, la agrega a la lista de secciones procesadas.
                         if (seccionActual.Count > 1 || isEmpty)
                         {
-                            if(!isEmpty) seccionesProcesadas.Add(seccionActual);
+                            if (!isEmpty) seccionesProcesadas.Add(seccionActual);
                             // Reinicia la sección actual.
                             seccionActual = new List<string>();
-                            
+
                         }
                         else
                         {
@@ -66,7 +71,7 @@ public class FileManager
                 }
             }
         }
-        catch (FileNotFoundException e)
+        catch (FileNotFoundException)
         {
             // Maneja la excepción si el archivo no existe o no se puede leer.
             Console.Error.WriteLine("El archivo no existe o no se puede leer: " + rutaArchivo);

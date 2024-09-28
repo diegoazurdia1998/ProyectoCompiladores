@@ -45,9 +45,9 @@ PRODUCTIONS
 	<expression_ext> = <relational_operator> <simple_expression> |  ε
 	<simple_expression> = <term> <additive_operator> <term> | ε
 	<term> = <factor> <multiplicative_operator> <factor> | ε
-	<factor> = '(' <expression> ')' | identifier | number | <boolean_constant> | <string_constant>
-	<relational_operator> = '=' | '<>' | '<' | '<=' | '>' | '>='
-	<additive_operator> = '+' | '-' | 'OR'
-	<multiplicative_operator> = '*' | '/' | 'AND'
-	<boolean_constant> = 'TRUE' | 'FALSE'
-	<string_constant> = '"' str'"'
+	<factor> = '(' <expression> ')' | identifier {check_keywords, save_string_value} | number {save_number_value} | <boolean_constant>  | <string_constant>
+	<relational_operator> = '=' | '<>' | '<' | '<=' | '>' | '>=' {save_operator_value}
+	<additive_operator> = '+' | '-' | 'OR' {save_string_value}
+	<multiplicative_operator> = '*' | '/' | 'AND' {save_string_value}
+	<boolean_constant> = 'TRUE' | 'FALSE' {save_string_value}
+	<string_constant> = '"' str'"' {save_string_value}

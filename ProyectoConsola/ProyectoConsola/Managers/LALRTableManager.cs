@@ -28,7 +28,7 @@ namespace ProyectoConsola.Managers
 
         }
 
-        
+
 
         public void GenerateLALRTable()
         {
@@ -36,10 +36,8 @@ namespace ProyectoConsola.Managers
             _states = GenerateStates();
 
             // Paso 2: Generar la tabla de transiciones
-            _transitions = GenerateTransitions(_states);
-
-            // Paso 3: Generar la tabla de reducciones
-            _reductions = GenerateReductions(_states, _transitions);
+            _transitions = GenerateTransitions(_states.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.First()));
+            _reductions = GenerateReductions(_states.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.First()), _transitions);
         }
 
         private string TrimSymbol(string symbol)
@@ -75,42 +73,48 @@ namespace ProyectoConsola.Managers
             while (stateProductionsQueue.Count > 0) //Mientras haya estados por procesar
             {
                 LALRStateProduction currentProduction = stateProductionsQueue.ElementAt(0); //Se saca el estado el inicio de la pila
-                
-                int currentIndex = currentProduction._actualIndex; 
-                string[] stateProduction = currentProduction._production.Split(' '); 
+
+                int currentIndex = currentProduction._actualIndex;
+                string[] stateProduction = currentProduction._production.Split(' ');
                 if (currentIndex < stateProduction.Length) //Si no se ha procesado completamente la produccion
                 {
                     string currentSymbol = stateProduction[currentIndex]; //Se determina el simbolo actual
                     currentSymbol = TrimSymbol(currentSymbol);
                     //Añadir producciones al estado
-                    if(_nFFTable.IsNonTerminal(currentSymbol))
+                    if (_nFFTable.IsNonTerminal(currentSymbol))
                     {
                         List<LALRStateProduction> tempStateProductions = GenerateStateProductionsForNonTerminal(currentSymbol, currentProduction);
-                        states[stateIndex].Union(tempStateProductions);
+                        states[stateIndex].AddRange(tempStateProductions);
                         stateProductionsQueue.AddRange(tempStateProductions);
                     }
+                    else
+                    {
+                        // Generar un estado con el símbolo actual como lookahead
+                        LALRStateProduction terminalStateProduction = new LALRStateProduction(currentIndex, currentSymbol, currentProduction._production, new List<string> { currentSymbol });
+                        states[stateIndex].Add(terminalStateProduction);
+                        stateProductionsQueue.Add(terminalStateProduction);
+                    }
                     //Nuevo estado (procesar produccion/es del estado anterior)
-                    List<LALRStateProduction> initialStateProductions = GenerateNewStateProductions(stateIndex, stateIndex + 1,currentProduction, states[stateIndex]);
-                    states.Add(stateIndex++, initialStateProductions);
-                    foreach(var sp in initialStateProductions)
+                    List<LALRStateProduction> initialStateProductions = GenerateNewStateProductions(stateIndex, stateIndex + 1, currentProduction, states[stateIndex]);
+                    stateIndex++;
+                    states.Add(stateIndex, initialStateProductions);
+                    foreach (var sp in initialStateProductions)
                     {
                         stateProductionsQueue.RemoveAt(0);
                         stateProductionsQueue.Add(sp);
                     }
-                    
                 }
             }
-
             return states;
         }
 
-        private List<LALRStateProduction> GenerateNewStateProductions(int lastState,int nextState,LALRStateProduction firstStateProduction,List<LALRStateProduction> lastStateProductions)
+        private List<LALRStateProduction> GenerateNewStateProductions(int lastState, int nextState, LALRStateProduction firstStateProduction, List<LALRStateProduction> lastStateProductions)
         {
             List<LALRStateProduction> productionsForNewState = new List<LALRStateProduction>();
             int firstStateProductionIndex = firstStateProduction._actualIndex;
             string firstStateProductionSymbol = firstStateProduction._production.Split(' ')[firstStateProductionIndex];
             firstStateProductionSymbol = TrimSymbol(firstStateProductionSymbol);
-            
+
             //Se añaden las producciones del anterior estado que consumen el mismo simbolo
             foreach (var stateProduction in lastStateProductions)
             {
@@ -129,7 +133,7 @@ namespace ProyectoConsola.Managers
             foreach (var stateProduction in auxStates)
             {
                 int currentIndex = stateProduction._actualIndex;
-                if (currentIndex < stateProduction._production.Length)
+                if (currentIndex < stateProduction._production.Split(' ').Length)
                 {
                     string[] currentProduction = stateProduction._production.Split(' ');
                     string currentSymbol = currentProduction[currentIndex];
@@ -143,18 +147,18 @@ namespace ProyectoConsola.Managers
 
                 }
             }
-            
+
             return productionsForNewState;
         }
         private List<LALRStateProduction> GenerateStateProductionsForNonTerminal(string nonTerminal, LALRStateProduction contextState)
         {
             List<LALRStateProduction> statesOfNonTerminal = new List<LALRStateProduction>();
 
-            foreach(var ntKey in _sectionsManager._nonTerminals.Keys)
+            foreach (var ntKey in _sectionsManager._nonTerminals.Keys)
             {
-                if(ntKey.Equals(nonTerminal))
-                { 
-                    foreach(var production in _sectionsManager._nonTerminals[ntKey])
+                if (ntKey.Equals(nonTerminal))
+                {
+                    foreach (var production in _sectionsManager._nonTerminals[ntKey])
                     {
                         string firstSymbolOfNewProduction = TrimSymbol(production.Split(' ')[0]);
                         LALRStateProduction newStateProduction;
@@ -162,14 +166,14 @@ namespace ProyectoConsola.Managers
                         //Calcular lookahead
                         if (_nFFTable.IsNonTerminal(firstSymbolOfNewProduction) && firstSymbolOfNewProduction.Equals(nonTerminal))
                         {//Si el primer simbolo de la nueva produccion es no terminal y es igual al simbolo analizado
-                            if(production.Split(' ').Length > 1)
+                            if (production.Split(' ').Length > 1)
                             {
-                                newStateProduction = new LALRStateProduction(0, ntKey, production, ExpandLookaheadForNonTerminalSymbol(firstSymbolOfNewProduction, contextState));
+                                newStateProduction = new LALRStateProduction(0, ntKey, production, ExpandLookaheadForNonTerminalSymbol(production, contextState));
                                 statesOfNonTerminal.Add(newStateProduction);
                             }
-                            if(contextState._production.Split(" ").Length > contextState._actualIndex)
+                            if (contextState._production.Split(" ").Length - 1 > contextState._actualIndex)
                             {
-                                if(_nFFTable.IsTerminal(contextState._production.Split(" ")[contextState._actualIndex + 1]))
+                                if (_nFFTable.IsTerminal(contextState._production.Split(" ")[contextState._actualIndex + 1]))
                                 {
                                     newStateProduction = new LALRStateProduction(0, ntKey, production, ReduceLookaheadForNonTerminalSymbol(contextState));
                                     statesOfNonTerminal.Add(newStateProduction);
@@ -182,8 +186,8 @@ namespace ProyectoConsola.Managers
                             newStateProduction = new LALRStateProduction(0, ntKey, production, contextState._lookahead);
                             statesOfNonTerminal.Add(newStateProduction);
                         }
-                        
-                        
+
+
                     }
                 }
             }
@@ -191,7 +195,7 @@ namespace ProyectoConsola.Managers
             return statesOfNonTerminal;
         }
 
-        private List<string> ExpandLookaheadForNonTerminalSymbol(string production ,LALRStateProduction contextState)
+        private List<string> ExpandLookaheadForNonTerminalSymbol(string production, LALRStateProduction contextState)
         {
             // Lógica para generar el lookahead basado en el contexto
             List<string> newLookahead = contextState._lookahead;
@@ -200,7 +204,7 @@ namespace ProyectoConsola.Managers
             {
                 newLookahead.Add(nextSymbol);
             }
-            else 
+            else
             {
                 //Que pasa si  un no terminal esta delante del simbolo analizado?
             }
@@ -212,7 +216,7 @@ namespace ProyectoConsola.Managers
         private List<string> ReduceLookaheadForNonTerminalSymbol(LALRStateProduction contextState)
         {
             List<string> newLookahead = contextState._lookahead;
-            
+
             return newLookahead;
         }
 
@@ -227,30 +231,57 @@ namespace ProyectoConsola.Managers
                     int toStateId = GetNextStateId(state, symbol);
                     if (toStateId != -1)
                     {
-                        LALRTransition transition = new LALRTransition
-                        {
-                            FromStateId = state._actualIndex,
-                            ToStateId = toStateId,
-                            Symbol = symbol
-                        };
-                        transitions.Add(transition);
+                        // Generar una transición con el símbolo actual como lookahead
+                        LALRTransition terminalTransition = new LALRTransition(state._actualIndex, toStateId, symbol);
+                        transitions.Add(terminalTransition);
+                    }
+                }
+
+                foreach (var nonTerminal in _sectionsManager._nonTerminals.Keys)
+                {
+                    int toStateId = GetNextStateId(state, nonTerminal);
+                    if (toStateId != -1)
+                    {
+                        List<LALRTransition> tempTransitions = GenerateTransitionsForNonTerminal(nonTerminal, state._actualIndex, state);
+                        transitions.AddRange(tempTransitions);
                     }
                 }
             }
+
+            return transitions;
+        }
+
+        private List<LALRTransition> GenerateTransitionsForNonTerminal(string nonTerminal, int fromStateId, LALRStateProduction production)
+        {
+            List<LALRTransition> transitions = new List<LALRTransition>();
+
+            foreach (var rule in _sectionsManager._nonTerminals[nonTerminal])
+            {
+                LALRStateProduction newStateProduction = new LALRStateProduction(0, nonTerminal, rule, new List<string> { production._lookahead.First() });
+                int toStateId = _states.Count;
+                _states.Add(toStateId, new List<LALRStateProduction> { newStateProduction });
+
+                LALRTransition transition = new LALRTransition(fromStateId, toStateId, nonTerminal);
+                transitions.Add(transition);
+            }
+
             return transitions;
         }
 
         private int GetNextStateId(LALRStateProduction currentState, string symbol)
         {
             // Lógica para determinar el siguiente estado basado en el símbolo actual
-            foreach (var state in _states.Values)
+            foreach (var stateList in _states.Values)
             {
-                if (state._identifier == currentState._identifier &&
-                    state._productions == currentState._production &&
-                    state._actualIndex == currentState._actualIndex + 1 &&
-                    state._lookahead.SequenceEqual(currentState._lookahead))
+                foreach (var state in stateList)
                 {
-                    return state._actualIndex;
+                    if (state._identifier == currentState._identifier &&
+                        state._production == currentState._production &&
+                        state._actualIndex == currentState._actualIndex + 1 &&
+                        state._lookahead.SequenceEqual(currentState._lookahead))
+                    {
+                        return state._actualIndex;
+                    }
                 }
             }
             return -1;
@@ -276,6 +307,7 @@ namespace ProyectoConsola.Managers
                     }
                 }
             }
+
             return reductions;
         }
     }
