@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 COMPILER yoshi.
+=======
+COMPILER
+yoshi.
+>>>>>>> diego
 UNITS 
 	Uinclude,Ugenera,ValConst,ValExp,RegArray,Proc,ValCond;
 SETS
@@ -39,14 +44,27 @@ PRODUCTIONS
 	<procedure_call> = identifier '(' <argument_list> ')'
 	<argument_list> = <expression> <argument_list_ext> | ε
 	<argument_list_ext> = ',' <expression><argument_list_ext> | ε
+<<<<<<< HEAD
 	<io_statement> = 'PRINTLN' '(' <expression> ')' | 'READLN' '(' <identifier> ')'
+=======
+	<io_statement> = 'PRINTLN' '(' <expression> ')' | 'READLN' '(' identifier ')'
+>>>>>>> diego
 	<expression> = <simple_expression> <expression_ext>
 	<expression_ext> = <relational_operator> <simple_expression> |  ε
 	<simple_expression> = <term> <additive_operator> <term> | ε
 	<term> = <factor> <multiplicative_operator> <factor> | ε
+<<<<<<< HEAD
 	<factor> = '(' <expression> ')' | identifier | number | <boolean_constant> | <string_constant>
 	<relational_operator> = '=' | '<>' | '<' | '<=' | '>' | '>='
 	<additive_operator> = '+' | '-' | 'OR'
 	<multiplicative_operator> = '*' | '/' | 'AND'
 	<boolean_constant> = 'TRUE' | 'FALSE'
 	<string_constant> = '"' str'"'
+=======
+	<factor> = '(' <expression> ')' | identifier {check_keywords, save_string_value} | number {save_number_value} | <boolean_constant>  | <string_constant>
+	<relational_operator> = '=' | '<>' | '<' | '<=' | '>' | '>=' {save_operator_value}
+	<additive_operator> = '+' | '-' | 'OR' {save_string_value}
+	<multiplicative_operator> = '*' | '/' | 'AND' {save_string_value}
+	<boolean_constant> = 'TRUE' | 'FALSE' {save_string_value}
+	<string_constant> = '"' str'"' {save_string_value}
+>>>>>>> diego

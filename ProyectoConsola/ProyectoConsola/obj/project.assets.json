@@ -8,11 +8,16 @@
     "net8.0": []
   },
   "packageFolders": {
+<<<<<<< HEAD
     "C:\\Users\\DATOS\\.nuget\\packages\\": {}
+=======
+    "C:\\Users\\diego\\.nuget\\packages\\": {}
+>>>>>>> diego
   },
   "project": {
     "version": "1.0.0",
     "restore": {
+<<<<<<< HEAD
       "projectUniqueName": "C:\\URL\\Compiladores\\Proyecto\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj",
       "projectName": "ProyectoConsola",
       "projectPath": "C:\\URL\\Compiladores\\Proyecto\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj",
@@ -21,6 +26,16 @@
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\DATOS\\AppData\\Roaming\\NuGet\\NuGet.Config",
+=======
+      "projectUniqueName": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto solo\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj",
+      "projectName": "ProyectoConsola",
+      "projectPath": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto solo\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj",
+      "packagesPath": "C:\\Users\\diego\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto solo\\ProyectoConsola\\ProyectoConsola\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\diego\\AppData\\Roaming\\NuGet\\NuGet.Config",
+>>>>>>> diego
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -67,7 +82,11 @@
             "privateAssets": "all"
           }
         },
+<<<<<<< HEAD
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.300/PortableRuntimeIdentifierGraph.json"
+=======
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+>>>>>>> diego
       }
     }
   }
