@@ -3,9 +3,10 @@ using System.Text.RegularExpressions;
 using ProyectoConsola.Estructuras;
 
 namespace ProyectoConsola.Managers
-{/// <summary>
- /// Clase SectionsManager, responsable de gestionar las secciones de un archivo de configuración.
- /// </summary>
+{
+    /// <summary>
+    /// Clase SectionsManager, responsable de gestionar las secciones de un archivo de configuración.
+    /// </summary>
     public class SectionsManager
     {
         /// <summary>
@@ -139,7 +140,9 @@ namespace ProyectoConsola.Managers
             //Productions
             ProductionsManager();
         }
-
+        /// <summary>
+        /// Método que gestiona la sección UNITS.
+        /// </summary>
         private void UnitsManager()
         {
             if (_sections.Keys.Contains("UNITS"))
@@ -160,7 +163,10 @@ namespace ProyectoConsola.Managers
                 }
             }
         }
-
+        /// <summary>
+        /// Método que verifica la sección de UNITS.
+        /// </summary>
+        /// <returns>True si la sección es válida, false 
         private bool VerifyUnits()
         {
             bool ok = true;
@@ -180,28 +186,34 @@ namespace ProyectoConsola.Managers
 
             return ok;
         }
+        /// <summary>
+        /// Método que identifica los conjuntos en la sección de UNITS.
+        /// </summary>
         private void IdentifyUnits()
         {
             var unitsSection = _sections["UNITS"];
-            foreach (var unit in unitsSection)
+            foreach (var unitsLine in unitsSection)
             {
-                string[] unitsLine = unit.Split(",");
-                foreach (var unitLine in unitsLine)
+                string[] unitsLineArray = unitsLine.Split(",");
+                foreach (var unit in unitsLineArray)
                 {
-                    if (unit.EndsWith(";"))
+                    string auxUnit = unit.Trim();
+                    if (auxUnit.EndsWith(";"))
                     {
-                        unit.Trim(';');
+                        auxUnit = auxUnit.Trim(';');
                     }
-                    if (!_units.Contains(unit))
+                    if (!_units.Contains(auxUnit))
                     {
-                        _units.Add(unit);
+                        _units.Add(auxUnit);
                     }
                 }
             }
         }
 
 
-        //Metodos para seccion: SETS  
+        /// <summary>
+        /// Método que gestiona la sección SETS.
+        /// </summary>  
         private void SetsManager()
         {
             //Verificar SETS
@@ -216,7 +228,7 @@ namespace ProyectoConsola.Managers
         }
 
         /// <summary>
-        /// Método que verifica la sección de conjuntos.
+        /// Método que verifica la sección de SETS.
         /// </summary>
         /// <returns>True si la sección es válida, false 
         private bool VerifySets()
@@ -252,7 +264,7 @@ namespace ProyectoConsola.Managers
             return ok;
         }
         /// <summary>
-        /// Método que identifica los conjuntos en la sección de conjuntos.
+        /// Método que identifica los conjuntos en la sección de SETS.
         /// </summary>
         private void IdentifySets()
         {
@@ -369,7 +381,9 @@ namespace ProyectoConsola.Managers
                 }
             }
         }
-        //Metodos para seccion: TOKENS
+        /// <summary>
+        /// Método que gestiona la sección TOKENS.
+        /// </summary> 
         private void TokensManager()
         {
             if (_sections.Keys.Contains("TOKENS"))
@@ -479,7 +493,9 @@ namespace ProyectoConsola.Managers
                 }
             }
         }
-        //Metodos para seccion:KEYWORDS
+        /// <summary>
+        /// Método que gestiona la sección KEYWORDS.
+        /// </summary> 
         public void KeywordsManager()
         {
             if (_sections.Keys.Contains("KEYWORDS"))
@@ -492,7 +508,6 @@ namespace ProyectoConsola.Managers
             else
                 throw new Exception($"La seccion 'KEYWORDS' no existe en la gramatica, por lo tanto no es válida.");
         }
-        // Métodos para la sección de palabras clave
         /// <summary>
         /// Método que verifica la sección de palabras clave.
         /// </summary>
@@ -544,7 +559,9 @@ namespace ProyectoConsola.Managers
 
             }
         }
-        //Metodos para seccion: PRODUCTIONS
+        /// <summary>
+        /// Método que gestiona la sección PRODUCTIONS.
+        /// </summary> 
         private void ProductionsManager()
         {
             if (_sections.Keys.Contains("PRODUCTIONS"))
@@ -592,7 +609,7 @@ namespace ProyectoConsola.Managers
             Regex identifierRegex = new(@"(\s*<[A-Za-z]\w*'?>\s*=\s*)"),
                 nonTerminalRegex = new(@"<[A-Za-z]\w*>"),
                 terminalRegex = new(@"'(([A-Za-z]\w*)|:=|<>|<=|>=)'|'\W'|ε"),
-                tokenRegex = new(@"[A-Za-z]\w*");
+                tokenRegex = new(@"^([^{'<])[A-Za-z]\w*(,\s*[A-Za-z]\w*)*([^}'>])$");
             Match match;
             MatchCollection matchCollection;
             identifier = prodictionsList[0];
@@ -760,6 +777,10 @@ namespace ProyectoConsola.Managers
                                     }
                                 }
                             }
+                            if (auxTrim.Equals("ε"))
+                            {
+                                validSymbol = true;
+                            }
                         }
                     }
                     else
@@ -777,21 +798,22 @@ namespace ProyectoConsola.Managers
                 matchCollection = tokenRegex.Matches(rightSide);
                 foreach (Match matchToken in matchCollection)
                 {
-                    auxTrim = matchToken.Value.Trim('<').Trim('>');
+                    auxTrim = matchToken.Value.Trim();
                     bool validSymbol = false;
                     //Verificar en los tokens
-                    if (!_nonTerminalsWithActions.Keys.Contains(auxTrim))
+                    if(!_nonTerminalsWithActions.Keys.Contains(auxTrim) && !_terminals.Contains(auxTrim))
                     {
                         foreach (var token in _tokens)
                         {
                             if (token.TokenEquals(auxTrim))
                             {
-                                validSymbol |= true;
+                                validSymbol = true;
                             }
                         }
                         if (!validSymbol)
                         {
                             throw new Exception($"En la produccion {production}, el simbolo {auxTrim} no pertenece a la gramatica, por lo tanto no es valida.");
+
                         }
                     }
                     

@@ -2,9 +2,15 @@
 using ProyectoConsola.Managers;
 using System.Drawing;
 
+/// <summary>
+/// Clase principal del programa.
+/// </summary>
 class Program
 {
-    static void Main(string[] args)
+    /// <summary>
+    /// Punto de entrada principal para la aplicación.
+    /// </summary>
+    static void Main()
     {
         FileManager fileManager = new FileManager();
 
@@ -29,7 +35,7 @@ class Program
                 // Mostrar tabla de Nullable, First y Follow
                 nFFTableManager.PrintTables();
                 // Calcular la tabla de estados y actions
-                LALRTableManager lALRTableManager = new LALRTableManager(nFFTableManager, sm);                
+                //LALRTableManager lALRTableManager = new LALRTableManager(nFFTableManager, sm);
                 // Mostrar tabla de estados y actions
                 //lALRTableManager.PrintStateTable();
 

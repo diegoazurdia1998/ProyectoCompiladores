@@ -28,3 +28,4 @@ C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto solo\ProyectoConso
 C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto solo\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.genruntimeconfig.cache
 C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto solo\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ref\ProyectoConsola.dll
 C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto solo\ProyectoConsola\ProyectoConsola\obj\Debug\net8.0\ProyectoConsola.sourcelink.json
+C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto solo\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\Documentacion.xml
