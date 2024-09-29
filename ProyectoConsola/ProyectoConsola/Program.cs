@@ -2,15 +2,43 @@
 using ProyectoConsola.Managers;
 using System.Drawing;
 
-FileManager fileManager = new FileManager();
+class Program
+{
+    static void Main(string[] args)
+    {
+        FileManager fileManager = new FileManager();
 
-Dictionary<string, List<string>> seccionesProcesadas = fileManager.ProcesarArchivo("GRMAR2.txt"); // \Proyecto\ProyectoConsola\ProyectoConsola\bin\Debug\net8.0\GRMAR.txt
+        while (true)
+        {
+            Console.WriteLine("Ingrese la ruta del archivo (o 'salir' para finalizar):");
+            string filePath = Console.ReadLine();
 
-SectionsManager sm = new SectionsManager(seccionesProcesadas);
-NFFTableManager nFFTableManager = new NFFTableManager(sm);
+            if (filePath.ToLower().Equals("salir"))
+                break;
 
-sm.PrintSections();
-nFFTableManager.PrintTables();
+            try
+            {
+                // Seccionar el archivo ingresado
+                Dictionary<string, List<string>> seccionesProcesadas = fileManager.SeccionarArchivo(filePath);
+                // Verificaar e identificar las secciones
+                SectionsManager sm = new SectionsManager(seccionesProcesadas);
+                // Mostrar secciones
+                sm.PrintSections();
+                // Construir la tabla de Nullable, First y Follow
+                NFFTableManager nFFTableManager = new NFFTableManager(sm);
+                // Mostrar tabla de Nullable, First y Follow
+                nFFTableManager.PrintTables();
+                // Calcular la tabla de estados y actions
+                LALRTableManager lALRTableManager = new LALRTableManager(nFFTableManager, sm);                
+                // Mostrar tabla de estados y actions
+                //lALRTableManager.PrintStateTable();
 
-LALRTableManager lALRTableManager = new LALRTableManager(nFFTableManager, sm);
-//lALRTableManager.PrintStateTable();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+        }
+    }
+}
+

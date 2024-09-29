@@ -95,6 +95,7 @@ namespace ProyectoConsola.Managers
             Console.WriteLine("Nombre del compilador: " + _compilerName + "\n");
             Console.WriteLine("Simbolos de comentario:\n\tInicio: " + _commentStart + "\n\tFin: " + _commentEnd + "\n");
             Console.WriteLine("Simbolos no terminales: \n" + string.Join(", ", _nonTerminals.Keys) + "\n");
+            Console.WriteLine("UNITS: \n" + string.Join(", ", _units) + "\n");
             Console.WriteLine("Simbolos terminales: \n" + string.Join(", ", _terminals) + "\n");
             Console.WriteLine("Palabras reservadas: \n" + string.Join(", ", _keywords));
             Console.WriteLine("\nSets: ");
@@ -128,7 +129,7 @@ namespace ProyectoConsola.Managers
         public void StartManagers()
         {
             //Units
-
+            UnitsManager();
             //Sets
             SetsManager();
             //Tokens
@@ -139,6 +140,67 @@ namespace ProyectoConsola.Managers
             ProductionsManager();
         }
 
+        private void UnitsManager()
+        {
+            if (_sections.Keys.Contains("UNITS"))
+            {
+                if (VerifyUnits())
+                {
+                    IdentifyUnits();
+                }
+                
+            }
+            else
+            {
+                Console.WriteLine("No existe la seccion UNITS, esta seccion no es obligatoria.\n ¿Desea continuar con el analisis?\n1. Si\n2. No\n");
+                string continueWithoutSection = Console.ReadLine();
+                if (continueWithoutSection.ToLower().Equals("no"))
+                {
+                    throw new Exception("La gramatica no contiene la seccion UNITS");
+                }
+            }
+        }
+
+        private bool VerifyUnits()
+        {
+            bool ok = true;
+
+            var unitsSection = _sections["UNITS"];
+            foreach (var unit in unitsSection)
+            {
+                string[] unitsLine = unit.Split(",");
+                foreach (var unitLine in unitsLine)
+                {
+                    if (!Regex.IsMatch(unitLine, @"[A-Za-z]\w*;?"))
+                    {
+                        throw new Exception($"La seccion 'UNITS' de la gramatica no es válida.\n\n {unitLine} no cumple con los requisitos.");
+                    }
+                }
+            }
+
+            return ok;
+        }
+        private void IdentifyUnits()
+        {
+            var unitsSection = _sections["UNITS"];
+            foreach (var unit in unitsSection)
+            {
+                string[] unitsLine = unit.Split(",");
+                foreach (var unitLine in unitsLine)
+                {
+                    if (unit.EndsWith(";"))
+                    {
+                        unit.Trim(';');
+                    }
+                    if (!_units.Contains(unit))
+                    {
+                        _units.Add(unit);
+                    }
+                }
+            }
+        }
+
+
         //Metodos para seccion: SETS  
         private void SetsManager()
         {
@@ -147,7 +209,10 @@ namespace ProyectoConsola.Managers
             {
                 //Identificar SETS
                 if (VerifySets()) IdentifySets();
+                    
             }
+            else
+                throw new Exception($"La seccion 'SETS' no existe en la gramatica, por lo tanto no es válida.");
         }
 
         /// <summary>
@@ -173,9 +238,16 @@ namespace ProyectoConsola.Managers
                     {
                         ok = true;
                     }
-                    else break;
+                    else
+                    {
+                        throw new Exception($"La seccion 'SETS' de la gramatica no es válida.\n\nLa produccion de '{set}' no cumple los requisitos.");
+                    }
+                
                 }
-                else break;
+                else
+                {
+                    throw new Exception($"La seccion 'SETS' de la gramatica no es válida.\n\nEl identificador de '{set}' no cumple los requisitos.");
+                }
             }
             return ok;
         }
@@ -196,7 +268,7 @@ namespace ProyectoConsola.Managers
             {
                 universalMatch = identifierRegex.Match(actualSet);
                 int rightSide = universalMatch.Index + universalMatch.Length;
-                auxIdentifier = actualSet.Substring(universalMatch.Index, universalMatch.Length - 1).Trim();
+                auxIdentifier = actualSet.Substring(universalMatch.Index, universalMatch.Length - 2).Trim();
                 _sets.Add(auxIdentifier, new List<string>());
                 auxRightSide = actualSet.Substring(rightSide).Trim();
                 universalMatchCollection = rightSideRegex.Matches(auxRightSide);
@@ -307,6 +379,8 @@ namespace ProyectoConsola.Managers
                     IdentifyTokens();
                 }
             }
+            else
+                throw new Exception($"La seccion 'TOKENS' no existe en la gramatica, por lo tanto no es válida.");
         }
         // Métodos para la sección de tokens
         /// <summary>
@@ -334,11 +408,10 @@ namespace ProyectoConsola.Managers
                     }
                     else
                     {
-                        ok = false;
-                        break;
+                        string messagge = $"La seccion 'TOKENS' de la gramatica no es válida.\n\nLa produccion de '{token}' no cumple los requisitos.";
+                        throw new Exception(messagge);
                     }
                 }
-                else break;
             }
             return ok;
         }
@@ -416,6 +489,8 @@ namespace ProyectoConsola.Managers
                     IdentifyKeywords();
                 }
             }
+            else
+                throw new Exception($"La seccion 'KEYWORDS' no existe en la gramatica, por lo tanto no es válida.");
         }
         // Métodos para la sección de palabras clave
         /// <summary>
@@ -431,9 +506,7 @@ namespace ProyectoConsola.Managers
             foreach (string keyword in keywordsList)
             {
                 if (!keywordRegex.IsMatch(keyword))
-                {
-                    ok = false;
-                }
+                    throw new Exception($"La seccion 'KEYWORDS' de la gramatica no es válida.\n\nLa palabra reservada '{keyword}' no cumple los requisitos.");
             }
             return ok;
         }
@@ -482,6 +555,8 @@ namespace ProyectoConsola.Managers
                     IdentifyActions();
                 }
             }
+            else
+                throw new Exception($"La seccion 'PRODUCTIONS' no existe en la gramatica, por lo tanto no es válida.");
         }
         // Métodos para la sección de producciones
         /// <summary>
@@ -499,8 +574,8 @@ namespace ProyectoConsola.Managers
                 match = prodictionsRegex.Match(production);
                 if (!match.Success)
                 {
-                    ok = false;
-                    break;
+                    int matchIndex = match.Index;
+                    throw new Exception($"La seccion 'PRODUCTIONS' de la gramatica no es válida.\n\nLa produccion '{production}' no cumple los requisitos pasada la poosicion {matchIndex}.");
                 }
             }
 
@@ -663,7 +738,36 @@ namespace ProyectoConsola.Managers
                 {
                     auxTrim = matchTerminal.Value.Trim('\'');
                     //Que el simbolo exista dentro de la gramatica
-
+                    bool validSymbol = false;
+                    if (!_keywords.Contains(auxTrim))
+                    {
+                        foreach(var token in _tokens)
+                        {
+                            if (token.TokenEquals(auxTrim))
+                            {
+                                validSymbol = true;
+                            }
+                        }
+                        if(!validSymbol)
+                        {
+                            foreach(var set in _sets)
+                            {
+                                foreach(var regularExpression in set.Value)
+                                {
+                                    if(Regex.IsMatch(auxTrim, regularExpression))
+                                    {
+                                        validSymbol = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                        validSymbol = true;
+                    if (!validSymbol)
+                    {
+                        throw new Exception($"En la produccion {production}, el simbolo {auxTrim} no pertenece a la gramatica, por lo tanto no es valida.");
+                    }
                     //Si es valido añadirlo a los terminales
                     if (!_terminals.Contains(auxTrim)){
                         _terminals.Add(auxTrim);
@@ -674,7 +778,23 @@ namespace ProyectoConsola.Managers
                 foreach (Match matchToken in matchCollection)
                 {
                     auxTrim = matchToken.Value.Trim('<').Trim('>');
+                    bool validSymbol = false;
                     //Verificar en los tokens
+                    if (!_nonTerminalsWithActions.Keys.Contains(auxTrim))
+                    {
+                        foreach (var token in _tokens)
+                        {
+                            if (token.TokenEquals(auxTrim))
+                            {
+                                validSymbol |= true;
+                            }
+                        }
+                        if (!validSymbol)
+                        {
+                            throw new Exception($"En la produccion {production}, el simbolo {auxTrim} no pertenece a la gramatica, por lo tanto no es valida.");
+                        }
+                    }
+                    
                 }
             }
         }

@@ -46,10 +46,17 @@ namespace ProyectoConsola.Estructuras
         /// </summary>
         /// <param name="other">Identificador a comparar.</param>
         /// <returns>True si el token es igual al identificador proporcionado, false en caso contrario.</returns>
-        public bool CompareTo(string other)
+        public bool TokenEquals(string other)
         {
-            if(this.identifier.Equals(other)) return true;
-            else return false;
+            if (this.identifier.Equals(other))
+            { 
+                return true; 
+            }
+            if (this.production.Equals(other))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
