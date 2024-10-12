@@ -1,24 +1,3 @@
-COMPILER
-yoshi.
-UNITS 
-	Uinclude,Ugenera,ValConst,ValExp,RegArray,Proc,ValCond;
-SETS
-	letter = 'A'..'Z'+'a'..'z'+'_';
-	digit = '0'..'9';
-	charset = chr(32)..chr(254);
-TOKENS
-	number = digit digit*;
-	identifier = letter(letter|digit)* check;
-	str = charset charset *;
-	'=','<>','<','>','>=','<=' Left;
-	'+','-','OR',';' Left;
-	'*','AND','MOD','DIV' Left;
-	'NOT' Right;
-KEYWORDS
-	'PROGRAM','INCLUDE','CONST','TYPE','VAR','RECORD','ARRAY','OF','PROCEDURE',
-	'FUNCTION','IF','THEN','ELSE','FOR','TO','WHILE','DO','EXIT','END','PRINTLN','READLN',
-	'CASE','BREAK','DOWNTO', 'INTEGER', 'REAL', 'BOOLEAN', 'STRING', 'BEGIN';
-	Comments '(*' TO '*)' comentario;
 PRODUCTIONS
 	<program> = 'PROGRAM' identifier ';' <block> '.'
 	<block> = <declarations> <compound_statement>

@@ -3,8 +3,17 @@
   "WorkspaceRootPath": "C:\\URL\\Compiladores\\Proyecto\\ProyectoCompiladores\\ProyectoConsola\\",
   "Documents": [
     {
+<<<<<<< Updated upstream
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\url\\compiladores\\proyecto\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\managers\\keywordsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\keywordsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+=======
+      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyecto\\proyectoconsola\\proyectoconsola\\managers\\productionsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\productionsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyecto\\proyectoconsola\\proyectoconsola\\managers\\filemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\filemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+>>>>>>> Stashed changes
     },
     {
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\url\\compiladores\\proyecto\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -18,21 +27,55 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
+<<<<<<< Updated upstream
           "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+=======
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProductionsManager.cs",
+              "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto\\ProyectoConsola\\ProyectoConsola\\Managers\\ProductionsManager.cs",
+              "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\ProductionsManager.cs",
+              "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto\\ProyectoConsola\\ProyectoConsola\\Managers\\ProductionsManager.cs",
+              "RelativeToolTip": "ProyectoConsola\\Managers\\ProductionsManager.cs",
+              "ViewState": "AQIAADkAAAAAAAAAAAAowCsAAAANAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-20T02:05:43.75Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "FileManager.cs",
+              "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto\\ProyectoConsola\\ProyectoConsola\\Managers\\FileManager.cs",
+              "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\FileManager.cs",
+              "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\Proyecto\\ProyectoConsola\\ProyectoConsola\\Managers\\FileManager.cs",
+              "RelativeToolTip": "ProyectoConsola\\Managers\\FileManager.cs",
+              "ViewState": "AQIAACUAAAAAAAAAAAAgwAsAAAAzAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-12T05:49:49.966Z",
+              "EditorCaption": ""
+>>>>>>> Stashed changes
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\URL\\Compiladores\\Proyecto\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Program.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Program.cs",
               "ToolTip": "C:\\URL\\Compiladores\\Proyecto\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Program.cs",
               "RelativeToolTip": "ProyectoConsola\\Program.cs",
+<<<<<<< Updated upstream
               "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAABAAAA",
+=======
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABQAAAAgAAAA",
+>>>>>>> Stashed changes
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-23T07:28:43.766Z",
               "EditorCaption": ""
