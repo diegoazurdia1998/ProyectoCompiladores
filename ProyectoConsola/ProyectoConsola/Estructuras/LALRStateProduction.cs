@@ -1,4 +1,6 @@
-﻿namespace ProyectoConsola.Estructuras
+﻿using System;
+
+namespace ProyectoConsola.Estructuras
 {
     /// <summary>
     /// Representa una producción de estado LALR en el análisis sintáctico.
@@ -40,6 +42,33 @@
             this._lookahead = lookahead;
         }
 
+        public LALRStateProduction Clone()
+        {
+            LALRStateProduction clone = (LALRStateProduction)this.MemberwiseClone();
+            clone._identifier = _identifier;
+            clone._actualIndex = _actualIndex;
+            clone._production = _production;
+            clone._lookahead = _lookahead;
+            return clone;
+        }
+
+        /// <summary>
+        ///  Obtiene la cantidad de simbolos de la produccion
+        /// </summary>
+        /// <returns></returns>
+        public int GetProductionLenght()
+        {
+            return _production.Split(' ').Length;
+        }
+        /// <summary>
+        /// Obtiene el simbolo en la posicion del indice actual 
+        /// </summary>
+        /// <returns>Simbolo en la posicion del indice actual</returns>
+        public string GetCurrentSybol()
+        {
+            return _production.Split(' ')[_actualIndex];
+        }
+
         /// <summary>
         /// Añade un lookahead a la lista de lookahead.
         /// </summary>
@@ -56,7 +85,7 @@
         /// <returns>Verdadero si las producciones de estado son iguales; de lo contrario, falso.</returns>
         public bool EqualsStateProduction(LALRStateProduction stateProduction)
         {
-            if (_production.Equals(stateProduction._production) && _actualIndex.Equals(stateProduction._actualIndex))
+            if (_identifier.Equals(stateProduction._identifier) && _production.Equals(stateProduction._production) && _actualIndex.Equals(stateProduction._actualIndex))
             {
                 return true;
             }

@@ -14,7 +14,7 @@
             Obtiene o establece el ID del estado.
             </summary>
         </member>
-        <member name="P:ProyectoConsola.Estructuras.LALRReduction.Symbol">
+        <member name="P:ProyectoConsola.Estructuras.LALRReduction.Symbols">
             <summary>
             Obtiene o establece el símbolo.
             </summary>
@@ -23,6 +23,14 @@
             <summary>
             Obtiene o establece el ID de la producción.
             </summary>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRReduction.#ctor(System.Int32,System.Collections.Generic.List{System.String},System.Int32)">
+            <summary>
+            Crea un objeto Reduccion
+            </summary>
+            <param name="currentStateIndex">Estado del que se parte</param>
+            <param name="consumedSymbol">Simbolo consumido</param>
+            <param name="indexOfProduccion">Indice de la produccion que reduce</param>
         </member>
         <member name="T:ProyectoConsola.Estructuras.LALRStateProduction">
             <summary>
@@ -57,6 +65,18 @@
             <param name="identifier">Identificador de la producción.</param>
             <param name="productions">Producción.</param>
             <param name="lookahead">Lista de lookahead.</param>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRStateProduction.GetProductionLenght">
+            <summary>
+             Obtiene la cantidad de simbolos de la produccion
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRStateProduction.GetCurrentSybol">
+            <summary>
+            Obtiene el simbolo en la posicion del indice actual 
+            </summary>
+            <returns>Simbolo en la posicion del indice actual</returns>
         </member>
         <member name="M:ProyectoConsola.Estructuras.LALRStateProduction.AddLookahead(System.String)">
             <summary>
@@ -149,6 +169,14 @@
             <param name="firstStateProduction">Produccion principal</param>
             <param name="lastStateProductions">Listado de producciones del estado anterior</param>
             <returns>Lista de producciones correspondientes al nuevo estado</returns>
+        </member>
+        <member name="M:ProyectoConsola.Managers.LALRTableManager.EnsureUniquenessOfStates(System.Collections.Generic.List{ProyectoConsola.Estructuras.LALRStateProduction},System.Collections.Generic.Dictionary{System.Int32,System.Collections.Generic.List{ProyectoConsola.Estructuras.LALRStateProduction}})">
+            <summary>
+            Asegura que el estado prospecto no sea igual a uno ya existente
+            </summary>
+            <param name="prospectProductions">Listado de producciones que conforman el estado prospecto</param>
+            <param name="states">Diccionario de estados actuales</param>
+            <returns>True: Si el estado prospecto no es unico False: Si el estado es igual a alguno ya existente</returns>
         </member>
         <member name="M:ProyectoConsola.Managers.LALRTableManager.GenerateStateProductionsForNonTerminal(System.String,ProyectoConsola.Estructuras.LALRStateProduction)">
             <summary>
@@ -308,6 +336,13 @@
             <summary>
             Método que identifica las producciones en la sección de producciones.
             </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.IsNonTerminal(System.String)">
+            <summary>
+            Verifica si un símbolo es no terminal.
+            </summary>
+            <param name="symbol">Símbolo a verificar.</param>
+            <returns>True si el símbolo es no terminal, false en caso contrario.</returns>
         </member>
         <member name="T:FileManager">
             <summary>

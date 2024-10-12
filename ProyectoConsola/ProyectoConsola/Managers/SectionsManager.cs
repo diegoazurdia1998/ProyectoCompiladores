@@ -57,6 +57,7 @@ namespace ProyectoConsola.Managers
         /// Diccionarios para simbolos no terminales sin actions
         /// </summary>
         public Dictionary<string, List<string>> _nonTerminals;
+        public List<Tuple<string, string>> _orderedNonTerminals;
         /// <summary>
         /// Diccionario de actons para cada produccion
         /// </summary>
@@ -83,6 +84,7 @@ namespace ProyectoConsola.Managers
             _terminals = new List<string>();
             _nonTerminalsWithActions = new Dictionary<string, List<string>>();
             _nonTerminals = new Dictionary<string, List<string>>();
+            _orderedNonTerminals = new List<Tuple<string, string>>();
             _nonTerminalActions = new Dictionary<string, Dictionary<string, List<string>>>();
             _startSymbol = "";
             if (_sections.Keys.Contains("COMPILER"))
@@ -639,7 +641,7 @@ namespace ProyectoConsola.Managers
                     string startSymbol = "SimboloInicial";
                     _nonTerminalsWithActions.Add(startSymbol, new List<string>());
                     _startSymbol = startSymbol;
-                    _nonTerminalsWithActions[startSymbol].Add(identifier + " '$'");
+                    _nonTerminalsWithActions[startSymbol].Add(identifier);
 
                 }
             }
@@ -654,6 +656,7 @@ namespace ProyectoConsola.Managers
                 if (!_nonTerminalsWithActions.Keys.Contains(identifier))
                 {
                     _nonTerminalsWithActions.Add(identifier, new List<string>());
+
                 }
 
             }
@@ -676,6 +679,7 @@ namespace ProyectoConsola.Managers
                         foreach (string tempProductions in tempProductionsArray)
                         {// Añadir cada produccion separada por '|'
                             _nonTerminalsWithActions[identifier].Add(tempProductions.Trim());
+                            _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
                         }
                     }
                     else
@@ -686,6 +690,7 @@ namespace ProyectoConsola.Managers
                             foreach (string tempProductions in tempProductionsArray)
                             {
                                 _nonTerminalsWithActions[identifier].Add(tempProductions.Trim());
+                                _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
                             }
                         }
                         else
@@ -733,12 +738,14 @@ namespace ProyectoConsola.Managers
                             foreach (string tempProduction in tempProductionsArray)
                             {
                                 _nonTerminalsWithActions[identifier].Add(tempProduction.Trim() + " " + afterParenthesis);
+                                _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProduction.Trim() + " " + afterParenthesis.Trim()));
                             }
 
                             // Agregamos las demás producciones
                             foreach (string otherProduction in otherProductions)
                             {
                                 _nonTerminalsWithActions[identifier].Add(otherProduction.Trim());
+                                _orderedNonTerminals.Add(new Tuple<string, string>(identifier, otherProduction.Trim()));
                             }
                         }
                     }
@@ -746,6 +753,8 @@ namespace ProyectoConsola.Managers
                 else
                 {// Caso simple solo añadir produccion al identificador
                     _nonTerminalsWithActions[identifier].Add(rightSide);
+                    Tuple<string, string> tuple = new Tuple<string, string>(identifier, rightSide.Trim());
+                    _orderedNonTerminals.Add(tuple);
                 }
 
                 string auxTrim;
@@ -841,11 +850,15 @@ namespace ProyectoConsola.Managers
                     {
 
                         var actions = actionMatch.Value.Trim('}').Trim('{').Split(','); // split actions by comma
-                        string realProduction = production.Substring(0, actionMatch.Index),
-                            actionIdentifier = productionKey + " = " + realProduction;
+                        string realProduction = TrimSymbol(production.Substring(0, actionMatch.Index));
+
                         if (!_nonTerminalActions.ContainsKey(productionKey))
                         {
-                            //_nonTerminalActions.Add(actionIdentifier, new Dictionary<string, List<string>>);
+                            _nonTerminalActions.Add(productionKey, new Dictionary<string, List<string>>());
+                        }
+                        if (!_nonTerminalActions[productionKey].ContainsKey(realProduction))
+                        {
+                            _nonTerminalActions[productionKey].Add(realProduction, new List<string>());
                         }
                         if (!_nonTerminals.ContainsKey(productionKey))
                         {
@@ -853,9 +866,12 @@ namespace ProyectoConsola.Managers
                         }
                         foreach (var action in actions)
                         {
-                            //_nonTerminalActions[actionIdentifier].Add(action.Trim()); // trim each action
+                            _nonTerminalActions[productionKey][realProduction.Trim()].Add(TrimSymbol(action)); // trim each action
                         }
                         _nonTerminals[productionKey].Add(realProduction.Trim());
+
+                        int auxIndex = _orderedNonTerminals.IndexOf(new Tuple<string, string>(productionKey, production));
+                        _orderedNonTerminals[auxIndex] = new Tuple<string,string>(productionKey, realProduction);
                     }
                     else
                     {
@@ -866,6 +882,21 @@ namespace ProyectoConsola.Managers
             }
         }
 
+        private string TrimSymbol(string symbol)
+        {
+            string currentSymbol = symbol;
+            //Logica de preparacion para adecuar el simbolo actual a las operaciones
+            if (currentSymbol.Contains("\'") &&
+                (currentSymbol.Contains("<") || currentSymbol.Contains(">") || currentSymbol.Contains("(")))
+            {
+                currentSymbol = currentSymbol.Trim().Trim('\'');
+            }
+            else
+            {
+                currentSymbol = currentSymbol.Trim().Trim('\'').Trim('(').Trim('<').Trim('>');
+            }
+            return currentSymbol.Trim();
+        }
         public bool IsTerminal(string symbol)
         {
             bool isTerminal = true;

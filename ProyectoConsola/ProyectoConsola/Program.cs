@@ -35,9 +35,11 @@ class Program
                 // Mostrar tabla de Nullable, First y Follow
                 //nFFTableManager.PrintTables();
                 // Calcular la tabla de estados y actions
-                LALRTableManager lALRTableManager = new LALRTableManager( sm);
+                LALRTableManager lALRTableManager = new LALRTableManager(sectionManager);
                 // Mostrar tabla de estados y actions
                 //lALRTableManager.PrintStateTable();
+                Console.WriteLine("Mama");
+                Console.ReadLine();
 
             }
             catch (Exception ex)
