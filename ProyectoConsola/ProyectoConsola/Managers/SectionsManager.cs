@@ -50,17 +50,25 @@ namespace ProyectoConsola.Managers
         public List<Token> _tokens;
 
         /// <summary>
-        /// Diccionario de símbolos no terminales.
+        /// Diccionario de símbolos no terminales con actions.
         /// </summary>
         protected Dictionary<string, List<string>> _nonTerminalsWithActions;
+        /// <summary>
+        /// Diccionarios para simbolos no terminales sin actions
+        /// </summary>
         public Dictionary<string, List<string>> _nonTerminals;
+        /// <summary>
+        /// Diccionario de actons para cada produccion
+        /// </summary>
         public Dictionary<string, Dictionary<string, List<string>>> _nonTerminalActions;
 
         /// <summary>
         /// Lista de símbolos terminales.
         /// </summary>
         public List<string> _terminals;
-
+        /// <summary>
+        /// Unites de la gramatica
+        /// </summary>
         public List<string> _units;
 
         //Constructores
@@ -609,7 +617,7 @@ namespace ProyectoConsola.Managers
             Regex identifierRegex = new(@"(\s*<[A-Za-z]\w*'?>\s*=\s*)"),
                 nonTerminalRegex = new(@"<[A-Za-z]\w*>"),
                 terminalRegex = new(@"'(([A-Za-z]\w*)|:=|<>|<=|>=)'|'\W'|ε"),
-                tokenRegex = new(@"^([^{'<])[A-Za-z]\w*(,\s*[A-Za-z]\w*)*([^}'>])$");
+                tokenRegex = new(@"^([^{'<])(\s*[A-Za-z]\w*\s*)(,\s*[A-Za-z]\w*\s*)*([^}'>])$");
             Match match;
             MatchCollection matchCollection;
             identifier = prodictionsList[0];
@@ -856,6 +864,35 @@ namespace ProyectoConsola.Managers
                     }
                 }
             }
+        }
+
+        public bool IsTerminal(string symbol)
+        {
+            bool isTerminal = true;
+            if (!_terminals.Contains(symbol))
+            {
+                isTerminal = false;
+                foreach (Token token in _tokens)
+                {
+                    if (token.TokenEquals(symbol))
+                    {
+                        isTerminal = true;
+                        break;
+                    }
+                }
+            }
+            // Verificar si el símbolo es terminal
+            return isTerminal;
+        }
+
+        /// <summary>
+        /// Verifica si un símbolo es no terminal.
+        /// </summary>
+        /// <param name="symbol">Símbolo a verificar.</param>
+        /// <returns>True si el símbolo es no terminal, false en caso contrario.</returns>
+        public bool IsNonTerminal(string symbol)
+        {
+            return _nonTerminals.ContainsKey(symbol);
         }
     }
 }

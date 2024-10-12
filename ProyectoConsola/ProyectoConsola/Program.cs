@@ -27,15 +27,15 @@ class Program
                 // Seccionar el archivo ingresado
                 Dictionary<string, List<string>> seccionesProcesadas = fileManager.SeccionarArchivo(filePath);
                 // Verificaar e identificar las secciones
-                SectionsManager sm = new SectionsManager(seccionesProcesadas);
+                SectionsManager sectionManager = new SectionsManager(seccionesProcesadas);
                 // Mostrar secciones
-                sm.PrintSections();
+                sectionManager.PrintSections();
                 // Construir la tabla de Nullable, First y Follow
-                NFFTableManager nFFTableManager = new NFFTableManager(sm);
+                //NFFTableManager nFFTableManager = new NFFTableManager(sm);
                 // Mostrar tabla de Nullable, First y Follow
-                nFFTableManager.PrintTables();
+                //nFFTableManager.PrintTables();
                 // Calcular la tabla de estados y actions
-                //LALRTableManager lALRTableManager = new LALRTableManager(nFFTableManager, sm);
+                LALRTableManager lALRTableManager = new LALRTableManager( sm);
                 // Mostrar tabla de estados y actions
                 //lALRTableManager.PrintStateTable();
 

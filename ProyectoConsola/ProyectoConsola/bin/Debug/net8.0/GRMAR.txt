@@ -49,5 +49,5 @@ PRODUCTIONS
 	<relational_operator> = '=' | '<>' | '<' | '<=' | '>' | '>=' {save_operator_value}
 	<additive_operator> = '+' | '-' | 'OR' {save_string_value}
 	<multiplicative_operator> = '*' | '/' | 'AND' {save_string_value}
-	<boolean_constant> = 'TRUE' | 'FALSE' {save_string_value}
+	<boolean_constant> = 'TRUE' | 'FALSE'
 	<string_constant> = '"' str'"' {save_string_value}

@@ -137,6 +137,27 @@
             <param name="other">Identificador a comparar.</param>
             <returns>True si el token es igual al identificador proporcionado, false en caso contrario.</returns>
         </member>
+        <member name="T:ProyectoConsola.Managers.LALRTableManager">
+            <summary>
+            Clase que contiene las tablas de estados, transiciones y reducciones
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.LALRTableManager.GenerateNewStateProductions(ProyectoConsola.Estructuras.LALRStateProduction,System.Collections.Generic.List{ProyectoConsola.Estructuras.LALRStateProduction})">
+            <summary>
+            Genera un estado nuevo con las producciones que consumen el mismo simbolo
+            </summary>
+            <param name="firstStateProduction">Produccion principal</param>
+            <param name="lastStateProductions">Listado de producciones del estado anterior</param>
+            <returns>Lista de producciones correspondientes al nuevo estado</returns>
+        </member>
+        <member name="M:ProyectoConsola.Managers.LALRTableManager.GenerateStateProductionsForNonTerminal(System.String,ProyectoConsola.Estructuras.LALRStateProduction)">
+            <summary>
+            Determina todas las produccones relacionadas con el estado actual
+            </summary>
+            <param name="nonTerminal">Simbolo no terminal, identificador para las nuevas producciones</param>
+            <param name="contextState">Produccion actualmente analizada </param>
+            <returns>Lista de producciones estado derivadas de la actual</returns>
+        </member>
         <member name="T:ProyectoConsola.Managers.SectionsManager">
             <summary>
             Clase SectionsManager, responsable de gestionar las secciones de un archivo de configuración.
@@ -184,12 +205,27 @@
         </member>
         <member name="F:ProyectoConsola.Managers.SectionsManager._nonTerminalsWithActions">
             <summary>
-            Diccionario de símbolos no terminales.
+            Diccionario de símbolos no terminales con actions.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._nonTerminals">
+            <summary>
+            Diccionarios para simbolos no terminales sin actions
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._nonTerminalActions">
+            <summary>
+            Diccionario de actons para cada produccion
             </summary>
         </member>
         <member name="F:ProyectoConsola.Managers.SectionsManager._terminals">
             <summary>
             Lista de símbolos terminales.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._units">
+            <summary>
+            Unites de la gramatica
             </summary>
         </member>
         <member name="M:ProyectoConsola.Managers.SectionsManager.#ctor(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}})">

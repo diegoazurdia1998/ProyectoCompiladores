@@ -76,5 +76,20 @@
             }
             else return false;
         }
+
+        public bool StateXContainsProductionY(Dictionary<int, List<LALRStateProduction>> states, LALRStateProduction productionParam)
+        {
+            foreach(var state in states)
+            {
+                foreach(var production in state.Value)
+                {
+                    if (productionParam.Equals(production))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }
