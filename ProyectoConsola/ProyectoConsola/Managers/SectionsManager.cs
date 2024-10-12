@@ -3,9 +3,10 @@ using System.Text.RegularExpressions;
 using ProyectoConsola.Estructuras;
 
 namespace ProyectoConsola.Managers
-{/// <summary>
- /// Clase SectionsManager, responsable de gestionar las secciones de un archivo de configuración.
- /// </summary>
+{
+    /// <summary>
+    /// Clase SectionsManager, responsable de gestionar las secciones de un archivo de configuración.
+    /// </summary>
     public class SectionsManager
     {
         /// <summary>
@@ -49,17 +50,26 @@ namespace ProyectoConsola.Managers
         public List<Token> _tokens;
 
         /// <summary>
-        /// Diccionario de símbolos no terminales.
+        /// Diccionario de símbolos no terminales con actions.
         /// </summary>
         protected Dictionary<string, List<string>> _nonTerminalsWithActions;
+        /// <summary>
+        /// Diccionarios para simbolos no terminales sin actions
+        /// </summary>
         public Dictionary<string, List<string>> _nonTerminals;
+        public List<Tuple<string, string>> _orderedNonTerminals;
+        /// <summary>
+        /// Diccionario de actons para cada produccion
+        /// </summary>
         public Dictionary<string, Dictionary<string, List<string>>> _nonTerminalActions;
 
         /// <summary>
         /// Lista de símbolos terminales.
         /// </summary>
         public List<string> _terminals;
-
+        /// <summary>
+        /// Unites de la gramatica
+        /// </summary>
         public List<string> _units;
 
         //Constructores
@@ -74,6 +84,7 @@ namespace ProyectoConsola.Managers
             _terminals = new List<string>();
             _nonTerminalsWithActions = new Dictionary<string, List<string>>();
             _nonTerminals = new Dictionary<string, List<string>>();
+            _orderedNonTerminals = new List<Tuple<string, string>>();
             _nonTerminalActions = new Dictionary<string, Dictionary<string, List<string>>>();
             _startSymbol = "";
             if (_sections.Keys.Contains("COMPILER"))
@@ -95,6 +106,7 @@ namespace ProyectoConsola.Managers
             Console.WriteLine("Nombre del compilador: " + _compilerName + "\n");
             Console.WriteLine("Simbolos de comentario:\n\tInicio: " + _commentStart + "\n\tFin: " + _commentEnd + "\n");
             Console.WriteLine("Simbolos no terminales: \n" + string.Join(", ", _nonTerminals.Keys) + "\n");
+            Console.WriteLine("UNITS: \n" + string.Join(", ", _units) + "\n");
             Console.WriteLine("Simbolos terminales: \n" + string.Join(", ", _terminals) + "\n");
             Console.WriteLine("Palabras reservadas: \n" + string.Join(", ", _keywords));
             Console.WriteLine("\nSets: ");
@@ -128,7 +140,7 @@ namespace ProyectoConsola.Managers
         public void StartManagers()
         {
             //Units
-
+            UnitsManager();
             //Sets
             SetsManager();
             //Tokens
@@ -138,8 +150,80 @@ namespace ProyectoConsola.Managers
             //Productions
             ProductionsManager();
         }
+        /// <summary>
+        /// Método que gestiona la sección UNITS.
+        /// </summary>
+        private void UnitsManager()
+        {
+            if (_sections.Keys.Contains("UNITS"))
+            {
+                if (VerifyUnits())
+                {
+                    IdentifyUnits();
+                }
+                
+            }
+            else
+            {
+                Console.WriteLine("No existe la seccion UNITS, esta seccion no es obligatoria.\n ¿Desea continuar con el analisis?\n1. Si\n2. No\n");
+                string continueWithoutSection = Console.ReadLine();
+                if (continueWithoutSection.ToLower().Equals("no"))
+                {
+                    throw new Exception("La gramatica no contiene la seccion UNITS");
+                }
+            }
+        }
+        /// <summary>
+        /// Método que verifica la sección de UNITS.
+        /// </summary>
+        /// <returns>True si la sección es válida, false 
+        private bool VerifyUnits()
+        {
+            bool ok = true;
 
-        //Metodos para seccion: SETS  
+            var unitsSection = _sections["UNITS"];
+            foreach (var unit in unitsSection)
+            {
+                string[] unitsLine = unit.Split(",");
+                foreach (var unitLine in unitsLine)
+                {
+                    if (!Regex.IsMatch(unitLine, @"[A-Za-z]\w*;?"))
+                    {
+                        throw new Exception($"La seccion 'UNITS' de la gramatica no es válida.\n\n {unitLine} no cumple con los requisitos.");
+                    }
+                }
+            }
+
+            return ok;
+        }
+        /// <summary>
+        /// Método que identifica los conjuntos en la sección de UNITS.
+        /// </summary>
+        private void IdentifyUnits()
+        {
+            var unitsSection = _sections["UNITS"];
+            foreach (var unitsLine in unitsSection)
+            {
+                string[] unitsLineArray = unitsLine.Split(",");
+                foreach (var unit in unitsLineArray)
+                {
+                    string auxUnit = unit.Trim();
+                    if (auxUnit.EndsWith(";"))
+                    {
+                        auxUnit = auxUnit.Trim(';');
+                    }
+                    if (!_units.Contains(auxUnit))
+                    {
+                        _units.Add(auxUnit);
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Método que gestiona la sección SETS.
+        /// </summary>  
         private void SetsManager()
         {
             //Verificar SETS
@@ -147,11 +231,14 @@ namespace ProyectoConsola.Managers
             {
                 //Identificar SETS
                 if (VerifySets()) IdentifySets();
+                    
             }
+            else
+                throw new Exception($"La seccion 'SETS' no existe en la gramatica, por lo tanto no es válida.");
         }
 
         /// <summary>
-        /// Método que verifica la sección de conjuntos.
+        /// Método que verifica la sección de SETS.
         /// </summary>
         /// <returns>True si la sección es válida, false 
         private bool VerifySets()
@@ -173,14 +260,21 @@ namespace ProyectoConsola.Managers
                     {
                         ok = true;
                     }
-                    else break;
+                    else
+                    {
+                        throw new Exception($"La seccion 'SETS' de la gramatica no es válida.\n\nLa produccion de '{set}' no cumple los requisitos.");
+                    }
+                
                 }
-                else break;
+                else
+                {
+                    throw new Exception($"La seccion 'SETS' de la gramatica no es válida.\n\nEl identificador de '{set}' no cumple los requisitos.");
+                }
             }
             return ok;
         }
         /// <summary>
-        /// Método que identifica los conjuntos en la sección de conjuntos.
+        /// Método que identifica los conjuntos en la sección de SETS.
         /// </summary>
         private void IdentifySets()
         {
@@ -196,7 +290,7 @@ namespace ProyectoConsola.Managers
             {
                 universalMatch = identifierRegex.Match(actualSet);
                 int rightSide = universalMatch.Index + universalMatch.Length;
-                auxIdentifier = actualSet.Substring(universalMatch.Index, universalMatch.Length - 1).Trim();
+                auxIdentifier = actualSet.Substring(universalMatch.Index, universalMatch.Length - 2).Trim();
                 _sets.Add(auxIdentifier, new List<string>());
                 auxRightSide = actualSet.Substring(rightSide).Trim();
                 universalMatchCollection = rightSideRegex.Matches(auxRightSide);
@@ -297,7 +391,9 @@ namespace ProyectoConsola.Managers
                 }
             }
         }
-        //Metodos para seccion: TOKENS
+        /// <summary>
+        /// Método que gestiona la sección TOKENS.
+        /// </summary> 
         private void TokensManager()
         {
             if (_sections.Keys.Contains("TOKENS"))
@@ -307,6 +403,8 @@ namespace ProyectoConsola.Managers
                     IdentifyTokens();
                 }
             }
+            else
+                throw new Exception($"La seccion 'TOKENS' no existe en la gramatica, por lo tanto no es válida.");
         }
         // Métodos para la sección de tokens
         /// <summary>
@@ -334,11 +432,10 @@ namespace ProyectoConsola.Managers
                     }
                     else
                     {
-                        ok = false;
-                        break;
+                        string messagge = $"La seccion 'TOKENS' de la gramatica no es válida.\n\nLa produccion de '{token}' no cumple los requisitos.";
+                        throw new Exception(messagge);
                     }
                 }
-                else break;
             }
             return ok;
         }
@@ -406,7 +503,9 @@ namespace ProyectoConsola.Managers
                 }
             }
         }
-        //Metodos para seccion:KEYWORDS
+        /// <summary>
+        /// Método que gestiona la sección KEYWORDS.
+        /// </summary> 
         public void KeywordsManager()
         {
             if (_sections.Keys.Contains("KEYWORDS"))
@@ -416,8 +515,9 @@ namespace ProyectoConsola.Managers
                     IdentifyKeywords();
                 }
             }
+            else
+                throw new Exception($"La seccion 'KEYWORDS' no existe en la gramatica, por lo tanto no es válida.");
         }
-        // Métodos para la sección de palabras clave
         /// <summary>
         /// Método que verifica la sección de palabras clave.
         /// </summary>
@@ -431,9 +531,7 @@ namespace ProyectoConsola.Managers
             foreach (string keyword in keywordsList)
             {
                 if (!keywordRegex.IsMatch(keyword))
-                {
-                    ok = false;
-                }
+                    throw new Exception($"La seccion 'KEYWORDS' de la gramatica no es válida.\n\nLa palabra reservada '{keyword}' no cumple los requisitos.");
             }
             return ok;
         }
@@ -471,7 +569,9 @@ namespace ProyectoConsola.Managers
 
             }
         }
-        //Metodos para seccion: PRODUCTIONS
+        /// <summary>
+        /// Método que gestiona la sección PRODUCTIONS.
+        /// </summary> 
         private void ProductionsManager()
         {
             if (_sections.Keys.Contains("PRODUCTIONS"))
@@ -482,6 +582,8 @@ namespace ProyectoConsola.Managers
                     IdentifyActions();
                 }
             }
+            else
+                throw new Exception($"La seccion 'PRODUCTIONS' no existe en la gramatica, por lo tanto no es válida.");
         }
         // Métodos para la sección de producciones
         /// <summary>
@@ -499,8 +601,8 @@ namespace ProyectoConsola.Managers
                 match = prodictionsRegex.Match(production);
                 if (!match.Success)
                 {
-                    ok = false;
-                    break;
+                    int matchIndex = match.Index;
+                    throw new Exception($"La seccion 'PRODUCTIONS' de la gramatica no es válida.\n\nLa produccion '{production}' no cumple los requisitos pasada la poosicion {matchIndex}.");
                 }
             }
 
@@ -517,7 +619,7 @@ namespace ProyectoConsola.Managers
             Regex identifierRegex = new(@"(\s*<[A-Za-z]\w*'?>\s*=\s*)"),
                 nonTerminalRegex = new(@"<[A-Za-z]\w*>"),
                 terminalRegex = new(@"'(([A-Za-z]\w*)|:=|<>|<=|>=)'|'\W'|ε"),
-                tokenRegex = new(@"[A-Za-z]\w*");
+                tokenRegex = new(@"^([^{'<])(\s*[A-Za-z]\w*\s*)(,\s*[A-Za-z]\w*\s*)*([^}'>])$");
             Match match;
             MatchCollection matchCollection;
             identifier = prodictionsList[0];
@@ -539,7 +641,7 @@ namespace ProyectoConsola.Managers
                     string startSymbol = "SimboloInicial";
                     _nonTerminalsWithActions.Add(startSymbol, new List<string>());
                     _startSymbol = startSymbol;
-                    _nonTerminalsWithActions[startSymbol].Add(identifier + " '$'");
+                    _nonTerminalsWithActions[startSymbol].Add(identifier);
 
                 }
             }
@@ -554,6 +656,7 @@ namespace ProyectoConsola.Managers
                 if (!_nonTerminalsWithActions.Keys.Contains(identifier))
                 {
                     _nonTerminalsWithActions.Add(identifier, new List<string>());
+
                 }
 
             }
@@ -576,6 +679,7 @@ namespace ProyectoConsola.Managers
                         foreach (string tempProductions in tempProductionsArray)
                         {// Añadir cada produccion separada por '|'
                             _nonTerminalsWithActions[identifier].Add(tempProductions.Trim());
+                            _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
                         }
                     }
                     else
@@ -586,6 +690,7 @@ namespace ProyectoConsola.Managers
                             foreach (string tempProductions in tempProductionsArray)
                             {
                                 _nonTerminalsWithActions[identifier].Add(tempProductions.Trim());
+                                _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
                             }
                         }
                         else
@@ -633,12 +738,14 @@ namespace ProyectoConsola.Managers
                             foreach (string tempProduction in tempProductionsArray)
                             {
                                 _nonTerminalsWithActions[identifier].Add(tempProduction.Trim() + " " + afterParenthesis);
+                                _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProduction.Trim() + " " + afterParenthesis.Trim()));
                             }
 
                             // Agregamos las demás producciones
                             foreach (string otherProduction in otherProductions)
                             {
                                 _nonTerminalsWithActions[identifier].Add(otherProduction.Trim());
+                                _orderedNonTerminals.Add(new Tuple<string, string>(identifier, otherProduction.Trim()));
                             }
                         }
                     }
@@ -646,6 +753,8 @@ namespace ProyectoConsola.Managers
                 else
                 {// Caso simple solo añadir produccion al identificador
                     _nonTerminalsWithActions[identifier].Add(rightSide);
+                    Tuple<string, string> tuple = new Tuple<string, string>(identifier, rightSide.Trim());
+                    _orderedNonTerminals.Add(tuple);
                 }
 
                 string auxTrim;
@@ -663,7 +772,40 @@ namespace ProyectoConsola.Managers
                 {
                     auxTrim = matchTerminal.Value.Trim('\'');
                     //Que el simbolo exista dentro de la gramatica
-
+                    bool validSymbol = false;
+                    if (!_keywords.Contains(auxTrim))
+                    {
+                        foreach(var token in _tokens)
+                        {
+                            if (token.TokenEquals(auxTrim))
+                            {
+                                validSymbol = true;
+                            }
+                        }
+                        if(!validSymbol)
+                        {
+                            foreach(var set in _sets)
+                            {
+                                foreach(var regularExpression in set.Value)
+                                {
+                                    if(Regex.IsMatch(auxTrim, regularExpression))
+                                    {
+                                        validSymbol = true;
+                                    }
+                                }
+                            }
+                            if (auxTrim.Equals("ε"))
+                            {
+                                validSymbol = true;
+                            }
+                        }
+                    }
+                    else
+                        validSymbol = true;
+                    if (!validSymbol)
+                    {
+                        throw new Exception($"En la produccion {production}, el simbolo {auxTrim} no pertenece a la gramatica, por lo tanto no es valida.");
+                    }
                     //Si es valido añadirlo a los terminales
                     if (!_terminals.Contains(auxTrim)){
                         _terminals.Add(auxTrim);
@@ -673,8 +815,25 @@ namespace ProyectoConsola.Managers
                 matchCollection = tokenRegex.Matches(rightSide);
                 foreach (Match matchToken in matchCollection)
                 {
-                    auxTrim = matchToken.Value.Trim('<').Trim('>');
+                    auxTrim = matchToken.Value.Trim();
+                    bool validSymbol = false;
                     //Verificar en los tokens
+                    if(!_nonTerminalsWithActions.Keys.Contains(auxTrim) && !_terminals.Contains(auxTrim))
+                    {
+                        foreach (var token in _tokens)
+                        {
+                            if (token.TokenEquals(auxTrim))
+                            {
+                                validSymbol = true;
+                            }
+                        }
+                        if (!validSymbol)
+                        {
+                            throw new Exception($"En la produccion {production}, el simbolo {auxTrim} no pertenece a la gramatica, por lo tanto no es valida.");
+
+                        }
+                    }
+                    
                 }
             }
         }
@@ -691,11 +850,15 @@ namespace ProyectoConsola.Managers
                     {
 
                         var actions = actionMatch.Value.Trim('}').Trim('{').Split(','); // split actions by comma
-                        string realProduction = production.Substring(0, actionMatch.Index),
-                            actionIdentifier = productionKey + " = " + realProduction;
+                        string realProduction = TrimSymbol(production.Substring(0, actionMatch.Index));
+
                         if (!_nonTerminalActions.ContainsKey(productionKey))
                         {
-                            //_nonTerminalActions.Add(actionIdentifier, new Dictionary<string, List<string>>);
+                            _nonTerminalActions.Add(productionKey, new Dictionary<string, List<string>>());
+                        }
+                        if (!_nonTerminalActions[productionKey].ContainsKey(realProduction))
+                        {
+                            _nonTerminalActions[productionKey].Add(realProduction, new List<string>());
                         }
                         if (!_nonTerminals.ContainsKey(productionKey))
                         {
@@ -703,9 +866,12 @@ namespace ProyectoConsola.Managers
                         }
                         foreach (var action in actions)
                         {
-                            //_nonTerminalActions[actionIdentifier].Add(action.Trim()); // trim each action
+                            _nonTerminalActions[productionKey][realProduction.Trim()].Add(TrimSymbol(action)); // trim each action
                         }
                         _nonTerminals[productionKey].Add(realProduction.Trim());
+
+                        int auxIndex = _orderedNonTerminals.IndexOf(new Tuple<string, string>(productionKey, production));
+                        _orderedNonTerminals[auxIndex] = new Tuple<string,string>(productionKey, realProduction);
                     }
                     else
                     {
@@ -714,6 +880,50 @@ namespace ProyectoConsola.Managers
                     }
                 }
             }
+        }
+
+        private string TrimSymbol(string symbol)
+        {
+            string currentSymbol = symbol;
+            //Logica de preparacion para adecuar el simbolo actual a las operaciones
+            if (currentSymbol.Contains("\'") &&
+                (currentSymbol.Contains("<") || currentSymbol.Contains(">") || currentSymbol.Contains("(")))
+            {
+                currentSymbol = currentSymbol.Trim().Trim('\'');
+            }
+            else
+            {
+                currentSymbol = currentSymbol.Trim().Trim('\'').Trim('(').Trim('<').Trim('>');
+            }
+            return currentSymbol.Trim();
+        }
+        public bool IsTerminal(string symbol)
+        {
+            bool isTerminal = true;
+            if (!_terminals.Contains(symbol))
+            {
+                isTerminal = false;
+                foreach (Token token in _tokens)
+                {
+                    if (token.TokenEquals(symbol))
+                    {
+                        isTerminal = true;
+                        break;
+                    }
+                }
+            }
+            // Verificar si el símbolo es terminal
+            return isTerminal;
+        }
+
+        /// <summary>
+        /// Verifica si un símbolo es no terminal.
+        /// </summary>
+        /// <param name="symbol">Símbolo a verificar.</param>
+        /// <returns>True si el símbolo es no terminal, false en caso contrario.</returns>
+        public bool IsNonTerminal(string symbol)
+        {
+            return _nonTerminals.ContainsKey(symbol);
         }
     }
 }

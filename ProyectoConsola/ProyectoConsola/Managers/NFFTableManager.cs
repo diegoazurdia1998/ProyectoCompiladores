@@ -182,7 +182,7 @@ public class NFFTableManager
             isTerminal = false;
             foreach (Token token in _sectionsManager._tokens)
             {
-                if (token.CompareTo(symbol))
+                if (token.TokenEquals(symbol))
                 {
                     isTerminal = true;
                     break;

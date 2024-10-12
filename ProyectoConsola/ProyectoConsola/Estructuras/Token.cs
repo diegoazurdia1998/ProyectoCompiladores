@@ -28,17 +28,17 @@ namespace ProyectoConsola.Estructuras
         /// Constructor de la clase Token.
         /// Inicializa los atributos del token con los valores proporcionados.
         /// </summary>
-        /// <param name="_identificator">Identificador del token.</param>
-        /// <param name="_production">Producción del token.</param>
-        /// <param name="_asspciativity">Asociatividad del token.</param>
-        public Token(string _identificator, string _production, string _asspciativity)
+        /// <param name="identifier">Identificador del token.</param>
+        /// <param name="production">Producción del token.</param>
+        /// <param name="associativity">Asociatividad del token.</param>
+        public Token(string identifier, string production, string associativity)
         {
             // Inicializa el identificador del token
-            this.identifier = _identificator;
+            this.identifier = identifier;
             // Inicializa la producción del token
-            this.production = _production;
+            this.production = production;
             // Inicializa la asociatividad del token
-            this.associativity = _asspciativity;
+            this.associativity = associativity;
         }
 
         /// <summary>
@@ -46,10 +46,17 @@ namespace ProyectoConsola.Estructuras
         /// </summary>
         /// <param name="other">Identificador a comparar.</param>
         /// <returns>True si el token es igual al identificador proporcionado, false en caso contrario.</returns>
-        public bool CompareTo(string other)
+        public bool TokenEquals(string other)
         {
-            if(this.identifier.Equals(other)) return true;
-            else return false;
+            if (this.identifier.Equals(other))
+            { 
+                return true; 
+            }
+            if (this.production.Equals(other))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

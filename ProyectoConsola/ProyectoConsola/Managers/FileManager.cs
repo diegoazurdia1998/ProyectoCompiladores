@@ -105,7 +105,7 @@ public class FileManager
     /// </summary>
     /// <param name="rutaArchivo">La ruta del archivo de texto a procesar.</param>
     /// <returns>Una lista de listas con las secciones del archivo procesadas.</returns>
-    public Dictionary<string, List<string>> ProcesarArchivo(string rutaArchivo)
+    public Dictionary<string, List<string>> SeccionarArchivo(string rutaArchivo)
     {
         // Inicializa una lista vacía para almacenar las secciones procesadas.
         List<List<string>> seccionesProcesadas = new List<List<string>>();

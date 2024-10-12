@@ -8,10 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = ProyectoConsola
-<<<<<<< HEAD
-build_property.ProjectDir = C:\URL\Compiladores\Proyecto\ProyectoCompiladores\ProyectoConsola\ProyectoConsola\
-=======
 build_property.ProjectDir = C:\Users\diego\Documents\1  Universidad\Compiladores\Proyecto solo\ProyectoConsola\ProyectoConsola\
->>>>>>> diego
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

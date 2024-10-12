@@ -1,0 +1,433 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ProyectoConsola</name>
+    </assembly>
+    <members>
+        <member name="T:ProyectoConsola.Estructuras.LALRReduction">
+            <summary>
+            Representa una reducción LALR en el análisis sintáctico.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.LALRReduction.StateId">
+            <summary>
+            Obtiene o establece el ID del estado.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.LALRReduction.Symbols">
+            <summary>
+            Obtiene o establece el símbolo.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.LALRReduction.ProductionId">
+            <summary>
+            Obtiene o establece el ID de la producción.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRReduction.#ctor(System.Int32,System.Collections.Generic.List{System.String},System.Int32)">
+            <summary>
+            Crea un objeto Reduccion
+            </summary>
+            <param name="currentStateIndex">Estado del que se parte</param>
+            <param name="consumedSymbol">Simbolo consumido</param>
+            <param name="indexOfProduccion">Indice de la produccion que reduce</param>
+        </member>
+        <member name="T:ProyectoConsola.Estructuras.LALRStateProduction">
+            <summary>
+            Representa una producción de estado LALR en el análisis sintáctico.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.LALRStateProduction._actualIndex">
+            <summary>
+            Obtiene o establece el índice actual.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.LALRStateProduction._identifier">
+            <summary>
+            Obtiene o establece el identificador.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.LALRStateProduction._production">
+            <summary>
+            Obtiene o establece la producción.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.LALRStateProduction._lookahead">
+            <summary>
+            Obtiene o establece la lista de lookahead.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRStateProduction.#ctor(System.Int32,System.String,System.String,System.Collections.Generic.List{System.String})">
+            <summary>
+            Inicializa una nueva instancia de la clase <see cref="T:ProyectoConsola.Estructuras.LALRStateProduction"/>.
+            </summary>
+            <param name="index">Índice de la producción.</param>
+            <param name="identifier">Identificador de la producción.</param>
+            <param name="productions">Producción.</param>
+            <param name="lookahead">Lista de lookahead.</param>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRStateProduction.GetProductionLenght">
+            <summary>
+             Obtiene la cantidad de simbolos de la produccion
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRStateProduction.GetCurrentSybol">
+            <summary>
+            Obtiene el simbolo en la posicion del indice actual 
+            </summary>
+            <returns>Simbolo en la posicion del indice actual</returns>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRStateProduction.AddLookahead(System.String)">
+            <summary>
+            Añade un lookahead a la lista de lookahead.
+            </summary>
+            <param name="looakahead">Lookahead a añadir.</param>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRStateProduction.EqualsStateProduction(ProyectoConsola.Estructuras.LALRStateProduction)">
+            <summary>
+            Compara si dos producciones de estado son iguales.
+            </summary>
+            <param name="stateProduction">Producción de estado a comparar.</param>
+            <returns>Verdadero si las producciones de estado son iguales; de lo contrario, falso.</returns>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRStateProduction.EqualsOldStateProduction(ProyectoConsola.Estructuras.LALRStateProduction)">
+            <summary>
+            Compara si una producción de estado es igual a una producción de estado anterior.
+            </summary>
+            <param name="oldStateProduction">Producción de estado anterior a comparar.</param>
+            <returns>Verdadero si las producciones de estado son iguales; de lo contrario, falso.</returns>
+        </member>
+        <member name="T:ProyectoConsola.Estructuras.LALRTransition">
+            <summary>
+            Representa una transición LALR en el análisis sintáctico.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.LALRTransition.FromStateId">
+            <summary>
+            Obtiene o establece el ID del estado de origen.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.LALRTransition.ToStateId">
+            <summary>
+            Obtiene o establece el ID del estado de destino.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.LALRTransition.Symbol">
+            <summary>
+            Obtiene o establece el símbolo consumido.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.LALRTransition.#ctor(System.Int32,System.Int32,System.String)">
+            <summary>
+            Inicializa una nueva instancia de la clase <see cref="T:ProyectoConsola.Estructuras.LALRTransition"/>.
+            </summary>
+            <param name="currentState">ID del estado actual.</param>
+            <param name="nextState">ID del siguiente estado.</param>
+            <param name="consumedSymbol">Símbolo consumido.</param>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.Token.identifier">
+            <summary>
+            Identificador del token.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.Token.production">
+            <summary>
+            Producción del token, es decir, la regla de producción que lo genera.
+            </summary>
+        </member>
+        <member name="P:ProyectoConsola.Estructuras.Token.associativity">
+            <summary>
+            Asociatividad del token, es decir, si es asociativo a la izquierda o a la derecha.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.Token.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Constructor de la clase Token.
+            Inicializa los atributos del token con los valores proporcionados.
+            </summary>
+            <param name="identifier">Identificador del token.</param>
+            <param name="production">Producción del token.</param>
+            <param name="associativity">Asociatividad del token.</param>
+        </member>
+        <member name="M:ProyectoConsola.Estructuras.Token.TokenEquals(System.String)">
+            <summary>
+            Método que compara el token con un identificador proporcionado.
+            </summary>
+            <param name="other">Identificador a comparar.</param>
+            <returns>True si el token es igual al identificador proporcionado, false en caso contrario.</returns>
+        </member>
+        <member name="T:ProyectoConsola.Managers.LALRTableManager">
+            <summary>
+            Clase que contiene las tablas de estados, transiciones y reducciones
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.LALRTableManager.GenerateNewStateProductions(ProyectoConsola.Estructuras.LALRStateProduction,System.Collections.Generic.List{ProyectoConsola.Estructuras.LALRStateProduction})">
+            <summary>
+            Genera un estado nuevo con las producciones que consumen el mismo simbolo
+            </summary>
+            <param name="firstStateProduction">Produccion principal</param>
+            <param name="lastStateProductions">Listado de producciones del estado anterior</param>
+            <returns>Lista de producciones correspondientes al nuevo estado</returns>
+        </member>
+        <member name="M:ProyectoConsola.Managers.LALRTableManager.EnsureUniquenessOfStates(System.Collections.Generic.List{ProyectoConsola.Estructuras.LALRStateProduction},System.Collections.Generic.Dictionary{System.Int32,System.Collections.Generic.List{ProyectoConsola.Estructuras.LALRStateProduction}})">
+            <summary>
+            Asegura que el estado prospecto no sea igual a uno ya existente
+            </summary>
+            <param name="prospectProductions">Listado de producciones que conforman el estado prospecto</param>
+            <param name="states">Diccionario de estados actuales</param>
+            <returns>True: Si el estado prospecto no es unico False: Si el estado es igual a alguno ya existente</returns>
+        </member>
+        <member name="M:ProyectoConsola.Managers.LALRTableManager.GenerateStateProductionsForNonTerminal(System.String,ProyectoConsola.Estructuras.LALRStateProduction)">
+            <summary>
+            Determina todas las produccones relacionadas con el estado actual
+            </summary>
+            <param name="nonTerminal">Simbolo no terminal, identificador para las nuevas producciones</param>
+            <param name="contextState">Produccion actualmente analizada </param>
+            <returns>Lista de producciones estado derivadas de la actual</returns>
+        </member>
+        <member name="T:ProyectoConsola.Managers.SectionsManager">
+            <summary>
+            Clase SectionsManager, responsable de gestionar las secciones de un archivo de configuración.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._sections">
+            <summary>
+            Diccionario de secciones.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._compilerName">
+            <summary>
+            Nombre del compilador.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._commentStart">
+            <summary>
+            Símbolo de inicio de comentario.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._commentEnd">
+            <summary>
+            Símbolo de fin de comentario.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._startSymbol">
+            <summary>
+            Simbolo de extension para inicio de las derivaciones
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._keywords">
+            <summary>
+            Lista de palabras clave identificadas.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._sets">
+            <summary>
+            Diccionario de conjuntos identificados.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._tokens">
+            <summary>
+            Lista de tokens.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._nonTerminalsWithActions">
+            <summary>
+            Diccionario de símbolos no terminales con actions.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._nonTerminals">
+            <summary>
+            Diccionarios para simbolos no terminales sin actions
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._nonTerminalActions">
+            <summary>
+            Diccionario de actons para cada produccion
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._terminals">
+            <summary>
+            Lista de símbolos terminales.
+            </summary>
+        </member>
+        <member name="F:ProyectoConsola.Managers.SectionsManager._units">
+            <summary>
+            Unites de la gramatica
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.#ctor(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}})">
+            <summary>
+            Constructor de la clase SectionsManager.
+            </summary>
+            <param name="param_Sections">Diccionario de secciones.</param>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.PrintSections">
+            <summary>
+            Imprime las secciones del lenguaje de programación en consola.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.StartManagers">
+            <summary>
+            Método que inicia la gestión de secciones.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.UnitsManager">
+            <summary>
+            Método que gestiona la sección UNITS.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:ProyectoConsola.Managers.SectionsManager.VerifyUnits" -->
+        <member name="M:ProyectoConsola.Managers.SectionsManager.IdentifyUnits">
+            <summary>
+            Método que identifica los conjuntos en la sección de UNITS.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.SetsManager">
+            <summary>
+            Método que gestiona la sección SETS.
+            </summary>  
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:ProyectoConsola.Managers.SectionsManager.VerifySets" -->
+        <member name="M:ProyectoConsola.Managers.SectionsManager.IdentifySets">
+            <summary>
+            Método que identifica los conjuntos en la sección de SETS.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.TokensManager">
+            <summary>
+            Método que gestiona la sección TOKENS.
+            </summary> 
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:ProyectoConsola.Managers.SectionsManager.VerifyTokens" -->
+        <member name="M:ProyectoConsola.Managers.SectionsManager.IdentifyTokens">
+            <summary>
+            Método que identifica los tokens en la sección de tokens.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.KeywordsManager">
+            <summary>
+            Método que gestiona la sección KEYWORDS.
+            </summary> 
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.VerifyKeywords">
+            <summary>
+            Método que verifica la sección de palabras clave.
+            </summary>
+            <returns>True si la sección es válida, false en caso contrario.</returns>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.IdentifyKeywords">
+            <summary>
+            Método que identifica las palabras clave en la sección de palabras clave.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.ProductionsManager">
+            <summary>
+            Método que gestiona la sección PRODUCTIONS.
+            </summary> 
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.VerifyProductions">
+            <summary>
+            Método que verifica la sección de producciones.
+            </summary>
+            <returns>True si la sección es válida, false en caso contrario.</returns>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.IdentifyProductions">
+            <summary>
+            Método que identifica las producciones en la sección de producciones.
+            </summary>
+        </member>
+        <member name="M:ProyectoConsola.Managers.SectionsManager.IsNonTerminal(System.String)">
+            <summary>
+            Verifica si un símbolo es no terminal.
+            </summary>
+            <param name="symbol">Símbolo a verificar.</param>
+            <returns>True si el símbolo es no terminal, false en caso contrario.</returns>
+        </member>
+        <member name="T:FileManager">
+            <summary>
+            Clase FileManager que se encarga de procesar archivos de texto y extraer secciones.
+            </summary>
+        </member>
+        <member name="M:FileManager.SeccionarArchivo(System.String)">
+            <summary>
+            Procesa un archivo de texto y devuelve una lista de listas con las secciones del archivo procesadas.
+            </summary>
+            <param name="rutaArchivo">La ruta del archivo de texto a procesar.</param>
+            <returns>Una lista de listas con las secciones del archivo procesadas.</returns>
+        </member>
+        <member name="M:FileManager.ProcesarSecciones(System.Collections.Generic.List{System.Collections.Generic.List{System.String}})">
+            <summary>
+            Procesa las secciones extraídas del archivo y las almacena en un diccionario.
+            </summary>
+            <param name="secciones">La lista de secciones extraídas del archivo.</param>
+            <returns>Un diccionario con las secciones procesadas.</returns>
+        </member>
+        <member name="T:NFFTableManager">
+            <summary>
+            Clase responsable de generar las tablas de Nullable, First y Follow para un conjunto de reglas de producción de un lenguaje formal.
+            </summary>
+        </member>
+        <member name="M:NFFTableManager.#ctor(ProyectoConsola.Managers.SectionsManager)">
+            <summary>
+            Constructor de la clase NFFTableManager.
+            </summary>
+            <param name="manager">Administrador de secciones.</param>
+        </member>
+        <member name="M:NFFTableManager.PrintTables">
+            <summary>
+            Imprime las tablas de Nullable, First y Follow en consola.
+            </summary>
+        </member>
+        <member name="M:NFFTableManager.GenertaeTables">
+            <summary>
+            Genera las tablas de Nullable, First y Follow.
+            </summary>
+        </member>
+        <member name="M:NFFTableManager.GenerateNullableTable">
+            <summary>
+            Genera la tabla de Nullable.
+            </summary>
+        </member>
+        <member name="M:NFFTableManager.GenerateFirstTable">
+            <summary>
+            Genera la tabla de First.
+            </summary>
+        </member>
+        <member name="M:NFFTableManager.IsTerminal(System.String)">
+            <summary>
+            Verifica si un símbolo es terminal.
+            </summary>
+            <param name="symbol">Símbolo a verificar.</param>
+            <returns>True si el símbolo es terminal, false en caso contrario.</returns>
+        </member>
+        <member name="M:NFFTableManager.GenerateFollowTable">
+            <summary>
+            Genera la tabla de Follow.
+            </summary>
+        </member>
+        <member name="M:NFFTableManager.ComputeFollowForNonTerminal(System.String)">
+            <summary>
+            Calcula el conjunto de Follow para un no terminal.
+            </summary>
+            <param name="nonTerminal">No terminal para el que se calcula el conjunto de Follow.</param>
+        </member>
+        <member name="M:NFFTableManager.IsNonTerminal(System.String)">
+            <summary>
+            Verifica si un símbolo es no terminal.
+            </summary>
+            <param name="symbol">Símbolo a verificar.</param>
+            <returns>True si el símbolo es no terminal, false en caso contrario.</returns>
+        </member>
+        <member name="T:Program">
+            <summary>
+            Clase principal del programa.
+            </summary>
+        </member>
+        <member name="M:Program.Main">
+            <summary>
+            Punto de entrada principal para la aplicación.
+            </summary>
+        </member>
+    </members>
+</doc>
