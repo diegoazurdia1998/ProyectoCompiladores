@@ -86,7 +86,7 @@ namespace ProyectoConsola.Managers
 
                 //Se inicia el contador de estados
                 int actualStateIndex = 0;
-
+                int countOfStateProductionsProcessedInActualStateIndex = 0;
                 while (pendingStateProductionsList.Count > 0) //Mientras haya producciones por procesar en la lista
                 {
 
@@ -96,7 +96,7 @@ namespace ProyectoConsola.Managers
                     {
                         string currentSymbol = TrimSymbol(currentProduction.GetCurrentSybol()); //Se determina el simbolo actual
 
-                        if (!_sectionsManager.IsTerminal(currentSymbol)) 
+                        if (!_sectionsManager.IsTerminal(currentSymbol) && countOfStateProductionsProcessedInActualStateIndex == 0) 
                         {
                             if (actualStateIndex > 0)
                             {
@@ -162,7 +162,12 @@ namespace ProyectoConsola.Managers
                         }
 
                     }
-                    actualStateIndex++;
+                    countOfStateProductionsProcessedInActualStateIndex++;
+                    if (countOfStateProductionsProcessedInActualStateIndex >= states[actualStateIndex].Count - 1)
+                    {
+                        actualStateIndex++;
+                        countOfStateProductionsProcessedInActualStateIndex = 0;
+                    }
                 }
                 return states;
             }
