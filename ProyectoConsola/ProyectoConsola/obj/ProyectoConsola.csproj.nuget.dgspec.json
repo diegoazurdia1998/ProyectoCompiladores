@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\DATOS\\OneDrive - Bimagua\\Escritorio\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj": {}
+    "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj": {}
   },
   "projects": {
-    "C:\\Users\\DATOS\\OneDrive - Bimagua\\Escritorio\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj": {
+    "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\DATOS\\OneDrive - Bimagua\\Escritorio\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj",
+        "projectUniqueName": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj",
         "projectName": "ProyectoConsola",
-        "projectPath": "C:\\Users\\DATOS\\OneDrive - Bimagua\\Escritorio\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj",
-        "packagesPath": "C:\\Users\\DATOS\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\DATOS\\OneDrive - Bimagua\\Escritorio\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\obj\\",
+        "projectPath": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj",
+        "packagesPath": "C:\\Users\\diego\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\DATOS\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\diego\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -61,7 +61,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
