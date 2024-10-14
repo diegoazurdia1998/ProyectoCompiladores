@@ -100,7 +100,14 @@ namespace ProyectoConsola.Managers
                         {
                             if (actualStateIndex > 0)
                             {
-                                states.Add(actualStateIndex, [currentProduction]);
+                                if (!states.Keys.Contains(actualStateIndex))
+                                {
+                                    states.Add(actualStateIndex, [currentProduction]);
+                                }
+                                else
+                                {
+                                    states[actualStateIndex].Add(currentProduction);
+                                }
                             }
 
                             //Puede existir un contexto nuevo, segun el caso
