@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using ProyectoConsola.Estructuras;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ProyectoConsola.Managers
 {
@@ -39,9 +40,9 @@ namespace ProyectoConsola.Managers
                 _states = GenerateStates();
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                string mensaje = e.Message;
                 throw;
             }
 
@@ -69,102 +70,133 @@ namespace ProyectoConsola.Managers
         private Dictionary<int, List<LALRStateProduction>> GenerateStates()
         {
             // Diccionario a llenar
-            Dictionary<int, List<LALRStateProduction>> states = new Dictionary<int, List<LALRStateProduction>>();
+            Dictionary<int, List<LALRStateProduction>> states = [];
 
-            // Generar el primer estado, con la produccion inicial
-            LALRStateProduction firstStateProduction = new LALRStateProduction(0, _sectionsManager._startSymbol, _sectionsManager._nonTerminals[_sectionsManager._startSymbol][0], new List<string> { "$" });
-            states.Add(0, new List<LALRStateProduction>());
-            states[0].Add(firstStateProduction);
-
-            // Lógica para generar los estados restantes
-            // Lista para las producciones pendientes de procesar
-            List<LALRStateProduction> pendingStateProductionsList = new List<LALRStateProduction>();
-            //Se añade la produccion inicial a la lista
-            pendingStateProductionsList.Add(firstStateProduction);
-            //Se inicia el contador de estados
-            int actualStateIndex = 0, productionsInState = 0;
-            while (pendingStateProductionsList.Count > 0) //Mientras haya producciones por procesar en la lista
+            try
             {
-                LALRStateProduction currentProduction = pendingStateProductionsList.ElementAt(0); //Se copia el valor de la produccion al inicio de la lista
 
-                if (currentProduction._actualIndex < currentProduction.GetProductionLenght()) //Si no se ha procesado completamente la produccion ...
+                // Generar el primer estado, con la produccion inicial
+                LALRStateProduction firstStateProduction = new LALRStateProduction(0, _sectionsManager._startSymbol, _sectionsManager._nonTerminals[_sectionsManager._startSymbol][0], new List<string> { "$" });
+                states.Add(0, new List<LALRStateProduction>());
+                states[0].Add(firstStateProduction);
+
+                // Lógica para generar los estados restantes
+
+                // Lista para las producciones pendientes de procesar
+                List<LALRStateProduction> pendingStateProductionsList = [firstStateProduction];
+
+                //Se añade la produccion inicial a la lista
+                //pendingStateProductionsList.Add(firstStateProduction);
+
+                //Se inicia el contador de estados
+                int actualStateIndex = 0;
+                //int productionsInState = 0;
+
+                while (pendingStateProductionsList.Count > 0) //Mientras haya producciones por procesar en la lista
                 {
-                    string currentSymbol = TrimSymbol(currentProduction.GetCurrentSybol()); //Se determina el simbolo actual
-                    //Si el simbolo actual es  ...
-                    if (_sectionsManager.IsNonTerminal(currentSymbol) && productionsInState == 0) //... No terminal se deben agregar las producciones de ese simbolo no terminal
-                    {//Puede existir un contexto nuevo, segun el caso
-                        //Se genera(n) la(s) produccion(es) segun su contexto
-                        List<LALRStateProduction> tempStateProductions = GenerateStateProductionsForNonTerminal(currentSymbol, currentProduction);
-                        //Se añaden al estado actual las producciones adicionales
-                        states[actualStateIndex].AddRange(tempStateProductions);
-                        //Se añaden a la pilistala de producciones las nuevas producciones
-                        pendingStateProductionsList.AddRange(tempStateProductions);
-                    }
 
-                    //SE determinan las producciones iniciales del nuevo estado
-                    List<LALRStateProduction> initialStateProductions = GenerateNewStateProductions(currentProduction, states[actualStateIndex]);
-                    //Si las producciones iniciales son mas de 0
-                    if(initialStateProductions.Count > 0)
+                    LALRStateProduction currentProduction = pendingStateProductionsList.ElementAt(0); //Se copia el valor de la produccion al inicio de la lista
+
+                    if (currentProduction._actualIndex < currentProduction.GetProductionLenght()) //Si no se ha procesado completamente la produccion ...
                     {
-                        // Se asegura que el nuevo estado sea unico
-                        Tuple<bool, int> unique = EnsureUniquenessOfStates(initialStateProductions, states);
-                        //Si el estado no es unico se genera una transicion
-                        if (!unique.Item1)
+                        string currentSymbol = TrimSymbol(currentProduction.GetCurrentSybol()); //Se determina el simbolo actual
+                                                                                                //Si el simbolo actual es  ...
+                                                                                                //if (!_sectionsManager.IsTerminal(currentSymbol) && pendingStateProductionsList.Count == 0) //... No terminal se deben agregar las producciones de ese simbolo no terminal
+                        
+                        //... No terminal se deben agregar las producciones de ese simbolo no terminal
+                        if (!_sectionsManager.IsTerminal(currentSymbol)) 
                         {
-                            //Transicion 
-                            GenereteTransitionForState(actualStateIndex, currentSymbol, unique.Item2);
+                            if (actualStateIndex > 0)
+                            {
+                                states.Add(actualStateIndex, [currentProduction]);
+                            }
+
+                            //Puede existir un contexto nuevo, segun el caso
+                            //Se genera(n) la(s) produccion(es) segun su contexto
+                            List<LALRStateProduction> tempStateProductions = GenerateStateProductionsForNonTerminal(currentSymbol, currentProduction);
+
+                            //Se añaden al estado actual las producciones adicionales
+                            states[actualStateIndex].AddRange(tempStateProductions);
+
+                            //Se añaden a la pilistala de producciones las nuevas producciones
+                            pendingStateProductionsList.AddRange(tempStateProductions);
+                        }
+
+                        //SE determinan las producciones iniciales del nuevo estado
+                        List<LALRStateProduction> initialStateProductions = GenerateNewStateProductions(currentProduction, pendingStateProductionsList);
+
+                        //Si las producciones iniciales son mas de 0
+                        if (initialStateProductions.Count > 0)
+                        {
+                            // Se asegura que el nuevo estado sea unico
+                            Tuple<bool, int> unique = EnsureUniquenessOfStates(initialStateProductions, states);
+
+                            //Si el estado no es unico se genera una transicion
+                            if (unique.Item1)
+                            {
+                                //Se agrega un nuevo estado al diccionario de estados                            
+                                states.Add(states.Count, initialStateProductions);
+                                //Se agregagan la(s) produccion(es) inicial(es) al estado
+                                //states[newStateIndex].AddRange(initialStateProductions);
+                            }
+                            else
+                            {
+                                //Transicion 
+                                GenereteTransitionForState(actualStateIndex, currentSymbol, unique.Item2);
+                            }
+
+                            //Se remueven las producciones de estado procesadas de la lista de estados pendeintes
+                            // y se agregan las nuevas producciones estado
+
+                            //pendingStateProductionsList.RemoveAt(currentProduction);
+                            pendingStateProductionsList.Remove(currentProduction);
+                            foreach (var sp in initialStateProductions)
+                            {
+                                //productionsInState++;
+                                pendingStateProductionsList.Add(sp);
+                            }
+
                         }
                         else
                         {
-                            int newStateIndex = states.Count;
-                            //Se agrega un nuevo estado al diccionario de estados                            
-                            states.Add(newStateIndex, new List<LALRStateProduction>());
-                            //Se agregagan la(s) produccion(es) inicial(es) al estado
-                            states[newStateIndex].AddRange(initialStateProductions);
+
                         }
-                        //Se remueven las producciones de estado procesadas de la lista de estados pendeintes
-                        // y se agregan las nuevas producciones estado
-                        foreach (var sp in initialStateProductions)
-                        {
-                            pendingStateProductionsList.RemoveAt(0);
-                            productionsInState++;
-                            pendingStateProductionsList.Add(sp);                            
-                        }
-                        
                     }
                     else
                     {
+                        pendingStateProductionsList.Remove(currentProduction);
+                        //productionsInState++;
+                        // Si el simbolo esta al final de la produccion
+                        //Reduction
+                        //int productionIndex = _sectionsManager._orderedNonTerminals.IndexOf(new Tuple<string, string>(currentProduction._identifier, currentProduction._production));
+                        //if (!currentProduction._identifier.Equals(_sectionsManager._startSymbol))
+                        //{
+                        //    GenerateReductionForState(actualStateIndex, currentProduction._lookahead, productionIndex);
+                        //}
+                        //
 
                     }
-                }
-                else
-                {
-                    pendingStateProductionsList.RemoveAt(0);
-                    productionsInState++;
-                    // Si el simbolo esta al final de la produccion
-                    //Reduction
-                    int productionIndex = _sectionsManager._orderedNonTerminals.IndexOf(new Tuple<string, string>(currentProduction._identifier, currentProduction._production));
-                    if (!currentProduction._identifier.Equals(_sectionsManager._startSymbol))
-                    {
-                        GenerateReductionForState(actualStateIndex, currentProduction._lookahead, productionIndex);
 
-                    }
-                    //
-                    
-                }
-                
-                if (states[actualStateIndex].Count == productionsInState)
-                {
                     actualStateIndex++;
-                    productionsInState = 0;
-                    if(actualStateIndex == 9)
-                    {
-                        productionsInState = 0;
-                    }
+                    //if (states[actualStateIndex].Count == pendingStateProductionsList.Count)
+                    //{
+                    //    //productionsInState = 0;
+                    //    //if(actualStateIndex == 9)
+                    //    //{
+                    //    //    productionsInState = 0;
+                    //    //}
+                    //}
                 }
+                return states;
             }
-            return states;
+            catch (Exception e)
+            {
+                string mensaje = e.Message;
+                throw;
+            }
+            
         }
+
         /// <summary>
         /// Genera un estado nuevo con las producciones que consumen el mismo simbolo
         /// </summary>
@@ -174,8 +206,10 @@ namespace ProyectoConsola.Managers
         private List<LALRStateProduction> GenerateNewStateProductions(LALRStateProduction firstStateProduction, List<LALRStateProduction> lastStateProductions)
         {
             List<LALRStateProduction> productionsForNewState = new List<LALRStateProduction>();
+
             //Se determina el simbolo actual de la produccion inicial
             string consumedSymbol = TrimSymbol(firstStateProduction._production.Split(' ')[firstStateProduction._actualIndex]);
+
             //Del estado anterior se seleccionan las producciones que ...
             foreach(var production in lastStateProductions)
             {
@@ -203,10 +237,8 @@ namespace ProyectoConsola.Managers
          /// <returns>True: Si el estado prospecto no es unico False: Si el estado es igual a alguno ya existente</returns>
         private Tuple<bool, int> EnsureUniquenessOfStates(List<LALRStateProduction> prospectProductions, Dictionary<int, List<LALRStateProduction>> states)
         {
-            int stateProductionKeyResult = -1;
             foreach (var stateProductionKey in states.Keys)
             {
-                stateProductionKeyResult = stateProductionKey;
                 List<LALRStateProduction> stateProductions = states[stateProductionKey];
                 if (prospectProductions.Count == stateProductions.Count)
                 {
@@ -216,21 +248,23 @@ namespace ProyectoConsola.Managers
                         bool found = false;
                         foreach (var stateProduction in stateProductions)
                         {
-                            if (production.EqualsStateProduction(stateProduction)) 
+                            if (production.EqualsStateProduction(stateProduction))
                             {
                                 found = true;
                                 break;
                             }
                         }
+
                         if (!found)
                         {
                             allMatch = false;
                             break;
                         }
                     }
+
                     if (allMatch)
                     {
-                        return new Tuple<bool, int>(false, stateProductionKeyResult);
+                        return new Tuple<bool, int>(false, stateProductionKey);
                     }
                 }
             }
@@ -249,37 +283,42 @@ namespace ProyectoConsola.Managers
             List<LALRStateProduction> productionsOfNonTerminal = new List<LALRStateProduction>();
             // Lisado de producciones del simbolo no terminal
             List<string> crudeProductions = _sectionsManager._nonTerminals[nonTerminal];
+            
             // Auxiliar para contexto de la produccion estado
-            LALRStateProduction auxContextState = contextState;
+            //LALRStateProduction auxContextState = contextState;
+            
             // Por cada produccion del simbolo no terminal ...
             foreach(var crudeProduction in crudeProductions)
             {
                 // Se crea la produccion estado a partir de la produccion
-                LALRStateProduction stateProduction = new LALRStateProduction(0, nonTerminal, crudeProduction, auxContextState._lookahead);
+                LALRStateProduction newStateProduction = new LALRStateProduction(0, nonTerminal, crudeProduction, contextState._lookahead);
                 string[] splitCrudeProduction = crudeProduction.Split(' ');
                 //Se determina el simbolo actual de la nueva produccion estado
                 string currentSymbol = TrimSymbol(splitCrudeProduction[0]);
+                
                 // Si el simbolo actual es no terminal ...
-                if (_sectionsManager.IsNonTerminal(currentSymbol))
+                if (!_sectionsManager.IsTerminal(currentSymbol))
                 {
                     // ... Generar las producciones estado del simbolo no terminal
-                    productionsOfNonTerminal.AddRange(GenerateStateProductionsForNonTerminal(currentSymbol, stateProduction));
+                    productionsOfNonTerminal.AddRange(GenerateStateProductionsForNonTerminal(currentSymbol, newStateProduction));
                 }
+
                 // Si la nueva produccion estado contiene al simbolo no terminal debe ajustarse el lookahead
                 if (splitCrudeProduction.Contains('<' + nonTerminal + '>'))
                 {
                     //Se determina la posicion del no terminal en la produccion
                     int index = 0;
-                    foreach(var symbol in splitCrudeProduction)
+                    foreach (var symbol in splitCrudeProduction)
                     {
-                        if(symbol.Equals('<' + nonTerminal + '>'))
+                        if (symbol.Equals('<' + nonTerminal + '>'))
                         {
                             break;
                         }
                         index++;
                     }
+
                     // Se verifica que el no terminal no sea el ultimo simbolo de la produccion
-                    if(index < splitCrudeProduction.Length - 1)
+                    if (index < splitCrudeProduction.Length - 1)
                     {
                         // El lookahead de la produccion de estado se modifica
                         // ... implementacion de la logica de las llamadas a aumentar o reducir lookahead    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -287,7 +326,7 @@ namespace ProyectoConsola.Managers
                     }
                     // Si es el ultimo simbolo de la produccion de estado el lookahead no se modifica
                 }
-                productionsOfNonTerminal.Add(stateProduction);
+                productionsOfNonTerminal.Add(newStateProduction);
             }
 
             return productionsOfNonTerminal;

@@ -17,7 +17,8 @@ class Program
         while (true)
         {
             Console.WriteLine("Ingrese la ruta del archivo (o 'salir' para finalizar):");
-            string filePath = Console.ReadLine();
+            //string filePath = Console.ReadLine();
+            string filePath = "GRMAR.txt";
 
             if (filePath.ToLower().Equals("salir"))
                 break;
@@ -29,7 +30,7 @@ class Program
                 // Verificaar e identificar las secciones
                 SectionsManager sectionManager = new SectionsManager(seccionesProcesadas);
                 // Mostrar secciones
-                sectionManager.PrintSections();
+                //sectionManager.PrintSections();
                 // Construir la tabla de Nullable, First y Follow
                 //NFFTableManager nFFTableManager = new NFFTableManager(sm);
                 // Mostrar tabla de Nullable, First y Follow

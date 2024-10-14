@@ -897,33 +897,37 @@ namespace ProyectoConsola.Managers
             }
             return currentSymbol.Trim();
         }
-        public bool IsTerminal(string symbol)
-        {
-            bool isTerminal = true;
-            if (!_terminals.Contains(symbol))
-            {
-                isTerminal = false;
-                foreach (Token token in _tokens)
-                {
-                    if (token.TokenEquals(symbol))
-                    {
-                        isTerminal = true;
-                        break;
-                    }
-                }
-            }
-            // Verificar si el símbolo es terminal
-            return isTerminal;
-        }
+        //public bool IsTerminal(string symbol)
+        //{
+        //    bool isTerminal = true;
+        //    if (!_terminals.Contains(symbol))
+        //    {
+        //        isTerminal = false;
+        //        foreach (Token token in _tokens)
+        //        {
+        //            if (token.TokenEquals(symbol))
+        //            {
+        //                isTerminal = true;
+        //                break;
+        //            }
+        //        }
+        //    }
+        //    // Verificar si el símbolo es terminal
+        //    return isTerminal;
+        //}
 
         /// <summary>
         /// Verifica si un símbolo es no terminal.
         /// </summary>
         /// <param name="symbol">Símbolo a verificar.</param>
         /// <returns>True si el símbolo es no terminal, false en caso contrario.</returns>
-        public bool IsNonTerminal(string symbol)
+        /// 
+        public bool IsTerminal(string symbol)
         {
-            return _nonTerminals.ContainsKey(symbol);
+            if (_terminals.Contains(symbol) || _tokens.Any(token => token.TokenEquals(symbol))) return true;
+            return false;
+                
+            //return _nonTerminals.ContainsKey(symbol);
         }
     }
 }
