@@ -261,7 +261,7 @@ namespace ProyectoConsola.Managers
                     }
                     bool expand = true;
                     // La podruccion d contexto tiene almenos un simbolo delante se reduce el lookahead
-                    if(contextState._actualIndex < contextState._production.Length)
+                    if(index < contextState._production.Split(' ').Length)
                     {
                         expand = false;
                     }
@@ -296,7 +296,7 @@ namespace ProyectoConsola.Managers
         {
             // Lógica para expandir el lookahead basado en el contexto
             List<string> newLookahead = contextState._lookahead;
-            if (nonTerminalIndex < contextState._production.Length)
+            if (nonTerminalIndex < contextState._production.Split(' ').Length - 1)
             {
                 string[] strings = contextState._production.Split(' ');
                 if(!newLookahead.Contains(strings[nonTerminalIndex + 1]))
@@ -309,7 +309,7 @@ namespace ProyectoConsola.Managers
         {
             // Lógica para expandir el lookahead basado en el contexto
             List<string> newLookahead = contextState._lookahead;
-            if (nonTerminalIndex < contextState._production.Length)
+            if (nonTerminalIndex < contextState._production.Split(' ').Length - 1)
             {
                 string[] strings = contextState._production.Split(' ');
                 if (!newLookahead.Contains(strings[nonTerminalIndex + 1]))
