@@ -96,7 +96,7 @@ namespace ProyectoConsola.Managers
                     {
                         string currentSymbol = TrimSymbol(currentProduction.GetCurrentSybol()); //Se determina el simbolo actual
 
-                        if (!_sectionsManager.IsTerminal(currentSymbol) && countOfStateProductionsProcessedInActualStateIndex == 0) 
+                        if (_sectionsManager.IsNonTerminal(currentSymbol) && countOfStateProductionsProcessedInActualStateIndex == 0)
                         {
                             if (actualStateIndex > 0)
                             {
@@ -106,7 +106,10 @@ namespace ProyectoConsola.Managers
                                 }
                                 else
                                 {
-                                    states[actualStateIndex].Add(currentProduction);
+                                    if (!states[actualStateIndex].Contains(currentProduction))
+                                    {
+                                        states[actualStateIndex].Add(currentProduction);
+                                    }
                                 }
                             }
 
@@ -129,7 +132,6 @@ namespace ProyectoConsola.Managers
                         {
                             // Se asegura que el nuevo estado sea unico
                             Tuple<bool, int> unique = EnsureUniquenessOfStates(initialStateProductions, states);
-
                             //Si el estado no es unico se genera una transicion
                             if (unique.Item1)
                             {
@@ -141,16 +143,13 @@ namespace ProyectoConsola.Managers
                                 //Transicion 
                                 GenereteTransitionForState(actualStateIndex, currentSymbol, unique.Item2);
                             }
-
                             //Se remueven las producciones de estado procesadas de la lista de estados pendeintes
                             // y se agregan las nuevas producciones estado
-                            pendingStateProductionsList.Remove(currentProduction);
                             foreach (var sp in initialStateProductions)
                             {
-                                //productionsInState++;
+                                pendingStateProductionsList.RemoveAt(0);
                                 pendingStateProductionsList.Add(sp);
                             }
-
                         }
                         else
                         {
@@ -170,7 +169,7 @@ namespace ProyectoConsola.Managers
 
                     }
                     countOfStateProductionsProcessedInActualStateIndex++;
-                    if (countOfStateProductionsProcessedInActualStateIndex >= states[actualStateIndex].Count - 1)
+                    if (countOfStateProductionsProcessedInActualStateIndex > states[actualStateIndex].Count - 1)
                     {
                         actualStateIndex++;
                         countOfStateProductionsProcessedInActualStateIndex = 0;
@@ -183,7 +182,7 @@ namespace ProyectoConsola.Managers
                 string mensaje = e.Message;
                 throw;
             }
-            
+
         }
 
         /// <summary>

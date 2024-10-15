@@ -39,7 +39,7 @@ class Program
                 LALRTableManager lALRTableManager = new LALRTableManager(sectionManager);
                 // Mostrar tabla de estados y actions
                 //lALRTableManager.PrintStateTable();
-                Console.WriteLine("Mama");
+                Console.WriteLine("Eureka");
                 Console.ReadLine();
 
             }

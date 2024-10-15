@@ -929,5 +929,14 @@ namespace ProyectoConsola.Managers
                 
             //return _nonTerminals.ContainsKey(symbol);
         }
+        /// <summary>
+        /// Verifica si un símbolo es no terminal.
+        /// </summary>
+        /// <param name="symbol">Símbolo a verificar.</param>
+        /// <returns>True si el símbolo es no terminal, false en caso contrario.</returns>
+        public bool IsNonTerminal(string symbol)
+        {
+            return _nonTerminals.ContainsKey(symbol);
+        }
     }
 }
