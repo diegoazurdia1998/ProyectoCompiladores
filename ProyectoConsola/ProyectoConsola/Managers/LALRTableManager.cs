@@ -261,7 +261,7 @@ namespace ProyectoConsola.Managers
                     }
                     bool expand = true;
                     // La podruccion d contexto tiene almenos un simbolo delante se reduce el lookahead
-                    if(index < contextState._production.Split(' ').Length)
+                    if(index < contextState._production.Split(' ').Length - 1)
                     {
                         expand = false;
                     }
