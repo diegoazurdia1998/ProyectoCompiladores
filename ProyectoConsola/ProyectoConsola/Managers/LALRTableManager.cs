@@ -94,27 +94,30 @@ namespace ProyectoConsola.Managers
                         //Se determina el simbolo actual
                         string currentSymbol = TrimSymbol(currentProduction.GetCurrentSybol()); 
                         //Procesar producciones para un nuevo estado
-                        List<LALRStateProduction> newState_StateProductions = GenerateNewStateProductions(currentProduction, states[actualStateIndex]);
+                        Tuple<List<LALRStateProduction>, List<LALRStateProduction>> newState_StateProductions = GenerateNewStateProductions(currentProduction, states[actualStateIndex]);
                         // Eliminar las producciones recien procesadas y extenderlas si es necesario
-                        List<LALRStateProduction> aux = new List<LALRStateProduction>();
-                        foreach (var production in newState_StateProductions)
+                        foreach(var production in newState_StateProductions.Item2)
                         {
-                            pendingStateProductionsList.RemoveAt(0);
+                            pendingStateProductionsList.Remove(production);
                             countOfStateProductionsProcessedInActualStateIndex++;
+                        }
+                        List<LALRStateProduction> aux = new List<LALRStateProduction>();
+                        foreach (var production in newState_StateProductions.Item1)
+                        {
                             string trimProductionSymbol = TrimSymbol(production.GetCurrentSybol());
                             if (!trimProductionSymbol.Equals("") && _sectionsManager.IsNonTerminal(trimProductionSymbol))
                             {
                                 aux = GenerateStateProductionsForNonTerminal(trimProductionSymbol, production);
                             }
                         }
-                        newState_StateProductions.AddRange(aux);
+                        newState_StateProductions.Item1.AddRange(aux);
                         // Asegurar que el estado sea unico
-                        Tuple<bool, int> unique = EnsureUniquenessOfStates(newState_StateProductions, states);
+                        Tuple<bool, int> unique = EnsureUniquenessOfStates(newState_StateProductions.Item1, states);
                         //Si ...
                         if (unique.Item1)
                         {// ... es unico se crea un nuevo estado
-                            states.Add(unique.Item2, newState_StateProductions);
-                            pendingStateProductionsList.AddRange(newState_StateProductions);
+                            states.Add(unique.Item2, newState_StateProductions.Item1);
+                            pendingStateProductionsList.AddRange(newState_StateProductions.Item1);
                         }
                         GenerateGotosShifts(actualStateIndex, currentSymbol, unique.Item2);
 
@@ -156,10 +159,10 @@ namespace ProyectoConsola.Managers
         /// <param name="firstStateProduction">Produccion principal</param>
         /// <param name="currentStateProductions">Listado de producciones del estado anterior</param>
         /// <returns>Lista de producciones correspondientes al nuevo estado</returns>
-        private List<LALRStateProduction> GenerateNewStateProductions(LALRStateProduction firstStateProduction, List<LALRStateProduction> currentStateProductions)
+        private Tuple<List<LALRStateProduction>, List<LALRStateProduction>> GenerateNewStateProductions(LALRStateProduction firstStateProduction, List<LALRStateProduction> currentStateProductions)
         {
             List<LALRStateProduction> productionsForNewState = new List<LALRStateProduction>();
-
+            List<LALRStateProduction> processedSateProductions = new List<LALRStateProduction>();
             //Se determina el simbolo actual de la produccion inicial
             string consumedSymbol = TrimSymbol(firstStateProduction._production.Split(' ')[firstStateProduction._actualIndex]);
 
@@ -173,6 +176,7 @@ namespace ProyectoConsola.Managers
                     // ... consumal el mismo simbolo que el simbolo consumido por la produccion inicial
                     if(consumedSymbol.Equals(actualSymbol) && !productionsForNewState.Contains(production))
                     {
+                        processedSateProductions.Add(production);
                         LALRStateProduction tempProduction = production.Clone();
                         tempProduction._actualIndex++; // Se aumenta el indice del simbolo actual de la produccion
                         productionsForNewState.Add(tempProduction);
@@ -180,7 +184,7 @@ namespace ProyectoConsola.Managers
                 }
             }
 
-            return productionsForNewState;
+            return new Tuple<List<LALRStateProduction>, List<LALRStateProduction>>(productionsForNewState, processedSateProductions);
         }
         /// <summary>
          /// Asegura que el estado prospecto no sea igual a uno ya existente
@@ -261,11 +265,12 @@ namespace ProyectoConsola.Managers
                     }
                     bool expand = true;
                     // La podruccion d contexto tiene almenos un simbolo delante se reduce el lookahead
-                    if(index < contextState._production.Split(' ').Length - 1)
+                    string[] context = contextState._production.Split(' ');
+                    if (contextState._actualIndex < context.Length - 1)
                     {
                         expand = false;
                     }
-                    var newLookahead = contextState._lookahead;
+                    var newLookahead = new List<string>();
                     // El lookahead de la produccion de estado se modifica 
                     if(expand)
                     {
@@ -275,6 +280,7 @@ namespace ProyectoConsola.Managers
                     else
                     {
                         //Se reduce
+                        newLookahead.Add(context[contextState._actualIndex]);
                         newLookahead = ReduceLookaheadForNonTerminalSymbol(newStateProduction, index);
                     }
                     newStateProduction._lookahead = newLookahead;
@@ -296,22 +302,23 @@ namespace ProyectoConsola.Managers
         {
             // Lógica para expandir el lookahead basado en el contexto
             List<string> newLookahead = contextState._lookahead;
-            if (nonTerminalIndex < contextState._production.Split(' ').Length - 1)
+            string[] strings = contextState._production.Split(' ');
+            if(nonTerminalIndex < strings.Length - 1)
             {
-                string[] strings = contextState._production.Split(' ');
-                if(!newLookahead.Contains(strings[nonTerminalIndex + 1]))
+                if (!newLookahead.Contains(strings[nonTerminalIndex + 1]))
                     newLookahead.Add(strings[nonTerminalIndex + 1]);
             }
+                
             return newLookahead;
         }
 
         private List<string> ReduceLookaheadForNonTerminalSymbol(LALRStateProduction contextState, int nonTerminalIndex)
         {
             // Lógica para expandir el lookahead basado en el contexto
-            List<string> newLookahead = contextState._lookahead;
-            if (nonTerminalIndex < contextState._production.Split(' ').Length - 1)
+            List<string> newLookahead = new List<string>();
+            string[] strings = contextState._production.Split(' ');
+            if (nonTerminalIndex < strings.Length - 1)
             {
-                string[] strings = contextState._production.Split(' ');
                 if (!newLookahead.Contains(strings[nonTerminalIndex + 1]))
                     newLookahead.Add(strings[nonTerminalIndex + 1]);
             }
