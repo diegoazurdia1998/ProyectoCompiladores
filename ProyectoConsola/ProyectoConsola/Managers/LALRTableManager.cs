@@ -47,7 +47,16 @@ namespace ProyectoConsola.Managers
                 throw;
             }
         }
+         public bool VerifyInputString(string param_input)
+        {
+            bool result = false;
+            string[] splitIInput = param_input.Split(' ');
+            int currentState = 0;
+            //Stack<>
 
+
+            return result;
+        }
         private string TrimSymbol(string symbol)
         {
             string currentSymbol = symbol;

@@ -66,7 +66,10 @@ namespace ProyectoConsola.Estructuras
         /// <returns>Simbolo en la posicion del indice actual</returns>
         public string GetCurrentSybol()
         {
-            return _production.Split(' ')[_actualIndex];
+            if (_actualIndex < _production.Split(' ').Length)
+                return _production.Split(' ')[_actualIndex];
+            else 
+                return "";
         }
 
         /// <summary>
