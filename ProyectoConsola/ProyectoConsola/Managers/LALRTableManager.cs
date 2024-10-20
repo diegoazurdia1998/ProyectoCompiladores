@@ -139,7 +139,12 @@ namespace ProyectoConsola.Managers
                             search = SearchReduction(i, listaSimbolos[j]);
                             if (search.Item1)
                             {
-                                valor = "R" + search.Item2.ToString();
+                                if(_acceptanceReduction.Item1.Equals(i) && _acceptanceReduction.Item2.Contains(listaSimbolos[j]))
+                                {
+                                    valor = "OK";
+                                }
+                                else
+                                    valor = "R" + search.Item2.ToString();
                             }
                             else
                             {
