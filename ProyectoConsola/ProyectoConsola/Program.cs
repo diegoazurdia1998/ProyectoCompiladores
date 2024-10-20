@@ -32,11 +32,11 @@ class Program
                 // Mostrar secciones
                 //sectionManager.PrintSections();
                 // Construir la tabla de Nullable, First y Follow
-                //NFFTableManager nFFTableManager = new NFFTableManager(sm);
+                NFFTableManager nFFTableManager = new NFFTableManager(sectionManager);
                 // Mostrar tabla de Nullable, First y Follow
                 //nFFTableManager.PrintTables();
                 // Calcular la tabla de estados y actions
-                LALRTableManager lALRTableManager = new LALRTableManager(sectionManager);
+                LALRTableManager lALRTableManager = new LALRTableManager(sectionManager, nFFTableManager);
                 // Mostrar tabla de estados y actions
                 //lALRTableManager.PrintStateTable();
                 Console.WriteLine("Eureka");

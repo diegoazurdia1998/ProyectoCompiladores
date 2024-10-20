@@ -16,14 +16,17 @@ namespace ProyectoConsola.Managers
     public class LALRTableManager
     {
         private SectionsManager _sectionsManager;
+        private NFFTableManager _nffTable;
         //public Dictionary<int, List<LALRStateProduction>> _states { get; set; }
         public List<Tuple<int, string, int>> _gotos { get; set; }
         public List<Tuple<int, string, int>> _shifts { get; set; }
         public List<Tuple<int, List<string>, int>> _reductions { get; set; }
+        public Tuple<int, List<string>, int> _acceptanceReduction { get; set; }
 
-        public LALRTableManager(SectionsManager sections)
+        public LALRTableManager(SectionsManager sections, NFFTableManager nffTable)
         {
             _sectionsManager = sections;
+            _nffTable = nffTable;
             //_states = new Dictionary<int, List<LALRStateProduction>>();
             _gotos = new List<Tuple<int, string, int>>();
             _shifts = new List<Tuple<int, string, int>>();
@@ -39,6 +42,10 @@ namespace ProyectoConsola.Managers
             {
                 //_states = 
                 GenerateStates();
+                if(_acceptanceReduction == null)
+                {
+                    throw new Exception("La gramatiica no tiene reduccion de aceptacion.");
+                }
 
             }
             catch (Exception e)
@@ -50,10 +57,13 @@ namespace ProyectoConsola.Managers
          public bool VerifyInputString(string param_input)
         {
             bool result = false;
-            string[] splitIInput = param_input.Split(' ');
+            string[] splitInput = param_input.Split(' ');
             int currentState = 0;
-            //Stack<>
+            string currentSymbol = splitInput[0];
+            Stack<VerifyInputStackItem> stackItems = new Stack<VerifyInputStackItem>();
+            var initialState = new VerifyInputStackItem("0");
 
+            //
 
             return result;
         }
@@ -241,9 +251,9 @@ namespace ProyectoConsola.Managers
         /// Determina todas las produccones relacionadas con el estado actual
         /// </summary>
         /// <param name="nonTerminal">Simbolo no terminal, identificador para las nuevas producciones</param>
-        /// <param name="contextState">Produccion actualmente analizada </param>
+        /// <param name="contextStateProduction">Produccion actualmente analizada </param>
         /// <returns>Lista de producciones estado derivadas de la actual</returns>
-        private List<LALRStateProduction> GenerateStateProductionsForNonTerminal(string nonTerminal, LALRStateProduction contextState)
+        private List<LALRStateProduction> GenerateStateProductionsForNonTerminal(string nonTerminal, LALRStateProduction contextStateProduction)
         {
             // Lista de produccionees estado para el simbolo no terminal
             List<LALRStateProduction> productionsOfNonTerminal = new List<LALRStateProduction>();
@@ -254,7 +264,7 @@ namespace ProyectoConsola.Managers
             foreach(var crudeProduction in crudeProductions)
             {
                 // Se crea la produccion estado a partir de la produccion
-                LALRStateProduction newStateProduction = new LALRStateProduction(0, nonTerminal, crudeProduction, contextState._lookahead);
+                LALRStateProduction newStateProduction = new LALRStateProduction(0, nonTerminal, crudeProduction, contextStateProduction._lookahead);
                 string[] splitCrudeProduction = crudeProduction.Split(' ');
                 //Se determina el simbolo actual de la nueva produccion estado
                 string currentSymbol = TrimSymbol(splitCrudeProduction[0]);
@@ -274,25 +284,30 @@ namespace ProyectoConsola.Managers
                     }
                     bool expand = true;
                     // La podruccion d contexto tiene almenos un simbolo delante se reduce el lookahead
-                    string[] context = contextState._production.Split(' ');
-                    if (contextState._actualIndex < context.Length - 1)
+                    string[] splitContextStateProduction = contextStateProduction._production.Split(' ');
+                    if (contextStateProduction._actualIndex < splitContextStateProduction.Length - 1)
                     {
                         expand = false;
                     }
                     var newLookahead = new List<string>();
                     // El lookahead de la produccion de estado se modifica 
-                    if(expand)
-                    {
-                        //Se expande
-                        newLookahead.AddRange(ExpandLookaheadForNonTerminalSymbol(newStateProduction, index));
-                    }
-                    else
+                    if(!expand)
                     {
                         //Se reduce
-                        newLookahead.Add(context[contextState._actualIndex]);
-                        newLookahead = ReduceLookaheadForNonTerminalSymbol(newStateProduction, index);
+                        string nextSymbolOfContextStateProduction = TrimSymbol(splitContextStateProduction[contextStateProduction._actualIndex + 1]);
+                        if(_sectionsManager.IsNonTerminal(nextSymbolOfContextStateProduction))
+                        {
+                            newLookahead.AddRange(_nffTable._first[nextSymbolOfContextStateProduction]);
+                        }
+                        else
+                        {
+                            newLookahead.Add(nextSymbolOfContextStateProduction);
+                        }
+                        
                     }
-                    newStateProduction._lookahead = newLookahead;
+                    newLookahead.AddRange(ModifyLookaheadForNonTerminalSymbol(expand, newStateProduction, index));
+                    if (newLookahead.Count > 0) 
+                        newStateProduction._lookahead = newLookahead;
                 }
                 productionsOfNonTerminal.Add(newStateProduction);
 
@@ -307,39 +322,60 @@ namespace ProyectoConsola.Managers
             return productionsOfNonTerminal;
         }
 
-        private List<string> ExpandLookaheadForNonTerminalSymbol(LALRStateProduction contextState, int nonTerminalIndex)
-        {
-            // Lógica para expandir el lookahead basado en el contexto
-            List<string> newLookahead = contextState._lookahead;
-            string[] strings = contextState._production.Split(' ');
-            if(nonTerminalIndex < strings.Length - 1)
-            {
-                if (!newLookahead.Contains(strings[nonTerminalIndex + 1]))
-                    newLookahead.Add(strings[nonTerminalIndex + 1]);
-            }
-                
-            return newLookahead;
-        }
 
-        private List<string> ReduceLookaheadForNonTerminalSymbol(LALRStateProduction contextState, int nonTerminalIndex)
+        private List<string> ModifyLookaheadForNonTerminalSymbol(bool expand, LALRStateProduction contextState, int nonTerminalIndex)
         {
             // Lógica para expandir el lookahead basado en el contexto
-            List<string> newLookahead = new List<string>();
+            List<string> newLookahead;
+            if(expand)
+            {
+                newLookahead = contextState._lookahead;
+            }
+            else
+            {
+                newLookahead = new List<string>();
+            }
             string[] strings = contextState._production.Split(' ');
             if (nonTerminalIndex < strings.Length - 1)
             {
-                if (!newLookahead.Contains(strings[nonTerminalIndex + 1]))
-                    newLookahead.Add(strings[nonTerminalIndex + 1]);
+                string nextSymbol = TrimSymbol(strings[nonTerminalIndex + 1]);
+                if (_sectionsManager.IsNonTerminal(nextSymbol))
+                {
+                    HashSet<string> firstOfNonTerminal = _nffTable._first[nextSymbol];
+                    newLookahead.AddRange(AddFirst(newLookahead, firstOfNonTerminal));
+                }
+                else
+                {
+                    if (!newLookahead.Contains(nextSymbol))
+                        newLookahead.Add(nextSymbol);
+                }
             }
             return newLookahead;
         }
+        private List<string> AddFirst(List<string> newLookahead, HashSet<string> newSymbols)
+        {
+            List<string> additionalLookahead = new List<string>();
 
+            foreach (string symbol in newSymbols)
+            {
+                if (!newLookahead.Contains(symbol))
+                {
+                    additionalLookahead.Add(symbol);
+                }
+            }
+
+            return additionalLookahead;
+        }
         private void GenerateReductionForState(int currentStateIndex, List<string> consumedSymbol, int indexOfProduccion)
         {
             Tuple<int, List<string>, int> reduction = new Tuple<int, List<string>, int>(currentStateIndex, consumedSymbol, indexOfProduccion);
             if (!_reductions.Contains(reduction))
             {
                 _reductions.Add(reduction);
+                if(_reductions.Count == 1)
+                {
+                    _acceptanceReduction = reduction;
+                }
             }
         }
         private void GenerateGotosShifts(int currentStateIndex, string consumedSymbol, int nextStateIndex)
