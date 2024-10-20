@@ -8,4 +8,8 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="EPPlus" Version="7.4.1" />
+  </ItemGroup>
+
 </Project>

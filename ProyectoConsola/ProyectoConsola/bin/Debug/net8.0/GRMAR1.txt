@@ -1,0 +1,53 @@
+COMPILER
+yoshi.
+UNITS 
+	Uinclude,Ugenera,ValConst,ValExp,RegArray,Proc,ValCond;
+SETS
+	letter = 'A'..'Z'+'a'..'z'+'_';
+	digit = '0'..'9';
+	charset = chr(32)..chr(254);
+TOKENS
+	number = digit digit*;
+	identifier = letter(letter|digit)* check;
+	str = charset charset *;
+	'=','<>','<','>','>=','<=' Left;
+	'+','-','OR',';' Left;
+	'*','AND','MOD','DIV' Left;
+	'NOT' Right;
+KEYWORDS
+	'PROGRAM','INCLUDE','CONST','TYPE','VAR','RECORD','ARRAY','OF','PROCEDURE',
+	'FUNCTION','IF','THEN','ELSE','FOR','TO','WHILE','DO','EXIT','END','PRINTLN','READLN',
+	'CASE','BREAK','DOWNTO', 'INTEGER', 'REAL', 'BOOLEAN', 'STRING', 'BEGIN';
+	Comments '(*' TO '*)' comentario;
+PRODUCTIONS
+	<program> = 'PROGRAM' identifier ';' <block> '.'
+	<block> = <declarations> <compound_statement>
+	<declarations> = (<var_declaration> | <procedure_declaration>) <declarations> | ε
+	<var_declaration> = 'VAR' identifier ':' <type> ';' <var_declaration> | ε
+	<procedure_declaration> = 'PROCEDURE' identifier '(' <parameter_list> ')' ';' <block> ';'
+	<parameter_list> = identifier ':' <type> <parameter_list_ext>
+	<parameter_list> = ε
+	<parameter_list_ext> = ',' identifier ':' <type> <parameter_list_ext>
+	<type> = 'INTEGER' | 'REAL' | 'BOOLEAN' | 'STRING'
+	<compound_statement> = 'BEGIN' <statement_list> 'END'
+	<statement_list> = <statement> | <statement> <statement_list_ext>
+	<statement_list_ext> = ';' <statement> <statement_list_ext>
+	<statement> = <assignment> | <if_statement> | <while_statement> | <procedure_call> | <io_statement>
+	<assignment> = identifier ':=' <expression>
+	<if_statement> = 'IF' <expression> 'THEN' <statement> <else_statement>
+	<else_statement> = 'ELSE' <statement> | ε
+	<while_statement> = 'WHILE' <expression> 'DO' <statement>
+	<procedure_call> = identifier '(' <argument_list> ')'
+	<argument_list> = <expression> <argument_list_ext> | ε
+	<argument_list_ext> = ',' <expression><argument_list_ext> | ε
+	<io_statement> = 'PRINTLN' '(' <expression> ')' | 'READLN' '(' identifier ')'
+	<expression> = <simple_expression> <expression_ext>
+	<expression_ext> = <relational_operator> <simple_expression> |  ε
+	<simple_expression> = <term> <additive_operator> <term> | ε
+	<term> = <factor> <multiplicative_operator> <factor> | ε
+	<factor> = '(' <expression> ')' | identifier {check_keywords, save_string_value} | number {save_number_value} | <boolean_constant>  | <string_constant>
+	<relational_operator> = '=' | '<>' | '<' | '<=' | '>' | '>=' {save_operator_value}
+	<additive_operator> = '+' | '-' | 'OR' {save_string_value}
+	<multiplicative_operator> = '*' | '/' | 'AND' {save_string_value}
+	<boolean_constant> = 'TRUE' | 'FALSE'
+	<string_constant> = '"' str'"' {save_string_value}

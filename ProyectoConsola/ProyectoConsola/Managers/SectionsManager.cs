@@ -149,6 +149,9 @@ namespace ProyectoConsola.Managers
             KeywordsManager();
             //Productions
             ProductionsManager();
+            // Aplicar SETS a  TOKENS
+            TokensToRegularExpressions();
+
         }
         /// <summary>
         /// Método que gestiona la sección UNITS.
@@ -417,7 +420,7 @@ namespace ProyectoConsola.Managers
 
             List<string> tokensList = _sections["TOKENS"];
             Regex identifierRegex = new(@"\s*[A-Za-z]\w*\s*=\s*"),
-                rightSideRegex = new(@"(((\w\s+(\w*\*)?)|(\w\s*\(\s*\w+\s*\|?\s*(\w+\*?)\)\*?)|('.'(,'.')*))(\s*(Left|Right|(c|C)heck)?));");
+                rightSideRegex = new(@"(\s*((\w\s+(\w*\*)?)|(\w\s*\(\s*\w+\s*\|?\s*(\w+\s*\*?\s*)\)\s*\*?)|('.'(,'.')*))(\s*(Left|Right|(c|C)heck)?)\s*);");
 
             foreach (string token in tokensList)
             {
@@ -491,12 +494,12 @@ namespace ProyectoConsola.Managers
                     {
                         if (Left)
                         {
-                            _tokens.Add(new Token("", part.Trim('\''), "LEFT"));
+                            _tokens.Add(new Token("default", part.Trim('\''), "LEFT"));
 
                         }
                         else
                         {
-                            _tokens.Add(new Token("", part.Trim('\''), "RIGHT"));
+                            _tokens.Add(new Token("default", part.Trim('\''), "RIGHT"));
                         }
                     }
 
@@ -594,7 +597,7 @@ namespace ProyectoConsola.Managers
         {
             bool ok = true;
             List<string> prodictionsList = _sections["PRODUCTIONS"];
-            Regex prodictionsRegex = new(@"(\s*<[A-Za-z][A-Za-z_]*'?>\s*=\s*)((\(?(\s*'(([A-Za-z][A-Za-z_]*)|([.:,;()<>*""+/-=])|:=|<>|<=|>=)'\s*|\s*<[A-Za-z][A-Za-z_]*>\s*|\s*[A-Za-z]+\s*|\s*ε\s*)\)?\|?)+)");
+            Regex prodictionsRegex = new(@"(\s*<[A-Za-z][A-Za-z_]*'?>\s*=\s*)((\(?(\s*'(([A-Za-z][A-Za-z_]*)|(\W+))'\s*|\s*<[A-Za-z][A-Za-z_]*>\s*|\s*[A-Za-z]+\s*|\s*ε\s*)\)?\|?)+)");
             Match match;
             foreach (string production in prodictionsList)
             {
@@ -868,7 +871,8 @@ namespace ProyectoConsola.Managers
                         {
                             _nonTerminalActions[productionKey][realProduction.Trim()].Add(TrimSymbol(action)); // trim each action
                         }
-                        _nonTerminals[productionKey].Add(realProduction.Trim());
+                        if(!realProduction.Equals("ε"))
+                            _nonTerminals[productionKey].Add(realProduction.Trim());
 
                         int auxIndex = _orderedNonTerminals.IndexOf(new Tuple<string, string>(productionKey, production));
                         _orderedNonTerminals[auxIndex] = new Tuple<string,string>(productionKey, realProduction);
@@ -876,12 +880,59 @@ namespace ProyectoConsola.Managers
                     else
                     {
                         if (!_nonTerminals.ContainsKey(productionKey)) _nonTerminals.Add(productionKey, new List<string>());
-                        _nonTerminals[productionKey].Add(production.Trim());
+                        if (!production.Equals("ε"))
+                            _nonTerminals[productionKey].Add(production.Trim());
                     }
                 }
             }
         }
-
+        private void TokensToRegularExpressions()
+        {
+            Dictionary<string, string> sets = LinearizeSets();
+            List<Token> tokensToRegularExpressions = new List<Token>(_tokens);
+            foreach (var token in tokensToRegularExpressions)
+            {
+                if (!token.identifier.Equals("default"))
+                {
+                    string[] splitProduction = token.production.Split(' ');
+                    string newProductionAsRE = "";
+                    foreach (string symbol in splitProduction)
+                    {
+                        if (sets.ContainsKey(symbol))
+                        {
+                            newProductionAsRE += sets[symbol];
+                        }
+                        else
+                        {
+                            newProductionAsRE += symbol;
+                        }
+                    }
+                    _tokens.Remove(token);
+                    Token newToken = new Token(token.identifier, newProductionAsRE, token.associativity);
+                    _tokens.Add(newToken);
+                    newProductionAsRE = "";
+                }
+                
+            }
+            
+        }
+        private Dictionary<string, string> LinearizeSets()
+        {
+            Dictionary<string, string> linearSets = new Dictionary<string, string>();
+            string newSet = "";
+            foreach (var setKey in _sets.Keys)
+            {
+                List<string> res = _sets[setKey];
+                foreach (var regularExpresson in res)
+                {
+                    newSet += regularExpresson.Trim('[').Trim(']');
+                }
+                newSet = '[' + newSet + "]";
+                linearSets[setKey] = newSet;
+                newSet = "";
+            }
+            return linearSets;
+        }
         private string TrimSymbol(string symbol)
         {
             string currentSymbol = symbol;
@@ -897,38 +948,8 @@ namespace ProyectoConsola.Managers
             }
             return currentSymbol.Trim();
         }
-        //public bool IsTerminal(string symbol)
-        //{
-        //    bool isTerminal = true;
-        //    if (!_terminals.Contains(symbol))
-        //    {
-        //        isTerminal = false;
-        //        foreach (Token token in _tokens)
-        //        {
-        //            if (token.TokenEquals(symbol))
-        //            {
-        //                isTerminal = true;
-        //                break;
-        //            }
-        //        }
-        //    }
-        //    // Verificar si el símbolo es terminal
-        //    return isTerminal;
-        //}
-
-        /// <summary>
-        /// Verifica si un símbolo es no terminal.
-        /// </summary>
-        /// <param name="symbol">Símbolo a verificar.</param>
-        /// <returns>True si el símbolo es no terminal, false en caso contrario.</returns>
-        /// 
-        public bool IsTerminal(string symbol)
-        {
-            if (_terminals.Contains(symbol) || _tokens.Any(token => token.TokenEquals(symbol))) return true;
-            return false;
-                
-            //return _nonTerminals.ContainsKey(symbol);
-        }
+       
+        
         /// <summary>
         /// Verifica si un símbolo es no terminal.
         /// </summary>
@@ -937,6 +958,35 @@ namespace ProyectoConsola.Managers
         public bool IsNonTerminal(string symbol)
         {
             return _nonTerminals.ContainsKey(symbol);
+        }
+        public bool IsToken(string token)
+        {
+            foreach(var t in _tokens)
+            {
+                if(t.TokenEquals(token))
+                {
+                    return true;
+                }
+                else
+                {
+                    if(t.TokenMatch(token))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        public string GetTokenIdentifier(string symbol)
+        {
+            foreach (var t in _tokens)
+            {
+                if (t.TokenMatch(symbol))
+                {
+                    return t.identifier;
+                }
+            }
+            return  string.Empty;
         }
     }
 }

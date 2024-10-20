@@ -38,14 +38,16 @@ class Program
                 // Calcular la tabla de estados y actions
                 LALRTableManager lALRTableManager = new LALRTableManager(sectionManager, nFFTableManager);
                 // Mostrar tabla de estados y actions
-                //lALRTableManager.PrintStateTable();
-                Console.WriteLine("Eureka");
-                Console.ReadLine();
+                lALRTableManager.ExportarATablaExcel("");
+                Console.WriteLine("Presione cualquier tecla para continuar");
+                filePath = Console.ReadLine();
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error: " + ex.Message);
+                Console.WriteLine("\nPresione cualquier tecla para continuar");
+                Console.ReadLine();
             }
         }
     }

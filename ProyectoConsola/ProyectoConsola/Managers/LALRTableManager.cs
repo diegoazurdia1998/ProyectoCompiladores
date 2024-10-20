@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using ProyectoConsola.Estructuras;
+using OfficeOpenXml;
+using System.Collections.Generic;
+using System.IO;
 using static System.Net.Mime.MediaTypeNames;
+using System.Reflection;
 
 namespace ProyectoConsola.Managers
 {
@@ -54,18 +59,237 @@ namespace ProyectoConsola.Managers
                 throw;
             }
         }
-         public bool VerifyInputString(string param_input)
+        public void ExportarATablaExcel(string rutaArchivo)
+        {
+            // Establecer el contexto de licencia
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            // Ruta de salida de la compilación
+            var rutaSalidaCompilacion = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            // Validar la ruta del archivo
+            if (string.IsNullOrWhiteSpace(rutaArchivo) || !Directory.Exists(Path.GetDirectoryName(rutaArchivo)))
+            {
+                // Si la ruta es inválida, usar la ruta de salida de la compilación
+                rutaArchivo = Path.Combine(rutaSalidaCompilacion, "archivo.xlsx");
+            }
+
+            // Asegurarse de que el directorio existe
+            var directorio = Path.GetDirectoryName(rutaArchivo);
+            if (!Directory.Exists(directorio))
+            {
+                Directory.CreateDirectory(directorio);
+            }
+
+            // Paso 1: Obtener todos los estados y símbolos
+            var estados = new HashSet<int>();
+            var simbolos = new HashSet<string>();
+
+            // Agregar estados de las listas
+            foreach (var gotoTuple in _gotos)
+            {
+                estados.Add(gotoTuple.Item1);
+                simbolos.Add(gotoTuple.Item2);
+            }
+            foreach (var shiftTuple in _shifts)
+            {
+                estados.Add(shiftTuple.Item1);
+                simbolos.Add(shiftTuple.Item2);
+            }
+            foreach (var reductionTuple in _reductions)
+            {
+                estados.Add(reductionTuple.Item1);
+                foreach (var simbolo in reductionTuple.Item2)
+                {
+                    simbolos.Add(simbolo);
+                }
+            }
+
+            // Convertir a listas y ordenar
+            var listaEstados = new List<int>(estados);
+            listaEstados.Sort();
+            var listaSimbolos = new List<string>(simbolos);
+            listaSimbolos.Sort();
+
+            // Paso 2: Crear el archivo Excel
+            using (var paquete = new ExcelPackage())
+            {
+                var hoja = paquete.Workbook.Worksheets.Add("Tabla Parser");
+
+                // Escribir la primera fila con los símbolos
+                hoja.Cells[1, 1].Value = "Estado";
+                for (int i = 0; i < listaSimbolos.Count; i++)
+                {
+                    hoja.Cells[1, i + 2].Value = listaSimbolos[i];
+                }
+
+                // Llenar la tabla con los valores
+                for (int i = 0; i < listaEstados.Count; i++)
+                {
+                    hoja.Cells[i + 2, 1].Value = listaEstados[i]; // Estado
+                    for (int j = 0; j < listaSimbolos.Count; j++)
+                    {
+                        string valor = ""; // Inicializamos como vacío
+                        Tuple<bool, int> search = SearchShift(i, listaSimbolos[j]);
+                        if (search.Item1)
+                        {
+                            valor = "S" + search.Item2.ToString();
+                        }
+                        else
+                        {
+                            search = SearchReduction(i, listaSimbolos[j]);
+                            if (search.Item1)
+                            {
+                                valor = "R" + search.Item2.ToString();
+                            }
+                            else
+                            {
+                                foreach(var gotoOp in _gotos)
+                                {
+                                    if(gotoOp.Item1.Equals(i) && gotoOp.Item2.Equals(listaSimbolos[j]))
+                                    {
+                                        valor = "G" + gotoOp.Item3.ToString();
+                                    }
+                                }
+                            }
+                        }
+                        hoja.Cells[i + 2, j + 2].Value = valor;
+                    }
+                }
+
+                // Guardar el archivo
+                var archivoInfo = new FileInfo(rutaArchivo);
+                paquete.SaveAs(archivoInfo);
+            }
+        }
+        public bool VerifyInputString(string param_input)
         {
             bool result = false;
             string[] splitInput = param_input.Split(' ');
-            int currentState = 0;
-            string currentSymbol = splitInput[0];
-            Stack<VerifyInputStackItem> stackItems = new Stack<VerifyInputStackItem>();
-            var initialState = new VerifyInputStackItem("0");
+            int indexOfCurrentSymbol = 0;
+            string currentSymbol = splitInput[indexOfCurrentSymbol];
+            Stack<InputStackItem> itemStack = new Stack<InputStackItem>();
+            var initialState = new InputStackItem(0, 0);
+            itemStack.Push(initialState);
+            InputStackItem currentItem;
+            // Mientras la cadena de entrada no haya sido totalmente analizada ...
+            do
+            {
+                currentItem = itemStack.Peek();
+                // Si el primer elemento del stack es un estado se puede realizar shift o reduction
+                if (currentItem._type.Equals(0))
+                {
+                    currentSymbol = splitInput[indexOfCurrentSymbol];
+                    InputStackItem itemizedSymbol;
+                    if (_sectionsManager.IsToken(currentSymbol))
+                    {
+                        string idenfier = _sectionsManager.GetTokenIdentifier(currentSymbol);
+                        itemizedSymbol = new InputStackItem(idenfier, 1, currentSymbol);
+                    }
+                    else
+                    {
+                        itemizedSymbol = new InputStackItem(currentSymbol, 1);
+                    }
+                    Tuple<bool, int> search = SearchShift(currentItem.GetIntValueForSymbol(), currentSymbol);
+                    if (search.Item1)
+                    {
+                        Console.WriteLine("SHIFT " + search.Item2);
+                        itemStack.Push(itemizedSymbol);
+                        itemStack.Push(new InputStackItem(search.Item2, 0));
+                        indexOfCurrentSymbol++;
+                    }
+                    else 
+                    {
 
-            //
+                        search = SearchReduction(currentItem.GetIntValueForSymbol(), currentSymbol);
+                        if (search.Item1)
+                        {
+                            // Si se debe realizar una reduccion tambien hay que hacer los actions de la produccion
+                            Tuple<string, string> identifierProduction = _sectionsManager._orderedNonTerminals[search.Item2];
+                            Console.WriteLine("REDUCTION " + search.Item2 + ", " + identifierProduction.Item1 + " = " + identifierProduction.Item2);
+                            itemStack.Pop();
+                            string[] splitProduction = identifierProduction.Item2.Split(' ');
+                            object[] valuesForActions = new string[splitProduction.Length];
+                            for (int i = splitProduction.Length - 1; i > -1; i--)
+                            {
+                                string trimSymbol = TrimSymbol(splitProduction[i]);
+                                if (trimSymbol.Equals(itemStack.Peek().GetStringValueForSymbol()))
+                                {
+                                    InputStackItem itemSymbol = itemStack.Pop(); // Se saca el item con el SIMBOLO del stack
+                                    if(itemSymbol._value != null)
+                                    {
+                                        valuesForActions[i] = itemSymbol._value;
+                                    }
+                                    itemStack.Pop(); // Se saca el item con el ESTADO del stack
+
+                                }
+                                else
+                                {
+                                    string error = "Se esperaba '" + itemStack.Peek() + "' , pero se entontro '" + trimSymbol + "'";
+                                    throw new Exception(error);
+                                }
+                            }
+                            if (_sectionsManager._nonTerminalActions.Keys.Contains(identifierProduction.Item1))
+                            {
+                                if (_sectionsManager._nonTerminalActions[identifierProduction.Item1].Keys.Contains(identifierProduction.Item2))
+                                {
+                                    List<string> actions = _sectionsManager._nonTerminalActions[identifierProduction.Item1][identifierProduction.Item2];
+                                    DoActions(actions, splitProduction);
+                                }
+                            }
+                        }
+                    } 
+                    
+                    //
+
+                }// Si no hay estado al inicio del stack se debe realiar un goto
+                else
+                {
+                    InputStackItem nextItem = itemStack.ElementAt(1);
+                    // Determinar el estado a insertar en la pila
+                    foreach(var gotoOperation in _gotos)
+                    {
+                        if(gotoOperation.Item1.Equals(nextItem.GetIntValueForSymbol()) && gotoOperation.Item2.Equals(currentItem.GetStringValueForSymbol()))
+                        {
+                            Console.WriteLine("GOTO " + gotoOperation.Item3);
+                            itemStack.Push(new InputStackItem(gotoOperation.Item3, 0));
+                        }
+                    }
+                }
+            }
+            while (indexOfCurrentSymbol < splitInput.Length);
+
+            // Cuando se analice toda la cadena de entrada hayy que verificar si el stack tiene elementos por procesar y verificar el estado de aceptacion
+
 
             return result;
+        }
+
+        private Tuple<bool, int> SearchShift(int currentState, string consumedSymbol)
+        {
+            
+            foreach(var shiftOperation in _shifts)
+            {
+                if(shiftOperation.Item1.Equals(currentState) && shiftOperation.Item2.Equals(consumedSymbol))
+                {
+                    return new Tuple<bool, int>(true, shiftOperation.Item3);
+                }
+            }
+            return new Tuple<bool, int>(false, -1);
+        }
+        private Tuple<bool, int> SearchReduction(int currentState, string consumedSymbol)
+        {
+            foreach(var reductionOperation in _reductions)
+            {
+                if (reductionOperation.Item1.Equals(currentState) && reductionOperation.Item2.Contains(consumedSymbol))
+                {
+                    return new Tuple<bool, int>(true, reductionOperation.Item3);
+                }
+            }
+            return new Tuple<bool, int>(false, -1);
+        }
+        private void DoActions(List<string> actions, string[] values)
+        {
+            // Realizar las actions
         }
         private string TrimSymbol(string symbol)
         {
@@ -149,9 +373,16 @@ namespace ProyectoConsola.Managers
                         
                         //Reduction
                         int productionIndex = _sectionsManager._orderedNonTerminals.IndexOf(new Tuple<string, string>(currentProduction._identifier, currentProduction._production));
-                        if (!currentProduction._identifier.Equals(_sectionsManager._startSymbol) && productionIndex >= 0)
+                        if (productionIndex >= 0)
                         {
                             GenerateReductionForState(actualStateIndex, currentProduction._lookahead, productionIndex);
+                        }
+                        if(_acceptanceReduction == null && productionIndex == 0)
+                        {
+                            if(currentProduction._actualIndex >= currentProduction._production.Split(' ').Length)
+                            {
+                                _acceptanceReduction = new Tuple<int, List<string>, int>(actualStateIndex, currentProduction._lookahead, productionIndex);
+                            }
                         }
 
                     }
@@ -372,10 +603,6 @@ namespace ProyectoConsola.Managers
             if (!_reductions.Contains(reduction))
             {
                 _reductions.Add(reduction);
-                if(_reductions.Count == 1)
-                {
-                    _acceptanceReduction = reduction;
-                }
             }
         }
         private void GenerateGotosShifts(int currentStateIndex, string consumedSymbol, int nextStateIndex)

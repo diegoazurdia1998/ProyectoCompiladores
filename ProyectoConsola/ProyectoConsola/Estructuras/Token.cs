@@ -1,4 +1,6 @@
-﻿/// <summary>
+﻿using System.Text.RegularExpressions;
+
+/// <summary>
 /// Clase que representa un token en un lenguaje de programación.
 /// Un token es una unidad básica de código que puede ser un identificador, una palabra clave, un símbolo, etc.
 /// </summary>
@@ -57,6 +59,18 @@ namespace ProyectoConsola.Estructuras
                 return true;
             }
             return false;
+        }
+        public bool TokenMatch(string other)
+        {
+            if(!identifier.Equals("default") && Regex.IsMatch(other, production))
+            {
+                return true;
+            }
+            return false;
+        }
+        public string GetIdentifier(string other)
+        {
+            return identifier;
         }
     }
 }
