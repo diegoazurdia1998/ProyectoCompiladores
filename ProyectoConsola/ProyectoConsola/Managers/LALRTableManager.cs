@@ -20,6 +20,7 @@ namespace ProyectoConsola.Managers
 /// </summary>
     public class LALRTableManager
     {
+        Dictionary<int, List<LALRStateProduction>> _states;
         private SectionsManager _sectionsManager;
         private NFFTableManager _nffTable;
         //public Dictionary<int, List<LALRStateProduction>> _states { get; set; }
@@ -45,8 +46,7 @@ namespace ProyectoConsola.Managers
             // Paso 1: Generar la tabla de parser
             try
             {
-                //_states = 
-                GenerateStates();
+                _states = GenerateStates();
                 if(_acceptanceReduction == null)
                 {
                     throw new Exception("La gramatiica no tiene reduccion de aceptacion.");
@@ -136,6 +136,7 @@ namespace ProyectoConsola.Managers
                         }
                         else
                         {
+                            
                             search = SearchReduction(i, listaSimbolos[j]);
                             if (search.Item1)
                             {
@@ -183,10 +184,11 @@ namespace ProyectoConsola.Managers
                 // Si el primer elemento del stack es un estado se puede realizar shift o reduction
                 if (currentItem._type.Equals(0))
                 {
-                    currentSymbol = splitInput[indexOfCurrentSymbol];
+                    currentSymbol = TrimSymbol(splitInput[indexOfCurrentSymbol]);
                     InputStackItem itemizedSymbol;
                     if (_sectionsManager.IsToken(currentSymbol))
                     {
+                        
                         string idenfier = _sectionsManager.GetTokenIdentifier(currentSymbol);
                         itemizedSymbol = new InputStackItem(idenfier, 1, currentSymbol);
                     }
@@ -194,7 +196,7 @@ namespace ProyectoConsola.Managers
                     {
                         itemizedSymbol = new InputStackItem(currentSymbol, 1);
                     }
-                    Tuple<bool, int> search = SearchShift(currentItem.GetIntValueForSymbol(), currentSymbol);
+                    Tuple<bool, int> search = SearchShift(currentItem.GetIntValueForSymbol(), itemizedSymbol.GetStringValueForSymbol());
                     if (search.Item1)
                     {
                         Console.WriteLine("SHIFT " + search.Item2);

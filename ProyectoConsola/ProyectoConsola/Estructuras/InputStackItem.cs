@@ -11,8 +11,6 @@ namespace ProyectoConsola.Estructuras
     /// </summary>
     public class InputStackItem
     {
-        private readonly int STATE = 0;
-        private readonly int INPUT_SYMBOL = 1;
         public object _symbol {  get; set; }
         public object _value {  get; set; }
         public int _type { get; set; }

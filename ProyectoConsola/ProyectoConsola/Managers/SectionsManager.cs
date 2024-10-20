@@ -908,6 +908,7 @@ namespace ProyectoConsola.Managers
                         }
                     }
                     _tokens.Remove(token);
+                    newProductionAsRE = "^" + newProductionAsRE + "$";
                     Token newToken = new Token(token.identifier, newProductionAsRE, token.associativity);
                     _tokens.Add(newToken);
                     newProductionAsRE = "";
@@ -965,12 +966,20 @@ namespace ProyectoConsola.Managers
             {
                 if(t.TokenEquals(token))
                 {
+                    if (_terminals.Contains(token))
+                    {
+                        return false;
+                    }
                     return true;
                 }
                 else
                 {
                     if(t.TokenMatch(token))
                     {
+                        if (_terminals.Contains(token))
+                        {
+                            return false;
+                        }
                         return true;
                     }
                 }

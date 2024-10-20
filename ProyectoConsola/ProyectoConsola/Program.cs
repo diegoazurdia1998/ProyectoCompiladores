@@ -39,6 +39,15 @@ class Program
                 LALRTableManager lALRTableManager = new LALRTableManager(sectionManager, nFFTableManager);
                 // Mostrar tabla de estados y actions
                 lALRTableManager.ExportarATablaExcel("");
+
+                Console.WriteLine("Ingrese una cadena para validar");
+                string input = Console.ReadLine();
+                while (!input.Equals("s"))
+                {
+                    lALRTableManager.VerifyInputString(input);
+                    Console.WriteLine("Ingrese una cadena para validar");
+                    input = Console.ReadLine();
+                }
                 Console.WriteLine("Presione cualquier tecla para continuar");
                 filePath = Console.ReadLine();
 
