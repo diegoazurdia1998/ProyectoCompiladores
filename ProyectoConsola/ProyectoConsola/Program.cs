@@ -38,7 +38,12 @@ class Program
                 // Calcular la tabla de estados y actions
                 LALRTableManager lALRTableManager = new LALRTableManager(sectionManager, nFFTableManager);
                 // Mostrar tabla de estados y actions
-                lALRTableManager.ExportarATablaExcel("");
+                Console.WriteLine("Exportar Excel?");
+                string op = Console.ReadLine();
+                if (op.Equals("t"))
+                    lALRTableManager.ExportActionsToExcel("");
+                else if (op.Equals("s"))
+                    lALRTableManager.ExportStatesToExcel("");
 
                 Console.WriteLine("Ingrese una cadena para validar");
                 string input = Console.ReadLine();

@@ -39,7 +39,7 @@ namespace ProyectoConsola.Estructuras
             _identifier = identifier;
             _actualIndex = index;
             _production = productions;
-            this._lookahead = lookahead;
+            _lookahead = lookahead;
         }
 
         public LALRStateProduction Clone()
@@ -122,6 +122,10 @@ namespace ProyectoConsola.Estructuras
                 }
             }
             return false;
+        }
+        public bool EqualsIdentifier(string identifier)
+        {
+            return _identifier.Equals(identifier);
         }
     }
 }

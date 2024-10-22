@@ -59,7 +59,7 @@ namespace ProyectoConsola.Managers
                 throw;
             }
         }
-        public void ExportarATablaExcel(string rutaArchivo)
+        public void ExportStatesToExcel(string rutaArchivo)
         {
             // Establecer el contexto de licencia
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -70,7 +70,74 @@ namespace ProyectoConsola.Managers
             if (string.IsNullOrWhiteSpace(rutaArchivo) || !Directory.Exists(Path.GetDirectoryName(rutaArchivo)))
             {
                 // Si la ruta es inválida, usar la ruta de salida de la compilación
-                rutaArchivo = Path.Combine(rutaSalidaCompilacion, "archivo.xlsx");
+                rutaArchivo = Path.Combine(rutaSalidaCompilacion, "estados.xlsx");
+            }
+
+            // Asegurarse de que el directorio existe
+            var directorio = Path.GetDirectoryName(rutaArchivo);
+            if (!Directory.Exists(directorio))
+            {
+                Directory.CreateDirectory(directorio);
+            }
+
+            using (ExcelPackage paquete = new ExcelPackage())
+            {
+                // Crea una nueva hoja de trabajo
+                ExcelWorksheet worksheet = paquete.Workbook.Worksheets.Add("Estados");
+
+                // Encabezados
+                worksheet.Cells[1, 1].Value = "Estado actual";
+                worksheet.Cells[2, 1].Value = "Identificador";
+                worksheet.Cells[2, 2].Value = "Producción";
+                worksheet.Cells[2, 3].Value = "Simbolo/Indice actual";
+                worksheet.Cells[2, 4].Value = "Lookahead";
+
+                int row = 3; // Comenzar desde la tercera fila para los datos
+
+                // Recorrer el diccionario de estados
+                foreach (var state in _states)
+                {
+                    int stateNumber = state.Key;
+                    var productions = state.Value;
+
+                    // Escribir el número de estado
+                    worksheet.Cells[row, 1].Value = $"Estado: {stateNumber}";
+                    row++;
+
+                    // Escribir las producciones
+                    foreach (var production in productions)
+                    {
+                        worksheet.Cells[row, 1].Value = production._identifier; // Identificador
+                        worksheet.Cells[row, 2].Value = production._production; // Producción
+                        if(production._actualIndex < production._production.Split(' ').Length)
+                            worksheet.Cells[row, 3].Value = $"{production._production.Split(' ')[production._actualIndex]} / {production._actualIndex}"; // Índice actual
+                        else
+                            worksheet.Cells[row, 3].Value = $"E.O.P. / {production._actualIndex}";
+                        worksheet.Cells[row, 4].Value = string.Join(", ", production._lookahead); // Lookahead
+                        row++;
+                    }
+
+                    // Espaciado entre estados
+                    row++;
+                }
+
+                // Guardar el archivo
+                var archivoInfo = new FileInfo(rutaArchivo);
+                paquete.SaveAs(archivoInfo);
+            }
+        }
+        public void ExportActionsToExcel(string rutaArchivo)
+        {
+            // Establecer el contexto de licencia
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            // Ruta de salida de la compilación
+            var rutaSalidaCompilacion = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            // Validar la ruta del archivo
+            if (string.IsNullOrWhiteSpace(rutaArchivo) || !Directory.Exists(Path.GetDirectoryName(rutaArchivo)))
+            {
+                // Si la ruta es inválida, usar la ruta de salida de la compilación
+                rutaArchivo = Path.Combine(rutaSalidaCompilacion, "actions.xlsx");
             }
 
             // Asegurarse de que el directorio existe
@@ -495,6 +562,7 @@ namespace ProyectoConsola.Managers
         {
             // Lista de produccionees estado para el simbolo no terminal
             List<LALRStateProduction> productionsOfNonTerminal = new List<LALRStateProduction>();
+            Dictionary<string, HashSet<List<string>>>? recursiveLookaheads = null;
             // Lisado de producciones del simbolo no terminal
             List<string> crudeProductions = _sectionsManager._nonTerminals[nonTerminal];
             
@@ -506,46 +574,38 @@ namespace ProyectoConsola.Managers
                 string[] splitCrudeProduction = crudeProduction.Split(' ');
                 //Se determina el simbolo actual de la nueva produccion estado
                 string currentSymbol = TrimSymbol(splitCrudeProduction[0]);
+                // Analisis de lookahead en base al contexto
+                string[] splitContextStateProduction = contextStateProduction._production.Split(' ');
+                if (contextStateProduction._actualIndex < splitContextStateProduction.Length - 1)
+                {
+                    newStateProduction._lookahead = ModifyLookaheadForNonTerminalSymbol(false, contextStateProduction, contextStateProduction._actualIndex);
+                }
 
-                // Si la nueva produccion estado contiene al simbolo no terminal debe ajustarse el lookahead
+                // Si la nueva produccion estado contiene al simbolo no terminal debe ajustarse el lookahead incluyendo el lookahead del contexto
                 if (splitCrudeProduction.Contains('<' + nonTerminal + '>'))
                 {
+                    if(recursiveLookaheads == null) 
+                        recursiveLookaheads = new Dictionary<string, HashSet<List<string>>>();
                     //Se determina la posicion del no terminal en la produccion
                     int index = 0;
                     foreach (var symbol in splitCrudeProduction)
                     {
                         if (symbol.Equals('<' + nonTerminal + '>'))
-                        {
                             break;
-                        }
                         index++;
                     }
-                    bool expand = true;
+
                     // La podruccion d contexto tiene almenos un simbolo delante se reduce el lookahead
-                    string[] splitContextStateProduction = contextStateProduction._production.Split(' ');
-                    if (contextStateProduction._actualIndex < splitContextStateProduction.Length - 1)
+                    if (index < splitCrudeProduction.Length - 1)
                     {
-                        expand = false;
-                    }
-                    var newLookahead = new List<string>();
-                    // El lookahead de la produccion de estado se modifica 
-                    if(!expand)
-                    {
-                        //Se reduce
-                        string nextSymbolOfContextStateProduction = TrimSymbol(splitContextStateProduction[contextStateProduction._actualIndex + 1]);
-                        if(_sectionsManager.IsNonTerminal(nextSymbolOfContextStateProduction))
+                        newStateProduction._lookahead = (ModifyLookaheadForNonTerminalSymbol(true, newStateProduction, index));
+                        if (!recursiveLookaheads.Keys.Contains(nonTerminal))
+                            recursiveLookaheads.Add(nonTerminal, new HashSet<List<string>>());
+                        if (!recursiveLookaheads[nonTerminal].Contains(newStateProduction._lookahead))
                         {
-                            newLookahead.AddRange(_nffTable._first[nextSymbolOfContextStateProduction]);
+                            recursiveLookaheads[nonTerminal].Add(newStateProduction._lookahead);
                         }
-                        else
-                        {
-                            newLookahead.Add(nextSymbolOfContextStateProduction);
-                        }
-                        
                     }
-                    newLookahead.AddRange(ModifyLookaheadForNonTerminalSymbol(expand, newStateProduction, index));
-                    if (newLookahead.Count > 0) 
-                        newStateProduction._lookahead = newLookahead;
                 }
                 productionsOfNonTerminal.Add(newStateProduction);
 
@@ -554,6 +614,36 @@ namespace ProyectoConsola.Managers
                 {
                     // ... Generar las producciones estado del simbolo no terminal
                     productionsOfNonTerminal.AddRange(GenerateStateProductionsForNonTerminal(currentSymbol, newStateProduction));
+                }
+            } 
+            // Al existir varios contextos en un solo estado no se conoce de donde deriva el simbolo no terminal
+            // por lo que todas las producciones relacionadas directamente con este simbolo no terminal deben tener el mismo lookahead
+            if(recursiveLookaheads != null)
+            {
+                List<string> newLookahead = new List<string>();
+                foreach(HashSet<List<string>> hashOfLists in recursiveLookaheads.Values)
+                {
+                    foreach(List<string> lookaheadList in hashOfLists)
+                    {
+                        foreach(string symbol in lookaheadList)
+                        {
+                            if(!newLookahead.Contains(symbol))
+                                newLookahead.Add(symbol);
+                        }
+                    }
+                }
+
+                foreach(string nonTerminalKey in recursiveLookaheads.Keys)
+                {
+                    List<LALRStateProduction> newStateProductions = new List<LALRStateProduction>(productionsOfNonTerminal);
+                    foreach (LALRStateProduction stateProduction in newStateProductions)
+                    {
+                        if (stateProduction.EqualsIdentifier(nonTerminalKey) && stateProduction.EqualsStateProduction(contextStateProduction))
+                        {
+                            int index = productionsOfNonTerminal.IndexOf(stateProduction);
+                            productionsOfNonTerminal[index]._lookahead = newLookahead;
+                        }
+                    }
                 }
             }
 
@@ -573,14 +663,34 @@ namespace ProyectoConsola.Managers
             {
                 newLookahead = new List<string>();
             }
-            string[] strings = contextState._production.Split(' ');
-            if (nonTerminalIndex < strings.Length - 1)
+            string[] splitContextSateProduction = contextState._production.Split(' ');
+            if (nonTerminalIndex < splitContextSateProduction.Length - 1)
             {
-                string nextSymbol = TrimSymbol(strings[nonTerminalIndex + 1]);
+                string nextSymbol = TrimSymbol(splitContextSateProduction[nonTerminalIndex + 1]);
                 if (_sectionsManager.IsNonTerminal(nextSymbol))
                 {
                     HashSet<string> firstOfNonTerminal = _nffTable._first[nextSymbol];
                     newLookahead.AddRange(AddFirst(newLookahead, firstOfNonTerminal));
+                    if (_nffTable._nullable[nextSymbol] && nonTerminalIndex + 2 < splitContextSateProduction.Length)
+                    {
+                        for(int i = nonTerminalIndex + 2; i < splitContextSateProduction.Length; i++)
+                        {
+                            string nextSymbol2 = splitContextSateProduction[i];
+                            if (_sectionsManager.IsNonTerminal(nextSymbol2))
+                            {
+                                HashSet<string> firstOfNonTerminal2 = _nffTable._first[nextSymbol2];
+                                newLookahead.AddRange(AddFirst(newLookahead, firstOfNonTerminal2));
+                                if (!_nffTable._nullable[nextSymbol2])
+                                    break;
+                            }
+                            else
+                            {
+                                if (!newLookahead.Contains(nextSymbol2))
+                                    newLookahead.Add(nextSymbol2);
+                                break;
+                            }
+                        }
+                    }
                 }
                 else
                 {
