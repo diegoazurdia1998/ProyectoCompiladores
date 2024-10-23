@@ -240,9 +240,10 @@ namespace ProyectoConsola.Managers
             try
             {
                 bool result = false;
-                string[] splitInput = param_input.Split(' ');
+                string[] splitInput = param_input.Trim().Split(' ');
                 Stack<InputStackItem> itemStack = new();
                 itemStack.Push(new InputStackItem(0, 0));
+                string currentSymbol;
                 // Mientras la cadena de entrada no haya sido totalmente analizada ...
 
                 for (int i = 0; i < splitInput.Length; i++)
@@ -251,7 +252,7 @@ namespace ProyectoConsola.Managers
                     // Si el primer elemento del stack es un estado se puede realizar shift o reduction
                     if (currentItem._type.Equals(0))
                     {
-                        string currentSymbol = TrimSymbol(splitInput[i]);
+                        currentSymbol = TrimSymbol(splitInput[i]);
                         InputStackItem itemizedSymbol;
                         if (_sectionsManager.IsToken(currentSymbol))
                         {
@@ -286,32 +287,40 @@ namespace ProyectoConsola.Managers
                             for (int j = splitProduction.Length - 1; j > -1; j--)
                             {
                                 string trimSymbol = TrimSymbol(splitProduction[j]);
+                                itemStack.Pop(); // Se saca el item con el ESTADO del stack
                                 if (trimSymbol.Equals(itemStack.Peek().GetStringValueForSymbol()))
                                 {
-                                    itemStack.Pop(); // Se saca el item con el ESTADO del stack
                                     InputStackItem itemSymbol = itemStack.Pop(); // Se saca el item con el SIMBOLO del stack
                                     if(itemSymbol._value != null)
                                     {
-                                        valuesForActions[i] = itemSymbol._value;
+                                        valuesForActions[j] = itemSymbol._value;
                                     } 
+                                    else if (!_sectionsManager.IsNonTerminal(trimSymbol))
+                                    {
+                                        valuesForActions[j] = trimSymbol;
+                                    }
                                 }
                                 else
                                 {
-                                    string error = "Se esperaba '" + itemStack.Peek() + "' , pero se entontro '" + trimSymbol + "'";
+                                    string error = "Se esperaba '" + itemStack.Peek().GetStringValueForSymbol() + "' , pero se entontro '" + trimSymbol + "'";
                                     throw new Exception(error);
                                 }
                             }
+                            InputStackItem nonTerminalItem = new InputStackItem(_sectionsManager._orderedNonTerminals[search2.reducePorLa].Item1, 1);
                             if (_sectionsManager._nonTerminalActions.Keys.Contains(identifierProduction.Item1))
                             {
-                                InputStackItem nonTerminalItem = new InputStackItem(_sectionsManager._orderedNonTerminals[search2.reducePorLa], 1);
                                 if (_sectionsManager._nonTerminalActions[identifierProduction.Item1].Keys.Contains(identifierProduction.Item2))
                                 {
                                     List<string> actions = _sectionsManager._nonTerminalActions[identifierProduction.Item1][identifierProduction.Item2];
                                     nonTerminalItem._value = DoActions(actions, splitProduction, valuesForActions);
                                 }
-                                itemStack.Push(nonTerminalItem);
 
                             }
+                            else if (currentItem._value != null)
+                            {
+                                nonTerminalItem._value = currentItem._value;
+                            }
+                            itemStack.Push(nonTerminalItem);
                         }
                         
                         
@@ -330,6 +339,9 @@ namespace ProyectoConsola.Managers
                         }
                     }
                 }
+                //
+                currentSymbol = "$";
+
                 return result;
             }
             catch (System.Exception e)
@@ -373,20 +385,22 @@ namespace ProyectoConsola.Managers
         private object DoActions(List<string> actions, string[] production, object[]valuesOfProduction)
         {
             // Realizar las actions
-            string value = null;
+            
             foreach (var action in actions)
             {
                 switch(action)
                 {
+                    
                     case "save_type":
-                        value = valuesOfProduction[0].ToString();
-                        return
-                        break;
+                        return valuesOfProduction[0];
                     case "save_string":
-                        value = valuesOfProduction[1].ToString();
-
-                        break;
-                        
+                        return valuesOfProduction[1];
+                    case "save_bool":
+                        return valuesOfProduction[0];
+                    case "save_operator":
+                        return valuesOfProduction[0];
+                    case "save_identifier":
+                        return valuesOfProduction[0];
                 }
             }
             return null;

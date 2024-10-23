@@ -682,7 +682,8 @@ namespace ProyectoConsola.Managers
                         foreach (string tempProductions in tempProductionsArray)
                         {// Añadir cada produccion separada por '|'
                             _nonTerminalsWithActions[identifier].Add(tempProductions.Trim());
-                            _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
+                            if(!tempProductions.Trim().Equals("ε"))
+                                _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
                         }
                     }
                     else
@@ -693,7 +694,8 @@ namespace ProyectoConsola.Managers
                             foreach (string tempProductions in tempProductionsArray)
                             {
                                 _nonTerminalsWithActions[identifier].Add(tempProductions.Trim());
-                                _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
+                                if (!tempProductions.Trim().Equals("ε"))
+                                    _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
                             }
                         }
                         else

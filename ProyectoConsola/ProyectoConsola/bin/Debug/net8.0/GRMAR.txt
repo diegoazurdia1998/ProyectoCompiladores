@@ -31,10 +31,10 @@ PRODUCTIONS
 	<parameter_list> = identifier ':' <type> <parameter_list_ext>
 	<parameter_list> = ε
 	<parameter_list_ext> = ',' identifier ':' <type> <parameter_list_ext>
-	<type> = 'INTEGER'
-	<type> = 'REAL'
-	<type> = 'BOOLEAN'
-	<type> = 'STRING'
+	<type> = 'INTEGER' {save_type}
+	<type> = 'REAL' {save_type}
+	<type> = 'BOOLEAN' {save_type}
+	<type> = 'STRING' {save_type}
 	<compound_statement> = 'BEGIN' <statement_list> 'END'
 	<statement_list> = <statement>
 	<statement_list> = <statement> <statement_list_ext>
