@@ -1,4 +1,5 @@
-COMPILER yoshi.
+COMPILER 
+yoshi.
 UNITS 
 	Uinclude,Ugenera,ValConst,ValExp,RegArray,Proc,ValCond;
 SETS
@@ -64,22 +65,22 @@ PRODUCTIONS
 	<term> = <factor> <multiplicative_operator> <factor>
 	<term> = ε
 	<factor> = '(' <expression> ')'
-	<factor> = identifier
-	<factor> = number
+	<factor> = identifier {save_string}
+	<factor> = number {save_int}
 	<factor> = <boolean_constant>
 	<factor> = <string_constant>
-	<relational_operator> = '='
-	<relational_operator> = '<>'
-	<relational_operator> = '<'
-	<relational_operator> = '<='
-	<relational_operator> = '>'
-	<relational_operator> = '>='
-	<additive_operator> = '+'
-	<additive_operator> = '-'
-	<additive_operator> = 'OR'
-	<multiplicative_operator> = '*'
-	<multiplicative_operator> = '/'
-	<multiplicative_operator> = 'AND'
-	<boolean_constant> = 'TRUE'
-	<boolean_constant> = 'FALSE'
-	<string_constant> = '"' str '"'
+	<relational_operator> = '=' {save_operator}
+	<relational_operator> = '<>'{save_operator}
+	<relational_operator> = '<' {save_operator}
+	<relational_operator> = '<=' {save_operator}
+	<relational_operator> = '>' {save_operator}
+	<relational_operator> = '>=' {save_operator}
+	<additive_operator> = '+' {save_operator}
+	<additive_operator> = '-' {save_operator}
+	<additive_operator> = 'OR' {save_operator}
+	<multiplicative_operator> = '*' {save_operator}
+	<multiplicative_operator> = '/' {save_operator}
+	<multiplicative_operator> = 'AND' {save_operator}
+	<boolean_constant> = 'TRUE' {save_bool}
+	<boolean_constant> = 'FALSE' {save_bool}
+	<string_constant> = '"' str '"' {save_string}

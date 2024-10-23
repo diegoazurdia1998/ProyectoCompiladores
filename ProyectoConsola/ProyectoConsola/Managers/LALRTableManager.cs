@@ -279,7 +279,7 @@ namespace ProyectoConsola.Managers
                             // Si se debe realizar una reduccion tambien hay que hacer los actions de la produccion
                             Tuple<string, string> identifierProduction = _sectionsManager._orderedNonTerminals[search2.reducePorLa];
                             Console.WriteLine("REDUCTION " + search2.reducePorLa + ", " + identifierProduction.Item1 + " = " + identifierProduction.Item2);
-                            itemStack.Pop();
+                            
                             string[] splitProduction = identifierProduction.Item2.Split(' ');
                             object[] valuesForActions = new string[splitProduction.Length];
                             
@@ -288,13 +288,12 @@ namespace ProyectoConsola.Managers
                                 string trimSymbol = TrimSymbol(splitProduction[j]);
                                 if (trimSymbol.Equals(itemStack.Peek().GetStringValueForSymbol()))
                                 {
+                                    itemStack.Pop(); // Se saca el item con el ESTADO del stack
                                     InputStackItem itemSymbol = itemStack.Pop(); // Se saca el item con el SIMBOLO del stack
                                     if(itemSymbol._value != null)
                                     {
                                         valuesForActions[i] = itemSymbol._value;
-                                    }
-                                    itemStack.Pop(); // Se saca el item con el ESTADO del stack
-
+                                    } 
                                 }
                                 else
                                 {
@@ -304,19 +303,15 @@ namespace ProyectoConsola.Managers
                             }
                             if (_sectionsManager._nonTerminalActions.Keys.Contains(identifierProduction.Item1))
                             {
+                                InputStackItem nonTerminalItem = new InputStackItem(_sectionsManager._orderedNonTerminals[search2.reducePorLa], 1);
                                 if (_sectionsManager._nonTerminalActions[identifierProduction.Item1].Keys.Contains(identifierProduction.Item2))
                                 {
                                     List<string> actions = _sectionsManager._nonTerminalActions[identifierProduction.Item1][identifierProduction.Item2];
-                                    DoActions(actions, splitProduction);
+                                    nonTerminalItem._value = DoActions(actions, splitProduction, valuesForActions);
                                 }
-                            }
-                        }
+                                itemStack.Push(nonTerminalItem);
 
-                        //forza que el siguiente caracter sea ;
-                        if (itemizedSymbol._symbol.ToString() == "str" && currentSymbol == "prueba")
-                        {
-                            itemStack.Push(itemizedSymbol);
-                            itemStack.Push(new InputStackItem(3, 0));
+                            }
                         }
                         
                         
@@ -375,9 +370,26 @@ namespace ProyectoConsola.Managers
             // return new Tuple<bool, int>(false, -1);
             return new (false, -1);
         }
-        private void DoActions(List<string> actions, string[] values)
+        private object DoActions(List<string> actions, string[] production, object[]valuesOfProduction)
         {
             // Realizar las actions
+            string value = null;
+            foreach (var action in actions)
+            {
+                switch(action)
+                {
+                    case "save_type":
+                        value = valuesOfProduction[0].ToString();
+                        return
+                        break;
+                    case "save_string":
+                        value = valuesOfProduction[1].ToString();
+
+                        break;
+                        
+                }
+            }
+            return null;
         }
         private string TrimSymbol(string symbol)
         {

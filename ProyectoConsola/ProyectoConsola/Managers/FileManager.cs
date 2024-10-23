@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using ProyectoConsola.Managers;
 
 /// <summary>
 /// Clase FileManager que se encarga de procesar archivos de texto y extraer secciones.

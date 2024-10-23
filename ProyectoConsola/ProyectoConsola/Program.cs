@@ -18,7 +18,7 @@ class Program
         {
             Console.WriteLine("Ingrese la ruta del archivo (o 'salir' para finalizar):");
             //string filePath = Console.ReadLine();
-            string filePath = "../../GRMAR.txt";
+            string filePath = "GRMAR.txt";
 
             if (filePath.ToLower().Equals("salir"))
                 break;
@@ -42,11 +42,16 @@ class Program
                 //string op = Console.ReadLine();
                 
                 //if (op.Equals("t"))
-                    lALRTableManager.ExportActionsToExcel("");
-                //if (op.Equals("s"))
+                    //lALRTableManager.ExportActionsToExcel("");
+                //else if (op.Equals("s"))
+                    //lALRTableManager.ExportStatesToExcel("");
+                //else if(op.Equals("2"))
+                //{
                     lALRTableManager.ExportStatesToExcel("");
+                    lALRTableManager.ExportActionsToExcel("");
+                //}
 
-                string filePath2 = "../../prueba1.txt";
+                string filePath2 = "prueba1.txt";
                 string leido = fileManager.ReadNewFile(filePath2);
                 // if (string.IsNullOrEmpty(leido)){
                 //     Console.WriteLine("");

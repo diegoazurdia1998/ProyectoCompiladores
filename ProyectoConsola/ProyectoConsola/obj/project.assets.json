@@ -892,24 +892,27 @@
     ]
   },
   "packageFolders": {
-    "/Users/javierjolon/.nuget/packages/": {}
+    "C:\\Users\\diego\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/javierjolon/Documents/URL/Compiladores/ProyectoCompiladores/ProyectoConsola/ProyectoConsola/ProyectoConsola.csproj",
+      "projectUniqueName": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj",
       "projectName": "ProyectoConsola",
-      "projectPath": "/Users/javierjolon/Documents/URL/Compiladores/ProyectoCompiladores/ProyectoConsola/ProyectoConsola/ProyectoConsola.csproj",
-      "packagesPath": "/Users/javierjolon/.nuget/packages/",
-      "outputPath": "/Users/javierjolon/Documents/URL/Compiladores/ProyectoCompiladores/ProyectoConsola/ProyectoConsola/obj/",
+      "projectPath": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\ProyectoConsola.csproj",
+      "packagesPath": "C:\\Users\\diego\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/javierjolon/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\diego\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -954,7 +957,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.403/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
