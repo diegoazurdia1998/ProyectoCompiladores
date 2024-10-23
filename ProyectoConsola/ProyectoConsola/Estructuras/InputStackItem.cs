@@ -14,11 +14,13 @@ namespace ProyectoConsola.Estructuras
         public object _symbol {  get; set; }
         public object _value {  get; set; }
         public int _type { get; set; }
+        
         public InputStackItem(object symbol, int type)
         {
             _type = type;
             _symbol = symbol;
         }
+        
         public InputStackItem(object symbol, int type, object value)
         {
             _type = type;
@@ -26,14 +28,6 @@ namespace ProyectoConsola.Estructuras
             _value = value;
         }
 
-        public void SetValue(object value)
-        {
-            _value = value;
-        }
-        public object GetValue()
-        {
-            return _value;
-        }
         public int GetIntValueForSymbol()
         {
             if(int.TryParse(_symbol.ToString(), out int result))
@@ -45,6 +39,7 @@ namespace ProyectoConsola.Estructuras
                 return -1;
             }
         }
+        
         public string GetStringValueForSymbol()
         {
             if(_symbol != null) 

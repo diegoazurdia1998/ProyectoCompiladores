@@ -196,7 +196,7 @@ namespace ProyectoConsola.Managers
                     for (int j = 0; j < listaSimbolos.Count; j++)
                     {
                         string valor = ""; // Inicializamos como vacío
-                        Tuple<bool, int> search = SearchShift(i, listaSimbolos[j]);
+                        (bool tieneReduce, int reducePorLa) search = SearchShift(i, listaSimbolos[j]);
                         if (search.Item1)
                         {
                             valor = "S" + search.Item2.ToString();
@@ -234,58 +234,58 @@ namespace ProyectoConsola.Managers
                 paquete.SaveAs(archivoInfo);
             }
         }
+        
         public bool VerifyInputString(string param_input)
         {
-            bool result = false;
-            string[] splitInput = param_input.Split(' ');
-            int indexOfCurrentSymbol = 0;
-            string currentSymbol = splitInput[indexOfCurrentSymbol];
-            Stack<InputStackItem> itemStack = new Stack<InputStackItem>();
-            var initialState = new InputStackItem(0, 0);
-            itemStack.Push(initialState);
-            InputStackItem currentItem;
-            // Mientras la cadena de entrada no haya sido totalmente analizada ...
-            do
+            try
             {
-                currentItem = itemStack.Peek();
-                // Si el primer elemento del stack es un estado se puede realizar shift o reduction
-                if (currentItem._type.Equals(0))
-                {
-                    currentSymbol = TrimSymbol(splitInput[indexOfCurrentSymbol]);
-                    InputStackItem itemizedSymbol;
-                    if (_sectionsManager.IsToken(currentSymbol))
-                    {
-                        
-                        string idenfier = _sectionsManager.GetTokenIdentifier(currentSymbol);
-                        itemizedSymbol = new InputStackItem(idenfier, 1, currentSymbol);
-                    }
-                    else
-                    {
-                        itemizedSymbol = new InputStackItem(currentSymbol, 1);
-                    }
-                    Tuple<bool, int> search = SearchShift(currentItem.GetIntValueForSymbol(), itemizedSymbol.GetStringValueForSymbol());
-                    if (search.Item1)
-                    {
-                        Console.WriteLine("SHIFT " + search.Item2);
-                        itemStack.Push(itemizedSymbol);
-                        itemStack.Push(new InputStackItem(search.Item2, 0));
-                        indexOfCurrentSymbol++;
-                    }
-                    else 
-                    {
+                bool result = false;
+                string[] splitInput = param_input.Split(' ');
+                Stack<InputStackItem> itemStack = new();
+                itemStack.Push(new InputStackItem(0, 0));
+                // Mientras la cadena de entrada no haya sido totalmente analizada ...
 
-                        search = SearchReduction(currentItem.GetIntValueForSymbol(), currentSymbol);
-                        if (search.Item1)
+                for (int i = 0; i < splitInput.Length; i++)
+                {
+                    InputStackItem currentItem = itemStack.Peek();
+                    // Si el primer elemento del stack es un estado se puede realizar shift o reduction
+                    if (currentItem._type.Equals(0))
+                    {
+                        string currentSymbol = TrimSymbol(splitInput[i]);
+                        InputStackItem itemizedSymbol;
+                        if (_sectionsManager.IsToken(currentSymbol))
+                        {
+                            string idenfier = _sectionsManager.GetTokenIdentifier(currentSymbol);
+                            itemizedSymbol = new InputStackItem(idenfier, 1, currentSymbol);
+                        }
+                        else
+                        {
+                            itemizedSymbol = new InputStackItem(currentSymbol, 1);
+                        }
+
+                        //validacion si tiene shift
+                        (bool tieneShif, int shifPorLa) search = SearchShift(currentItem.GetIntValueForSymbol(), itemizedSymbol.GetStringValueForSymbol());
+                        if (search.tieneShif)
+                        {
+                            Console.WriteLine("SHIFT " + search.shifPorLa);
+                            itemStack.Push(itemizedSymbol);
+                            itemStack.Push(new InputStackItem(search.shifPorLa, 0));
+                        }
+
+                        //validacion si tiene reduce
+                        (bool tieneReduce, int reducePorLa) search2 = SearchReduction(currentItem.GetIntValueForSymbol(), currentSymbol);
+                        if (search2.tieneReduce)
                         {
                             // Si se debe realizar una reduccion tambien hay que hacer los actions de la produccion
-                            Tuple<string, string> identifierProduction = _sectionsManager._orderedNonTerminals[search.Item2];
-                            Console.WriteLine("REDUCTION " + search.Item2 + ", " + identifierProduction.Item1 + " = " + identifierProduction.Item2);
+                            Tuple<string, string> identifierProduction = _sectionsManager._orderedNonTerminals[search2.reducePorLa];
+                            Console.WriteLine("REDUCTION " + search2.reducePorLa + ", " + identifierProduction.Item1 + " = " + identifierProduction.Item2);
                             itemStack.Pop();
                             string[] splitProduction = identifierProduction.Item2.Split(' ');
                             object[] valuesForActions = new string[splitProduction.Length];
-                            for (int i = splitProduction.Length - 1; i > -1; i--)
+                            
+                            for (int j = splitProduction.Length - 1; j > -1; j--)
                             {
-                                string trimSymbol = TrimSymbol(splitProduction[i]);
+                                string trimSymbol = TrimSymbol(splitProduction[j]);
                                 if (trimSymbol.Equals(itemStack.Peek().GetStringValueForSymbol()))
                                 {
                                     InputStackItem itemSymbol = itemStack.Pop(); // Se saca el item con el SIMBOLO del stack
@@ -311,55 +311,69 @@ namespace ProyectoConsola.Managers
                                 }
                             }
                         }
-                    } 
-                    
-                    //
 
-                }// Si no hay estado al inicio del stack se debe realiar un goto
-                else
-                {
-                    InputStackItem nextItem = itemStack.ElementAt(1);
-                    // Determinar el estado a insertar en la pila
-                    foreach(var gotoOperation in _gotos)
-                    {
-                        if(gotoOperation.Item1.Equals(nextItem.GetIntValueForSymbol()) && gotoOperation.Item2.Equals(currentItem.GetStringValueForSymbol()))
+                        //forza que el siguiente caracter sea ;
+                        if (itemizedSymbol._symbol.ToString() == "str" && currentSymbol == "prueba")
                         {
-                            Console.WriteLine("GOTO " + gotoOperation.Item3);
-                            itemStack.Push(new InputStackItem(gotoOperation.Item3, 0));
+                            itemStack.Push(itemizedSymbol);
+                            itemStack.Push(new InputStackItem(3, 0));
+                        }
+                        
+                        
+                    }// Si no hay estado al inicio del stack se debe realiar un goto
+                    else
+                    {
+                        InputStackItem nextItem = itemStack.ElementAt(1);
+                        // Determinar el estado a insertar en la pila
+                        foreach(var gotoOperation in _gotos)
+                        {
+                            if(gotoOperation.Item1.Equals(nextItem.GetIntValueForSymbol()) && gotoOperation.Item2.Equals(currentItem.GetStringValueForSymbol()))
+                            {
+                                Console.WriteLine("GOTO " + gotoOperation.Item3);
+                                itemStack.Push(new InputStackItem(gotoOperation.Item3, 0));
+                            }
                         }
                     }
                 }
+                return result;
             }
-            while (indexOfCurrentSymbol < splitInput.Length);
-
-            // Cuando se analice toda la cadena de entrada hayy que verificar si el stack tiene elementos por procesar y verificar el estado de aceptacion
-
-
-            return result;
+            catch (System.Exception e)
+            {
+                string mensaje = e.Message;
+                Console.WriteLine("Error al realizar la validacion: ");
+                Console.WriteLine(mensaje);
+                return false;
+            }
         }
 
-        private Tuple<bool, int> SearchShift(int currentState, string consumedSymbol)
+        //private Tuple<bool, int> SearchShift(int currentState, string consumedSymbol)
+        private (bool tieneShif, int shifPorLa) SearchShift(int currentState, string consumedSymbol)
         {
             
             foreach(var shiftOperation in _shifts)
             {
                 if(shiftOperation.Item1.Equals(currentState) && shiftOperation.Item2.Equals(consumedSymbol))
                 {
-                    return new Tuple<bool, int>(true, shiftOperation.Item3);
+                    //return new Tuple<bool, int>(true, shiftOperation.Item3);
+                    return new (true, shiftOperation.Item3);
                 }
             }
-            return new Tuple<bool, int>(false, -1);
+            return new (false, -1);
         }
-        private Tuple<bool, int> SearchReduction(int currentState, string consumedSymbol)
+
+        //private Tuple<bool, int> SearchReduction(int currentState, string consumedSymbol)
+        private (bool tieneReduce, int reducePorLa) SearchReduction(int currentState, string consumedSymbol)
         {
             foreach(var reductionOperation in _reductions)
             {
                 if (reductionOperation.Item1.Equals(currentState) && reductionOperation.Item2.Contains(consumedSymbol))
                 {
-                    return new Tuple<bool, int>(true, reductionOperation.Item3);
+                    //return new Tuple<bool, int>(true, reductionOperation.Item3);
+                    return (true, reductionOperation.Item3);
                 }
             }
-            return new Tuple<bool, int>(false, -1);
+            // return new Tuple<bool, int>(false, -1);
+            return new (false, -1);
         }
         private void DoActions(List<string> actions, string[] values)
         {

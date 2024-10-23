@@ -18,7 +18,7 @@ class Program
         {
             Console.WriteLine("Ingrese la ruta del archivo (o 'salir' para finalizar):");
             //string filePath = Console.ReadLine();
-            string filePath = "GRMAR.txt";
+            string filePath = "../../GRMAR.txt";
 
             if (filePath.ToLower().Equals("salir"))
                 break;
@@ -28,33 +28,48 @@ class Program
                 // Seccionar el archivo ingresado
                 Dictionary<string, List<string>> seccionesProcesadas = fileManager.SeccionarArchivo(filePath);
                 // Verificaar e identificar las secciones
-                SectionsManager sectionManager = new SectionsManager(seccionesProcesadas);
+                SectionsManager sectionManager = new(seccionesProcesadas);
                 // Mostrar secciones
                 //sectionManager.PrintSections();
                 // Construir la tabla de Nullable, First y Follow
-                NFFTableManager nFFTableManager = new NFFTableManager(sectionManager);
+                NFFTableManager nFFTableManager = new(sectionManager);
                 // Mostrar tabla de Nullable, First y Follow
                 //nFFTableManager.PrintTables();
                 // Calcular la tabla de estados y actions
-                LALRTableManager lALRTableManager = new LALRTableManager(sectionManager, nFFTableManager);
+                LALRTableManager lALRTableManager = new(sectionManager, nFFTableManager);
                 // Mostrar tabla de estados y actions
-                Console.WriteLine("Exportar Excel?");
-                string op = Console.ReadLine();
-                if (op.Equals("t"))
+                //Console.WriteLine("Exportar Excel?");
+                //string op = Console.ReadLine();
+                
+                //if (op.Equals("t"))
                     lALRTableManager.ExportActionsToExcel("");
-                else if (op.Equals("s"))
+                //if (op.Equals("s"))
                     lALRTableManager.ExportStatesToExcel("");
 
-                Console.WriteLine("Ingrese una cadena para validar");
-                string input = Console.ReadLine();
-                while (!input.Equals("s"))
-                {
-                    lALRTableManager.VerifyInputString(input);
-                    Console.WriteLine("Ingrese una cadena para validar");
-                    input = Console.ReadLine();
-                }
-                Console.WriteLine("Presione cualquier tecla para continuar");
-                filePath = Console.ReadLine();
+                string filePath2 = "../../prueba1.txt";
+                string leido = fileManager.ReadNewFile(filePath2);
+                // if (string.IsNullOrEmpty(leido)){
+                //     Console.WriteLine("");
+                // }else{
+                    bool respuesta = lALRTableManager.VerifyInputString(leido);
+                    if (respuesta){
+                        Console.WriteLine("La cadena es Aceptada");
+                    }else{
+                         Console.WriteLine("La cadena NO es aceptada");
+                    }
+                    
+                // }
+
+                // Console.WriteLine("Ingrese una cadena para validar");
+                // string input = Console.ReadLine();
+                // while (!input.Equals("s"))
+                // {
+                //     lALRTableManager.VerifyInputString(input);
+                //     Console.WriteLine("Ingrese una cadena para validar");
+                //     input = Console.ReadLine();
+                // }
+                // Console.WriteLine("Presione cualquier tecla para continuar");
+                // filePath = Console.ReadLine();
 
             }
             catch (Exception ex)

@@ -8,6 +8,34 @@ public class FileManager
     // Atributo que almacena las secciones procesadas del archivo.
     private Dictionary<string, List<string>> SECCIONES = new Dictionary<string, List<string>>();
 
+    public string ReadNewFile(string rutaArchivo)
+    {
+        string leido = "";
+        try
+        {
+            // Abre el archivo de texto en modo lectura.
+            using (StreamReader reader = new StreamReader(rutaArchivo))
+            {
+                // Lee el archivo línea por línea.
+                string lineaActual;
+                while ((lineaActual = reader.ReadLine()) != null)
+                {
+                    if (string.IsNullOrEmpty(lineaActual)) continue;
+                    
+                    leido += lineaActual;
+                    leido += " ";
+                }
+            }
+            return leido;
+        }
+        catch (FileNotFoundException e)
+        {
+            Console.WriteLine(e.Message);
+            return "";
+        }
+    }
+
+
     /// <summary>
     /// Procesa un archivo de texto y devuelve una lista de listas con las secciones del archivo procesadas.
     /// </summary>
