@@ -682,8 +682,7 @@ namespace ProyectoConsola.Managers
                         foreach (string tempProductions in tempProductionsArray)
                         {// Añadir cada produccion separada por '|'
                             _nonTerminalsWithActions[identifier].Add(tempProductions.Trim());
-                            if(!tempProductions.Trim().Equals("ε"))
-                                _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
+                            _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
                         }
                     }
                     else
@@ -694,8 +693,7 @@ namespace ProyectoConsola.Managers
                             foreach (string tempProductions in tempProductionsArray)
                             {
                                 _nonTerminalsWithActions[identifier].Add(tempProductions.Trim());
-                                if (!tempProductions.Trim().Equals("ε"))
-                                    _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
+                                _orderedNonTerminals.Add(new Tuple<string, string>(identifier, tempProductions.Trim()));
                             }
                         }
                         else
@@ -873,8 +871,7 @@ namespace ProyectoConsola.Managers
                         {
                             _nonTerminalActions[productionKey][realProduction.Trim()].Add(TrimSymbol(action)); // trim each action
                         }
-                        if(!realProduction.Equals("ε"))
-                            _nonTerminals[productionKey].Add(realProduction.Trim());
+                        _nonTerminals[productionKey].Add(realProduction.Trim());
 
                         int auxIndex = _orderedNonTerminals.IndexOf(new Tuple<string, string>(productionKey, production));
                         _orderedNonTerminals[auxIndex] = new Tuple<string,string>(productionKey, realProduction);
@@ -882,8 +879,7 @@ namespace ProyectoConsola.Managers
                     else
                     {
                         if (!_nonTerminals.ContainsKey(productionKey)) _nonTerminals.Add(productionKey, new List<string>());
-                        if (!production.Equals("ε"))
-                            _nonTerminals[productionKey].Add(production.Trim());
+                        _nonTerminals[productionKey].Add(production.Trim());
                     }
                 }
             }

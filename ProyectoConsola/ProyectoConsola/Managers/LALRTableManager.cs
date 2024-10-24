@@ -765,6 +765,14 @@ namespace ProyectoConsola.Managers
         private void GenerateReductionForState(int currentStateIndex, List<string> consumedSymbol, int indexOfProduccion)
         {
             Tuple<int, List<string>, int> reduction = new Tuple<int, List<string>, int>(currentStateIndex, consumedSymbol, indexOfProduccion);
+            if (!consumedSymbol.Contains("ε"))
+                reduction = new Tuple<int, List<string>, int>(currentStateIndex, consumedSymbol, indexOfProduccion);
+            else
+            {
+                consumedSymbol.Add("");
+                reduction = new Tuple<int, List<string>, int>(currentStateIndex, consumedSymbol, indexOfProduccion);
+            }
+                
             if (!_reductions.Contains(reduction))
             {
                 _reductions.Add(reduction);
@@ -772,7 +780,11 @@ namespace ProyectoConsola.Managers
         }
         private void GenerateGotosShifts(int currentStateIndex, string consumedSymbol, int nextStateIndex)
         {
-            Tuple<int, string, int> transition = new Tuple<int, string, int>(currentStateIndex, consumedSymbol, nextStateIndex);
+            Tuple<int, string, int> transition;
+            if(!consumedSymbol.Equals("ε"))
+                transition = new Tuple<int, string, int>(currentStateIndex, consumedSymbol, nextStateIndex);
+            else
+                transition = new Tuple<int, string, int>(currentStateIndex, "", nextStateIndex);
             if (_sectionsManager.IsNonTerminal(consumedSymbol))
             {
                 if (!_gotos.Contains(transition))
