@@ -51,7 +51,7 @@ class Program
                     lALRTableManager.ExportActionsToExcel("");
                 //}
 
-                string filePath2 = "prueba1.txt";
+                string filePath2 = "prueba2.txt";
                 string leido = fileManager.ReadNewFile(filePath2);
                 // if (string.IsNullOrEmpty(leido)){
                 //     Console.WriteLine("");

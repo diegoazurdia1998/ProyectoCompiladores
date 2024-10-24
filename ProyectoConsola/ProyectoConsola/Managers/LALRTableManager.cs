@@ -325,11 +325,73 @@ namespace ProyectoConsola.Managers
                         }
                         if (!search.tieneShif && !search2.tieneReduce)
                         {
-                            if(itemizedSymbol._value == null)
-                                throw new Exception($"No existe operacion para: {itemizedSymbol.GetStringValueForSymbol()}\nPrimer objeto en el stack: {itemStack.Peek()._symbol}, tipo: {itemStack.Peek()._type}");
+                            (bool tieneShif, int shifPorLa) searchNo = SearchShift(currentItem.GetIntValueForSymbol(), "");
+                            if (searchNo.tieneShif)
+                            {
+                                InputStackItem newItem = new InputStackItem("ε", 1);
+                                Console.WriteLine("SHIFT " + searchNo.shifPorLa);
+                                itemStack.Push(newItem);
+                                itemStack.Push(new InputStackItem(searchNo.shifPorLa, 0));
+                            }
                             else
-                                throw new Exception($"No existe operacion para: {itemizedSymbol.GetStringValueForSymbol()}, valor: {itemizedSymbol.GetStringValueForValue()}\nPrimer objeto en el stack: {itemStack.Peek()._symbol}, tipo: {itemStack.Peek()._type}");
+                            {
+                                (bool tieneReduce, int reducePorLa) searchNo2 = SearchReduction(currentItem.GetIntValueForSymbol(), "");
+                                if (searchNo2.tieneReduce)
+                                {
+                                    // Si se debe realizar una reduccion tambien hay que hacer los actions de la produccion
+                                    Tuple<string, string> identifierProduction = _sectionsManager._orderedNonTerminals[searchNo2.reducePorLa];
+                                    Console.WriteLine("REDUCTION " + searchNo2.reducePorLa + ", " + identifierProduction.Item1 + " = " + identifierProduction.Item2);
 
+                                    string[] splitProduction = identifierProduction.Item2.Split(' ');
+                                    object[] valuesForActions = new string[splitProduction.Length];
+
+                                    for (int j = splitProduction.Length - 1; j > -1; j--)
+                                    {
+                                        string trimSymbol = TrimSymbol(splitProduction[j]);
+                                        itemStack.Pop(); // Se saca el item con el ESTADO del stack
+                                        if (trimSymbol.Equals(itemStack.Peek().GetStringValueForSymbol()))
+                                        {
+                                            InputStackItem itemSymbol = itemStack.Pop(); // Se saca el item con el SIMBOLO del stack
+                                            if (itemSymbol._value != null)
+                                            {
+                                                valuesForActions[j] = itemSymbol._value;
+                                            }
+                                            else if (!_sectionsManager.IsNonTerminal(trimSymbol))
+                                            {
+                                                valuesForActions[j] = trimSymbol;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            string error = "Se esperaba '" + itemStack.Peek().GetStringValueForSymbol() + "' , pero se entontro '" + trimSymbol + "'";
+                                            throw new Exception(error);
+                                        }
+                                    }
+                                    InputStackItem nonTerminalItem = new InputStackItem(_sectionsManager._orderedNonTerminals[searchNo2.reducePorLa].Item1, 1);
+                                    if (_sectionsManager._nonTerminalActions.Keys.Contains(identifierProduction.Item1))
+                                    {
+                                        if (_sectionsManager._nonTerminalActions[identifierProduction.Item1].Keys.Contains(identifierProduction.Item2))
+                                        {
+                                            List<string> actions = _sectionsManager._nonTerminalActions[identifierProduction.Item1][identifierProduction.Item2];
+                                            nonTerminalItem._value = DoActions(actions, splitProduction, valuesForActions);
+                                        }
+
+                                    }
+                                    else if (currentItem._value != null)
+                                    {
+                                        nonTerminalItem._value = currentItem._value;
+                                    }
+                                    itemStack.Push(nonTerminalItem);
+                                }
+                                else
+                                {
+                                    if (itemizedSymbol._value == null)
+                                        throw new Exception($"No existe operacion para: {itemizedSymbol.GetStringValueForSymbol()}\nPrimer objeto en el stack: {itemStack.Peek()._symbol}, tipo: {itemStack.Peek()._type}");
+                                    else
+                                        throw new Exception($"No existe operacion para: {itemizedSymbol.GetStringValueForSymbol()}, valor: {itemizedSymbol.GetStringValueForValue()}\nPrimer objeto en el stack: {itemStack.Peek()._symbol}, tipo: {itemStack.Peek()._type}");
+
+                                }
+                            }
                         }
 
                     }// Si no hay estado al inicio del stack se debe realiar un goto
@@ -349,7 +411,14 @@ namespace ProyectoConsola.Managers
                 }
                 //
                 currentSymbol = "$";
+                for (int i = 0; i < itemStack.Count; i++)
+                {
+                    (bool tieneShif, int shifPorLa) search = SearchShift(itemStack.Peek().GetIntValueForSymbol(), currentSymbol);
+                    if (search.tieneShif)
+                    {
 
+                    }
+                }
                 return result;
             }
             catch (System.Exception e)

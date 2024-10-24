@@ -1,11 +1,6 @@
 PROGRAM prueba ;
 
-VAR variable1: INTEGER;
-VAR variable2: INTEGER;
-
 BEGIN
 variable1 := 5 * 4 + 3 * 5 ;
-READLN(variable1) ;
-READLN(variable2)
 END
 .
