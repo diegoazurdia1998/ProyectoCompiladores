@@ -274,7 +274,7 @@ namespace ProyectoConsola.Managers
                         }
 
                         //validacion si tiene reduce
-                        (bool tieneReduce, int reducePorLa) search2 = SearchReduction(currentItem.GetIntValueForSymbol(), currentSymbol);
+                        (bool tieneReduce, int reducePorLa) search2 = SearchReduction(currentItem.GetIntValueForSymbol(), itemizedSymbol.GetStringValueForSymbol());
                         if (search2.tieneReduce)
                         {
                             // Si se debe realizar una reduccion tambien hay que hacer los actions de la produccion
@@ -306,6 +306,7 @@ namespace ProyectoConsola.Managers
                                     throw new Exception(error);
                                 }
                             }
+                            
                             InputStackItem nonTerminalItem = new InputStackItem(_sectionsManager._orderedNonTerminals[search2.reducePorLa].Item1, 1);
                             if (_sectionsManager._nonTerminalActions.Keys.Contains(identifierProduction.Item1))
                             {
@@ -322,8 +323,15 @@ namespace ProyectoConsola.Managers
                             }
                             itemStack.Push(nonTerminalItem);
                         }
-                        
-                        
+                        if (!search.tieneShif && !search2.tieneReduce)
+                        {
+                            if(itemizedSymbol._value == null)
+                                throw new Exception($"No existe operacion para: {itemizedSymbol.GetStringValueForSymbol()}\nPrimer objeto en el stack: {itemStack.Peek()._symbol}, tipo: {itemStack.Peek()._type}");
+                            else
+                                throw new Exception($"No existe operacion para: {itemizedSymbol.GetStringValueForSymbol()}, valor: {itemizedSymbol.GetStringValueForValue()}\nPrimer objeto en el stack: {itemStack.Peek()._symbol}, tipo: {itemStack.Peek()._type}");
+
+                        }
+
                     }// Si no hay estado al inicio del stack se debe realiar un goto
                     else
                     {

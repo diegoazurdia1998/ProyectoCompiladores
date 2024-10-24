@@ -7,6 +7,10 @@
       "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\lalrtablemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\estructuras\\inputstackitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\estructuras\\inputstackitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\managers\\sectionsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\sectionsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -17,10 +21,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\estructuras\\inputstackitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\estructuras\\inputstackitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\estructuras\\token.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -48,7 +48,7 @@
               "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\LALRTableManager.cs",
               "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\LALRTableManager.cs",
               "RelativeToolTip": "ProyectoConsola\\Managers\\LALRTableManager.cs",
-              "ViewState": "AQIAADMBAAAAAAAAAAAiwEYBAAAUAAAA",
+              "ViewState": "AQIAAE8BAAAAAAAAAAAiwGcBAAAQAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-17T03:10:51.564Z",
               "IsPinned": true,
@@ -56,7 +56,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "FileManager.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\FileManager.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\FileManager.cs",
@@ -80,7 +80,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "SectionsManager.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\SectionsManager.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\SectionsManager.cs",
@@ -88,20 +88,20 @@
               "RelativeToolTip": "ProyectoConsola\\Managers\\SectionsManager.cs",
               "ViewState": "AQIAAKUCAAAAAAAAAAAiwK0CAAAgAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-14T07:25:18.913Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-14T07:25:18.913Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 1,
               "Title": "InputStackItem.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\InputStackItem.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Estructuras\\InputStackItem.cs",
               "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\InputStackItem.cs",
               "RelativeToolTip": "ProyectoConsola\\Estructuras\\InputStackItem.cs",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAAA8AAAAYAAAA",
+              "ViewState": "AQIAABEAAAAAAAAAAAAwwDQAAAAdAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-20T03:46:47.629Z"
+              "WhenOpened": "2024-10-20T03:46:47.629Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -117,7 +117,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Program.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Program.cs",

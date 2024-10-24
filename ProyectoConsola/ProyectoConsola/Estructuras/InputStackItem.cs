@@ -47,5 +47,12 @@ namespace ProyectoConsola.Estructuras
             else
                 return string.Empty;
         }
+        public string GetStringValueForValue()
+        {
+            if (_symbol != null)
+                return _value.ToString();
+            else
+                return string.Empty;
+        }
     }
 }
