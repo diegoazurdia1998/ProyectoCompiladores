@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using OfficeOpenXml;
 using ProyectoConsola.Estructuras;
 
 namespace ProyectoConsola.Managers
@@ -97,6 +98,52 @@ namespace ProyectoConsola.Managers
             _commentEnd = "";
             _commentStart = "";
             StartManagers();
+        }
+        public void ExportNonTerminalsToExcel(string filePath)
+        {
+            List<Tuple<string, string>> orderedNonTerminals = _orderedNonTerminals;
+            // Asegúrate de que EPPlus pueda trabajar con archivos Excel
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            // Verifica si la ruta es válida
+            if (!Path.IsPathRooted(filePath) || !Directory.Exists(Path.GetDirectoryName(filePath)))
+            {
+                // Si la ruta no es válida, establece la ruta predeterminada
+                string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Producciones.xlsx");
+                filePath = defaultPath;
+            }
+
+            // Verifica si el archivo ya existe y lo elimina
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("No Terminales");
+
+                // Encabezados de las columnas
+                worksheet.Cells[1, 1].Value = "Índice";
+                worksheet.Cells[1, 2].Value = "Identificador";
+                worksheet.Cells[1, 3].Value = "Producción";
+
+                // Rellenar los datos
+                int row = 2; // Comenzar en la segunda fila
+                for (int i = 0; i < orderedNonTerminals.Count; i++)
+                {
+                    var nonTerminal = orderedNonTerminals[i];
+                    worksheet.Cells[row, 1].Value = i + 1; // Índice + 1
+                    worksheet.Cells[row, 2].Value = nonTerminal.Item1; // Identificador
+                    worksheet.Cells[row, 3].Value = nonTerminal.Item2; // Producción
+                    row++;
+                }
+
+                // Ajustar el ancho de las columnas
+                worksheet.Cells.AutoFitColumns();
+
+                // Guardar el archivo
+                FileInfo excelFile = new FileInfo(filePath);
+                package.SaveAs(excelFile);
+            }
         }
         /// <summary>
         /// Imprime las secciones del lenguaje de programación en consola.

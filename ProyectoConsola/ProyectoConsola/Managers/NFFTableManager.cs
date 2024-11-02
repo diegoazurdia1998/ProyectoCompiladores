@@ -38,6 +38,7 @@ public class NFFTableManager
         }
         GenertaeTables();
     }
+    
     /// <summary>
     /// Imprime las tablas de Nullable, First y Follow en consola.
     /// </summary>

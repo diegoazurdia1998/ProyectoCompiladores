@@ -63,7 +63,7 @@ namespace ProyectoConsola.Estructuras
         /// <summary>
         /// Obtiene el simbolo en la posicion del indice actual 
         /// </summary>
-        /// <returns>Simbolo en la posicion del indice actual</returns>
+        /// <returns>Simbolo en la posicion del indice actual, si el indice atual esta fuera del largo de la produccion devuelve vacio ("")</returns>
         public string GetCurrentSybol()
         {
             if (_actualIndex < _production.Split(' ').Length)
@@ -126,6 +126,33 @@ namespace ProyectoConsola.Estructuras
         public bool EqualsIdentifier(string identifier)
         {
             return _identifier.Equals(identifier);
+        }
+        public bool CurrentSymbolIsLastSymbol()
+        {
+            return (_actualIndex == _production.Split(' ').Length - 1);
+        }
+        public string GetNextSymbol()
+        {
+            if (_actualIndex < _production.Split(' ').Length)
+            {
+                return _production.Split(' ')[_actualIndex];
+            }
+            else
+                return "";
+        }
+        public string GetIndexSymbol(int index)
+        {
+            if (index < _production.Split(' ').Length)
+            {
+                return _production.Split(' ')[index];
+            }
+            else
+                return "";
+        }
+        public LALRStateProduction IncreaseActualIndex()
+        {
+            _actualIndex++;
+            return this;
         }
     }
 }

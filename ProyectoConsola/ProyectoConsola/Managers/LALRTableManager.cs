@@ -12,864 +12,553 @@ using System.Collections.Generic;
 using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 using System.Reflection;
+using ProyectoConsola.Enumeraciones;
 
 namespace ProyectoConsola.Managers
 {
-/// <summary>
-/// Clase que contiene las tablas de estados, transiciones y reducciones
-/// </summary>
+    /// <summary>
+    /// Clase que contiene las tablas de estados, transiciones y reducciones
+    /// </summary>
     public class LALRTableManager
     {
-        Dictionary<int, List<LALRStateProduction>> _states;
         private SectionsManager _sectionsManager;
         private NFFTableManager _nffTable;
-        //public Dictionary<int, List<LALRStateProduction>> _states { get; set; }
-        public List<Tuple<int, string, int>> _gotos { get; set; }
-        public List<Tuple<int, string, int>> _shifts { get; set; }
-        public List<Tuple<int, List<string>, int>> _reductions { get; set; }
-        public Tuple<int, List<string>, int> _acceptanceReduction { get; set; }
+        private Dictionary<int, Dictionary<object, (LALRAction, int)>> actionTable; // Tabla de acción
 
-        public LALRTableManager(SectionsManager sections, NFFTableManager nffTable)
+        public LALRTableManager(SectionsManager sectionsManager, NFFTableManager nFFTableManager)
         {
-            _sectionsManager = sections;
-            _nffTable = nffTable;
-            //_states = new Dictionary<int, List<LALRStateProduction>>();
-            _gotos = new List<Tuple<int, string, int>>();
-            _shifts = new List<Tuple<int, string, int>>();
-            _reductions = new List<Tuple<int, List<string>, int>>();
-            GenerateLALRTable();
+            _sectionsManager = sectionsManager;
+            _nffTable = nFFTableManager; 
+            actionTable = new Dictionary<int, Dictionary<object, (LALRAction, int)>>();
 
+            GenerateParsingTable();
         }
-
-        public void GenerateLALRTable()
+        public void ExportToExcel(string filePath)
         {
-            // Paso 1: Generar la tabla de parser
-            try
+            // Verifica si la ruta es válida
+            if (!Path.IsPathRooted(filePath) || !Directory.Exists(Path.GetDirectoryName(filePath)))
             {
-                _states = GenerateStates();
-                if(_acceptanceReduction == null)
-                {
-                    throw new Exception("La gramatiica no tiene reduccion de aceptacion.");
-                }
+                // Si la ruta no es válida, establece la ruta predeterminada
+                string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Actions.xlsx");
+                filePath = defaultPath;
+            }
 
-            }
-            catch (Exception e)
+            // Verifica si el archivo ya existe y lo elimina
+            if (File.Exists(filePath))
             {
-                string mensaje = e.Message;
-                throw;
+                File.Delete(filePath);
             }
-        }
-        public void ExportStatesToExcel(string rutaArchivo)
-        {
             // Establecer el contexto de licencia
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // Ruta de salida de la compilación
-            var rutaSalidaCompilacion = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            // Validar la ruta del archivo
-            if (string.IsNullOrWhiteSpace(rutaArchivo) || !Directory.Exists(Path.GetDirectoryName(rutaArchivo)))
+            // Crea un nuevo paquete Excel
+            using (ExcelPackage excelPackage = new ExcelPackage())
             {
-                // Si la ruta es inválida, usar la ruta de salida de la compilación
-                rutaArchivo = Path.Combine(rutaSalidaCompilacion, "estados.xlsx");
-            }
+                // Agrega una nueva hoja de trabajo
+                var worksheet = excelPackage.Workbook.Worksheets.Add("Action Table");
 
-            // Asegurarse de que el directorio existe
-            var directorio = Path.GetDirectoryName(rutaArchivo);
-            if (!Directory.Exists(directorio))
-            {
-                Directory.CreateDirectory(directorio);
-            }
+                // Obtener todos los estados
+                var states = new List<int>(actionTable.Keys);
 
-            using (ExcelPackage paquete = new ExcelPackage())
-            {
-                // Crea una nueva hoja de trabajo
-                ExcelWorksheet worksheet = paquete.Workbook.Worksheets.Add("Estados");
+                // Usar un HashSet para almacenar símbolos únicos
+                var uniqueSymbols = new HashSet<string>();
+                var symbolList = new List<object>();
 
-                // Encabezados
-                worksheet.Cells[1, 1].Value = "Estado actual";
-                worksheet.Cells[2, 1].Value = "Identificador";
-                worksheet.Cells[2, 2].Value = "Producción";
-                worksheet.Cells[2, 3].Value = "Simbolo/Indice actual";
-                worksheet.Cells[2, 4].Value = "Lookahead";
-
-                int row = 3; // Comenzar desde la tercera fila para los datos
-
-                // Recorrer el diccionario de estados
-                foreach (var state in _states)
+                // Recorre el diccionario para obtener todos los símbolos únicos
+                foreach (var innerDict in actionTable.Values)
                 {
-                    int stateNumber = state.Key;
-                    var productions = state.Value;
-
-                    // Escribir el número de estado
-                    worksheet.Cells[row, 1].Value = $"Estado: {stateNumber}";
-                    row++;
-
-                    // Escribir las producciones
-                    foreach (var production in productions)
+                    foreach (var innerPair in innerDict)
                     {
-                        worksheet.Cells[row, 1].Value = production._identifier; // Identificador
-                        worksheet.Cells[row, 2].Value = production._production; // Producción
-                        if(production._actualIndex < production._production.Split(' ').Length)
-                            worksheet.Cells[row, 3].Value = $"{production._production.Split(' ')[production._actualIndex]} / {production._actualIndex}"; // Índice actual
-                        else
-                            worksheet.Cells[row, 3].Value = $"E.O.P. / {production._actualIndex}";
-                        worksheet.Cells[row, 4].Value = string.Join(", ", production._lookahead); // Lookahead
+                        if (innerPair.Key is string singleSymbol)
+                        {
+                            uniqueSymbols.Add(singleSymbol);
+                        }
+                        else if (innerPair.Key is List<string> symbolListItem)
+                        {
+                            foreach (var item in symbolListItem)
+                            {
+                                uniqueSymbols.Add(item);
+                            }
+                        }
+                    }
+                }
+
+                // Convertir el HashSet a una lista
+                symbolList.AddRange(uniqueSymbols);
+
+                // Escribir encabezados de columnas (símbolos)
+                worksheet.Cells[1, 1].Value = "Estado"; // Encabezado de la primera columna
+                int currentColumn = 2; // Comenzar en la columna 2
+
+                foreach (var symbol in symbolList)
+                {
+                    worksheet.Cells[1, currentColumn].Value = symbol.ToString(); // Inserta el símbolo en su celda
+                    currentColumn++;
+                }
+
+                // Escribir estados y sus acciones
+                for (int row = 0; row < states.Count; row++)
+                {
+                    int state = states[row];
+                    worksheet.Cells[row + 2, 1].Value = state; // Estado en la primera columna
+
+                    // Obtener el diccionario interno para el estado actual
+                    if (actionTable.TryGetValue(state, out var innerDict))
+                    {
+                        foreach (var innerPair in innerDict)
+                        {
+                            object symbol = innerPair.Key;
+                            (LALRAction action, int index) = innerPair.Value;
+
+                            // Formatear la acción según el tipo
+                            string actionFormatted = action switch
+                            {
+                                LALRAction.Accept => "OK",
+                                LALRAction.Shift => $"S{index}",
+                                LALRAction.Goto => $"G{index}",
+                                LALRAction.Reduce => $"R{index}",
+                                _ => string.Empty // Manejo de acciones no definidas
+                            };
+
+                            // Si el símbolo es un string, inserta en su celda correspondiente
+                            int colIndex = symbolList.IndexOf(symbol) + 2; // +2 porque la primera columna es para estados
+                            if (colIndex > 1) // Asegurarse de que el símbolo se encontró
+                            {
+                                worksheet.Cells[row + 2, colIndex].Value = String.Concat(worksheet.Cells[row + 2, colIndex].GetValue<string>(), actionFormatted); // Almacena la acción formateada
+                            }
+                        }
+                    }
+                }
+
+                // Ajusta el ancho de las columnas
+                worksheet.Cells.AutoFitColumns();
+
+                // Guarda el archivo
+                FileInfo excelFile = new FileInfo(filePath);
+                excelPackage.SaveAs(excelFile);
+            }
+        }
+        public void ExportStatesToExcel(List<State> states, string filePath)
+        {
+            // Asegúrate de que EPPlus pueda trabajar con archivos Excel
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            // Verifica si la ruta es válida
+            if (!Path.IsPathRooted(filePath) || !Directory.Exists(Path.GetDirectoryName(filePath)))
+            {
+                // Si la ruta no es válida, establece la ruta predeterminada
+                string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Estados.xlsx");
+                filePath = defaultPath;
+            }
+
+            // Verifica si el archivo ya existe y lo elimina
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Estados");
+
+                // Encabezados de las columnas
+                worksheet.Cells[1, 1].Value = "Estado";
+                worksheet.Cells[1, 2].Value = "Identificador";
+                worksheet.Cells[1, 3].Value = "Producción (Right)";
+                worksheet.Cells[1, 4].Value = "Index";
+                worksheet.Cells[1, 5].Value = "Simbolo";
+                worksheet.Cells[1, 6].Value = "Lookahead";
+                worksheet.Cells[1, 7].Value = "Action";
+                worksheet.Cells[1, 8].Value = "#";
+
+                // Rellenar los datos
+                int row = 2; // Comenzar en la segunda fila
+                foreach (var state in states)
+                {
+                    foreach (var item in state.Items)
+                    {
+                        worksheet.Cells[row, 1].Value = state.Index; // Estado
+                        worksheet.Cells[row, 2].Value = item.ItemProduction.Left; // Producción (Left)
+                        worksheet.Cells[row, 3].Value = string.Join(" ", item.ItemProduction.Right); // Producción (Right)
+                        worksheet.Cells[row, 4].Value = item.ItemProduction.CurrentSymbolIndex; // CurrentSymbolIndex
+                        worksheet.Cells[row, 5].Value = item.ItemProduction.CurrentSymbol(); // CurrentSymbol
+                        worksheet.Cells[row, 6].Value = string.Join(", ", item.Lookahead); // Lookahead
+                        worksheet.Cells[row, 7].Value = item.ItemAction.ToString(); // ItemAction
+                        worksheet.Cells[row, 8].Value = item.ActionInt; // ActionInt
                         row++;
                     }
-
-                    // Espaciado entre estados
-                    row++;
                 }
+
+                // Ajustar el ancho de las columnas
+                worksheet.Cells.AutoFitColumns();
 
                 // Guardar el archivo
-                var archivoInfo = new FileInfo(rutaArchivo);
-                paquete.SaveAs(archivoInfo);
+                FileInfo excelFile = new FileInfo(filePath);
+                package.SaveAs(excelFile);
             }
         }
-        public void ExportActionsToExcel(string rutaArchivo)
+        private void GenerateParsingTable()
         {
-            // Establecer el contexto de licencia
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // Ruta de salida de la compilación
-            var rutaSalidaCompilacion = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            // Validar la ruta del archivo
-            if (string.IsNullOrWhiteSpace(rutaArchivo) || !Directory.Exists(Path.GetDirectoryName(rutaArchivo)))
+            // Paso 1: Construir el conjunto de estados
+            List<State> states = ConstructStates();
+            // Paso 2: Agregar los reduce y aceptacion
+            foreach (var state in states)
             {
-                // Si la ruta es inválida, usar la ruta de salida de la compilación
-                rutaArchivo = Path.Combine(rutaSalidaCompilacion, "actions.xlsx");
-            }
-
-            // Asegurarse de que el directorio existe
-            var directorio = Path.GetDirectoryName(rutaArchivo);
-            if (!Directory.Exists(directorio))
-            {
-                Directory.CreateDirectory(directorio);
-            }
-
-            // Paso 1: Obtener todos los estados y símbolos
-            var estados = new HashSet<int>();
-            var simbolos = new HashSet<string>();
-
-            // Agregar estados de las listas
-            foreach (var gotoTuple in _gotos)
-            {
-                estados.Add(gotoTuple.Item1);
-                simbolos.Add(gotoTuple.Item2);
-            }
-            foreach (var shiftTuple in _shifts)
-            {
-                estados.Add(shiftTuple.Item1);
-                simbolos.Add(shiftTuple.Item2);
-            }
-            foreach (var reductionTuple in _reductions)
-            {
-                estados.Add(reductionTuple.Item1);
-                foreach (var simbolo in reductionTuple.Item2)
+                foreach (var item in state.Items)
                 {
-                    simbolos.Add(simbolo);
-                }
-            }
-
-            // Convertir a listas y ordenar
-            var listaEstados = new List<int>(estados);
-            listaEstados.Sort();
-            var listaSimbolos = new List<string>(simbolos);
-            listaSimbolos.Sort();
-
-            // Paso 2: Crear el archivo Excel
-            using (var paquete = new ExcelPackage())
-            {
-                var hoja = paquete.Workbook.Worksheets.Add("Tabla Parser");
-
-                // Escribir la primera fila con los símbolos
-                hoja.Cells[1, 1].Value = "Estado";
-                for (int i = 0; i < listaSimbolos.Count; i++)
-                {
-                    hoja.Cells[1, i + 2].Value = listaSimbolos[i];
-                }
-
-                // Llenar la tabla con los valores
-                for (int i = 0; i < listaEstados.Count; i++)
-                {
-                    hoja.Cells[i + 2, 1].Value = listaEstados[i]; // Estado
-                    for (int j = 0; j < listaSimbolos.Count; j++)
+                    if (item.ItemProduction.IsAtEnd())
                     {
-                        string valor = ""; // Inicializamos como vacío
-                        (bool tieneReduce, int reducePorLa) search = SearchShift(i, listaSimbolos[j]);
-                        if (search.Item1)
-                        {
-                            valor = "S" + search.Item2.ToString();
+                        if(VerifyAcceptance(item, new Item(["$"], _sectionsManager._startSymbol, _sectionsManager._nonTerminals[_sectionsManager._startSymbol][0])))
+                        { 
+                            item.SetAction(LALRAction.Accept); 
                         }
                         else
                         {
-                            
-                            search = SearchReduction(i, listaSimbolos[j]);
-                            if (search.Item1)
-                            {
-                                if(_acceptanceReduction.Item1.Equals(i) && _acceptanceReduction.Item2.Contains(listaSimbolos[j]))
-                                {
-                                    valor = "OK";
-                                }
-                                else
-                                    valor = "R" + search.Item2.ToString();
-                            }
-                            else
-                            {
-                                foreach(var gotoOp in _gotos)
-                                {
-                                    if(gotoOp.Item1.Equals(i) && gotoOp.Item2.Equals(listaSimbolos[j]))
-                                    {
-                                        valor = "G" + gotoOp.Item3.ToString();
-                                    }
-                                }
-                            }
+                            item.SetAction(LALRAction.Reduce);
                         }
-                        hoja.Cells[i + 2, j + 2].Value = valor;
+                        item.SetActionInt(GetIndexOfReduceProduction(item.ItemProduction));
+
+                    }
+                    else
+                    {
+                        string currentSymbol = TrimSymbol(item.ItemProduction.CurrentSymbol());
+                        if (_sectionsManager.IsNonTerminal(currentSymbol))
+                        {
+                            item.SetAction(LALRAction.Goto);
+                        }
+                        else
+                        {
+                            item.SetAction(LALRAction.Shift);
+                        }
+                    }
+                }
+            }
+
+            // Paso 3: Llenar la tabla de action
+            foreach (var state in states)
+            {
+                foreach (var item in state.Items)
+                {
+                    switch (item.ItemAction)
+                    {
+                        case LALRAction.Accept:
+                            AddAction(state.Index, item.Lookahead, item.ItemAction, item.ActionInt);
+                            break;
+                        case LALRAction.Reduce:
+                            AddAction(state.Index, item.Lookahead, item.ItemAction, item.ActionInt);
+                            break;
+                        case LALRAction.Shift:
+                            AddAction(state.Index, item.ItemProduction.CurrentSymbol(), item.ItemAction, item.ActionInt);
+                            break;
+                        case LALRAction.Goto:
+                            AddAction(state.Index, item.ItemProduction.CurrentSymbol(), item.ItemAction, item.ActionInt);
+                            break;
+                    }
+                }
+            }
+            ExportStatesToExcel(states, "");
+        }
+        private void AddAction(int state, object value, LALRAction action, int index)
+        {
+            if (!actionTable.ContainsKey(state))
+            {
+                actionTable[state] = new Dictionary<object, (LALRAction, int)>();
+            }
+            if(value is List<string> sValues)
+            {
+                foreach(var svalue in sValues)
+                {
+                    actionTable[state][svalue] = (action, index);
+                }
+            }
+            else
+            {
+                actionTable[state][value] = (action, index);
+            }
+            
+        }
+        private List<State> ConstructStates()
+        {
+            List<State> states = new List<State>();
+            Dictionary<string, State> visitedStates = new Dictionary<string, State>();
+
+            // Paso 1: Crear el estado inicial
+            List<Item> initialItems  = Closure(new List<Item> { new Item(["$"],_sectionsManager._startSymbol, _sectionsManager._nonTerminals[_sectionsManager._startSymbol][0]) });
+            State initialState = new State(0, initialItems);
+            // Agregar el estado inicial a la lista de estados
+            states.Add(initialState);
+            visitedStates.Add(GetStateKey(initialState), initialState);
+            //
+
+            // Paso 2: Generar estados
+            Queue<State> stateQueue = new Queue<State>();
+            stateQueue.Enqueue(initialState);
+            while (stateQueue.Count > 0)
+            {
+                State currentState = stateQueue.Dequeue();
+                foreach(var symbol in GetSymbols(currentState.Items))
+                {
+                    State newState = Goto(currentState, symbol);
+                    if(newState.Items.Count > 0)
+                    {
+                        string newStateKey = GetStateKey(newState);
+                        if (!visitedStates.ContainsKey(newStateKey))
+                        {
+                            states.Add(newState);
+                            visitedStates.Add(newStateKey, newState);
+                            stateQueue.Enqueue(newState);
+                        }
                     }
                 }
 
-                // Guardar el archivo
-                var archivoInfo = new FileInfo(rutaArchivo);
-                paquete.SaveAs(archivoInfo);
             }
-        }
-        
-        public bool VerifyInputString(string param_input)
-        {
-            try
-            {
-                bool result = false;
-                string[] splitInput = param_input.Trim().Split(' ');
-                Stack<InputStackItem> itemStack = new();
-                itemStack.Push(new InputStackItem(0, 0));
-                string currentSymbol;
-                // Mientras la cadena de entrada no haya sido totalmente analizada ...
 
-                for (int i = 0; i < splitInput.Length; i++)
+            // Paso 3: Combinar estados para LALR
+            return CombineStates(states);
+        }
+        private string GetStateKey(State state)
+        {
+            List<string> keys = new List<string>();
+            foreach(var item in state.Items)
+            {
+                Production production = item.ItemProduction;
+                string right = string.Join(" ", production.Right.Take(production.CurrentSymbolIndex)),
+                    left = string.Join(" ", production.Right.Skip(production.CurrentSymbolIndex));
+            // Crear una representación del ítem que incluya la posición del punto
+            string itemRepresentation = $"{production.Left} -> {right} . {left}";
+
+                // Agregar la representación a la lista de claves
+                keys.Add(itemRepresentation);
+            }
+            keys.Sort();
+            return String.Join(" | ", keys);
+        }
+        private List<Item> Closure(List<Item> items)
+        {
+            HashSet<Item> closureSet = new HashSet<Item>(items);
+            Dictionary<string, List<string>> nonTerminals = _sectionsManager._nonTerminals;
+            bool added;
+            do 
+            {
+                added = false;
+                foreach(var item in closureSet.ToList())
                 {
-                    InputStackItem currentItem = itemStack.Peek();
-                    // Si el primer elemento del stack es un estado se puede realizar shift o reduction
-                    if (currentItem._type.Equals(0))
+                    if (!item.ItemProduction.IsAtEnd())
                     {
-                        currentSymbol = TrimSymbol(splitInput[i]);
-                        InputStackItem itemizedSymbol;
-                        if (_sectionsManager.IsToken(currentSymbol))
+                        string currentSymbol = TrimSymbol(item.ItemProduction.CurrentSymbol());
+                        if(nonTerminals.TryGetValue(currentSymbol, out var productions))
                         {
-                            string idenfier = _sectionsManager.GetTokenIdentifier(currentSymbol);
-                            itemizedSymbol = new InputStackItem(idenfier, 1, currentSymbol);
+                            // Determinar lookahead 
+                            HashSet<string> lookahead = CalculateLookahead(item);
+                            foreach(var rightSideProduction in productions)
+                            {
+                                Item newItem = new Item(lookahead, currentSymbol, rightSideProduction);
+                                if (!SetContains(closureSet, newItem))
+                                {
+                                    closureSet.Add(newItem);
+                                    added = true;
+                                }
+                            }
+                            
+                        }                        
+                    }
+                }
+            }
+            while (added);
+            
+            return new List<Item>(closureSet);
+        }
+        private bool SetContains(HashSet<Item> sets, Item itemCandidate)
+        {
+            foreach(var item in sets)
+            {
+                if (itemCandidate.Equals(item))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private HashSet<string> CalculateLookahead(Item item)
+        {
+            HashSet<string> lookahead = item.Lookahead;
+            // Si el símbolo actual no está al final
+            if (!item.ItemProduction.IsAtEnd())
+            {
+                int nextIndex = item.ItemProduction.CurrentSymbolIndex + 1;
+                // Si hay un símbolo siguiente
+                if (nextIndex < item.ItemProduction.Right.Count)
+                {
+                    lookahead = new HashSet<string>();
+                    string nextSymbol = TrimSymbol(item.ItemProduction.Right[nextIndex]);
+                    // Si el siguiente símbolo es un no terminal
+                    if (_sectionsManager.IsNonTerminal(nextSymbol))
+                    {
+                        lookahead.UnionWith(GetLookaheadForNonTerminal(nextSymbol, item));
+                    }
+                    else
+                    {
+                        // Si es un terminal, simplemente lo agregas
+                        lookahead.Add(nextSymbol);
+                    }
+                }
+            }
+
+            return lookahead;
+        }
+        private HashSet<string> GetLookaheadForNonTerminal(string symbol, Item item)
+        {
+            HashSet<string> la = new HashSet<string>();
+            la.UnionWith(_nffTable._first[symbol]);
+            if (_nffTable._nullable[symbol])
+            {
+                int i = item.ItemProduction.CurrentSymbolIndex + 2,
+                    count = item.ItemProduction.RightCount();
+                for (; i < count; i++)
+                {
+                    string nextSymbol = TrimSymbol(item.ItemProduction.Right[i]);
+                    if (_sectionsManager.IsNonTerminal(nextSymbol))
+                    {
+                        la.UnionWith(_nffTable._first[nextSymbol]);
+                        if (_nffTable._nullable[nextSymbol])
+                        {
+                            if (i == count - 1)
+                                la.UnionWith(item.Lookahead);
+                            continue;
+                        }
+                        else
+                            break;
+                    }
+                    else
+                    {
+                        la.Add(nextSymbol);
+                        break;
+                    }
+                }
+                if (i == item.ItemProduction.CurrentSymbolIndex + 2)
+                {
+                    la.UnionWith(item.Lookahead);
+                }
+            }
+            return la;
+        }
+        private State Goto(State state, string symbol)
+        {
+            List<Item> newItems = new List<Item>();
+            int newSateIndex = state.Index + 1;
+            foreach (var item in state.Items)
+            {
+                if (!item.ItemProduction.IsAtEnd())
+                {
+                    string currentSymbol = TrimSymbol(item.ItemProduction.CurrentSymbol());
+                    if(currentSymbol.Equals(symbol))
+                    {
+                        Item item2 = item.Clone();
+                        item2.ItemProduction.IncreaseIndex();
+                        newItems.Add(item2);
+                        if (_sectionsManager.IsNonTerminal(symbol))
+                        {
+                            item.SetAction(LALRAction.Goto);
                         }
                         else
                         {
-                            itemizedSymbol = new InputStackItem(currentSymbol, 1);
+                            item.SetAction(LALRAction.Shift);
                         }
+                        item.SetActionInt(newSateIndex);
+                    }
 
-                        //validacion si tiene shift
-                        (bool tieneShif, int shifPorLa) search = SearchShift(currentItem.GetIntValueForSymbol(), itemizedSymbol.GetStringValueForSymbol());
-                        if (search.tieneShif)
+                }
+            }
+            return new State(newSateIndex, Closure(newItems));
+        }
+        private bool VerifyAcceptance(Item item, Item initialItem)
+        {
+            string nonterminal = TrimSymbol(initialItem.ItemProduction.Right[0]),
+                production = _sectionsManager._nonTerminals[nonterminal][0];
+            Production accept = new Production(nonterminal, production, production.Split(' ').Length);
+            return item.ItemProduction.Equals(accept);
+        }
+        private int GetIndexOfReduceProduction(Production production)
+        {
+            Tuple<string, string> s = Tuple.Create(production.Left, String.Join(" ", production.Right));
+            return _sectionsManager._orderedNonTerminals.FindIndex(t => t.Item1.Equals(s.Item1) && t.Item2.Equals(s.Item2));
+        }
+        private HashSet<string> GetSymbols(List<Item> items)
+        {
+            HashSet<string> symbols = new HashSet<string>();
+
+            foreach (var item in items)
+            {
+                string ?currentSymbol = TrimSymbol(item.ItemProduction.CurrentSymbol());
+                if(currentSymbol != null)
+                    symbols.Add(currentSymbol);
+            }
+
+            return symbols;
+        }
+        private List<State> CombineStates(List<State> states)
+        {
+            Dictionary<string, State> combinedStatesMap = new Dictionary<string, State>();
+            List<State> combinedStates = new List<State>();
+
+            foreach (var state in states)
+            {
+                // Generar una clave única para el estado basado en sus ítems
+                string stateKey = GetStateKey(state);
+
+                // Si el estado ya ha sido combinado, continuar
+                if (combinedStatesMap.ContainsKey(stateKey))
+                {
+                    continue; // Este estado ya ha sido procesado
+                }
+
+                // Agregar el estado a la lista de estados combinados
+                combinedStates.Add(state);
+                combinedStatesMap[stateKey] = state;
+
+                // Combinar estados equivalentes
+                foreach (var otherState in states)
+                {
+                    if (!state.Equals(otherState) && GetStateKey(state).Equals(GetStateKey(otherState)))
+                    {
+                        // Si los estados son equivalentes, combinar sus ítems
+                        foreach (var item in otherState.Items)
                         {
-                            Console.WriteLine("SHIFT " + search.shifPorLa);
-                            itemStack.Push(itemizedSymbol);
-                            itemStack.Push(new InputStackItem(search.shifPorLa, 0));
-                        }
-
-                        //validacion si tiene reduce
-                        (bool tieneReduce, int reducePorLa) search2 = SearchReduction(currentItem.GetIntValueForSymbol(), itemizedSymbol.GetStringValueForSymbol());
-                        if (search2.tieneReduce)
-                        {
-                            // Si se debe realizar una reduccion tambien hay que hacer los actions de la produccion
-                            Tuple<string, string> identifierProduction = _sectionsManager._orderedNonTerminals[search2.reducePorLa];
-                            Console.WriteLine("REDUCTION " + search2.reducePorLa + ", " + identifierProduction.Item1 + " = " + identifierProduction.Item2);
-                            
-                            string[] splitProduction = identifierProduction.Item2.Split(' ');
-                            object[] valuesForActions = new string[splitProduction.Length];
-                            
-                            for (int j = splitProduction.Length - 1; j > -1; j--)
+                            if (!combinedStatesMap.ContainsKey(GetStateKey(new State (otherState.Index, [item]))))
                             {
-                                string trimSymbol = TrimSymbol(splitProduction[j]);
-                                itemStack.Pop(); // Se saca el item con el ESTADO del stack
-                                if (trimSymbol.Equals(itemStack.Peek().GetStringValueForSymbol()))
+                                foreach(var item1 in otherState.Items)
                                 {
-                                    InputStackItem itemSymbol = itemStack.Pop(); // Se saca el item con el SIMBOLO del stack
-                                    if(itemSymbol._value != null)
+                                    if (item1.EqualsWithoutLookahead(item))
                                     {
-                                        valuesForActions[j] = itemSymbol._value;
-                                    } 
-                                    else if (!_sectionsManager.IsNonTerminal(trimSymbol))
-                                    {
-                                        valuesForActions[j] = trimSymbol;
-                                    }
-                                }
-                                else
-                                {
-                                    string error = "Se esperaba '" + itemStack.Peek().GetStringValueForSymbol() + "' , pero se entontro '" + trimSymbol + "'";
-                                    throw new Exception(error);
-                                }
-                            }
-                            
-                            InputStackItem nonTerminalItem = new InputStackItem(_sectionsManager._orderedNonTerminals[search2.reducePorLa].Item1, 1);
-                            if (_sectionsManager._nonTerminalActions.Keys.Contains(identifierProduction.Item1))
-                            {
-                                if (_sectionsManager._nonTerminalActions[identifierProduction.Item1].Keys.Contains(identifierProduction.Item2))
-                                {
-                                    List<string> actions = _sectionsManager._nonTerminalActions[identifierProduction.Item1][identifierProduction.Item2];
-                                    nonTerminalItem._value = DoActions(actions, splitProduction, valuesForActions);
-                                }
-
-                            }
-                            else if (currentItem._value != null)
-                            {
-                                nonTerminalItem._value = currentItem._value;
-                            }
-                            itemStack.Push(nonTerminalItem);
-                        }
-                        if (!search.tieneShif && !search2.tieneReduce)
-                        {
-                            (bool tieneShif, int shifPorLa) searchNo = SearchShift(currentItem.GetIntValueForSymbol(), "");
-                            if (searchNo.tieneShif)
-                            {
-                                InputStackItem newItem = new InputStackItem("ε", 1);
-                                Console.WriteLine("SHIFT " + searchNo.shifPorLa);
-                                itemStack.Push(newItem);
-                                itemStack.Push(new InputStackItem(searchNo.shifPorLa, 0));
-                            }
-                            else
-                            {
-                                (bool tieneReduce, int reducePorLa) searchNo2 = SearchReduction(currentItem.GetIntValueForSymbol(), "");
-                                if (searchNo2.tieneReduce)
-                                {
-                                    // Si se debe realizar una reduccion tambien hay que hacer los actions de la produccion
-                                    Tuple<string, string> identifierProduction = _sectionsManager._orderedNonTerminals[searchNo2.reducePorLa];
-                                    Console.WriteLine("REDUCTION " + searchNo2.reducePorLa + ", " + identifierProduction.Item1 + " = " + identifierProduction.Item2);
-
-                                    string[] splitProduction = identifierProduction.Item2.Split(' ');
-                                    object[] valuesForActions = new string[splitProduction.Length];
-
-                                    for (int j = splitProduction.Length - 1; j > -1; j--)
-                                    {
-                                        string trimSymbol = TrimSymbol(splitProduction[j]);
-                                        itemStack.Pop(); // Se saca el item con el ESTADO del stack
-                                        if (trimSymbol.Equals(itemStack.Peek().GetStringValueForSymbol()))
-                                        {
-                                            InputStackItem itemSymbol = itemStack.Pop(); // Se saca el item con el SIMBOLO del stack
-                                            if (itemSymbol._value != null)
-                                            {
-                                                valuesForActions[j] = itemSymbol._value;
-                                            }
-                                            else if (!_sectionsManager.IsNonTerminal(trimSymbol))
-                                            {
-                                                valuesForActions[j] = trimSymbol;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            string error = "Se esperaba '" + itemStack.Peek().GetStringValueForSymbol() + "' , pero se entontro '" + trimSymbol + "'";
-                                            throw new Exception(error);
-                                        }
-                                    }
-                                    InputStackItem nonTerminalItem = new InputStackItem(_sectionsManager._orderedNonTerminals[searchNo2.reducePorLa].Item1, 1);
-                                    if (_sectionsManager._nonTerminalActions.Keys.Contains(identifierProduction.Item1))
-                                    {
-                                        if (_sectionsManager._nonTerminalActions[identifierProduction.Item1].Keys.Contains(identifierProduction.Item2))
-                                        {
-                                            List<string> actions = _sectionsManager._nonTerminalActions[identifierProduction.Item1][identifierProduction.Item2];
-                                            nonTerminalItem._value = DoActions(actions, splitProduction, valuesForActions);
-                                        }
 
                                     }
-                                    else if (currentItem._value != null)
-                                    {
-                                        nonTerminalItem._value = currentItem._value;
-                                    }
-                                    itemStack.Push(nonTerminalItem);
-                                }
-                                else
-                                {
-                                    if (itemizedSymbol._value == null)
-                                        throw new Exception($"No existe operacion para: {itemizedSymbol.GetStringValueForSymbol()}\nPrimer objeto en el stack: {itemStack.Peek()._symbol}, tipo: {itemStack.Peek()._type}");
                                     else
-                                        throw new Exception($"No existe operacion para: {itemizedSymbol.GetStringValueForSymbol()}, valor: {itemizedSymbol.GetStringValueForValue()}\nPrimer objeto en el stack: {itemStack.Peek()._symbol}, tipo: {itemStack.Peek()._type}");
-
+                                        state.Items.Add(item);
                                 }
                             }
                         }
-
-                    }// Si no hay estado al inicio del stack se debe realiar un goto
-                    else
-                    {
-                        InputStackItem nextItem = itemStack.ElementAt(1);
-                        // Determinar el estado a insertar en la pila
-                        foreach(var gotoOperation in _gotos)
-                        {
-                            if(gotoOperation.Item1.Equals(nextItem.GetIntValueForSymbol()) && gotoOperation.Item2.Equals(currentItem.GetStringValueForSymbol()))
-                            {
-                                Console.WriteLine("GOTO " + gotoOperation.Item3);
-                                itemStack.Push(new InputStackItem(gotoOperation.Item3, 0));
-                            }
-                        }
                     }
                 }
-                //
-                currentSymbol = "$";
-                for (int i = 0; i < itemStack.Count; i++)
-                {
-                    (bool tieneShif, int shifPorLa) search = SearchShift(itemStack.Peek().GetIntValueForSymbol(), currentSymbol);
-                    if (search.tieneShif)
-                    {
+            }
 
-                    }
-                }
-                return result;
-            }
-            catch (System.Exception e)
-            {
-                string mensaje = e.Message;
-                Console.WriteLine("Error al realizar la validacion: ");
-                Console.WriteLine(mensaje);
-                return false;
-            }
+            return combinedStates;
         }
-
-        //private Tuple<bool, int> SearchShift(int currentState, string consumedSymbol)
-        private (bool tieneShif, int shifPorLa) SearchShift(int currentState, string consumedSymbol)
+        private string TrimSymbol(string currentSymbol)
         {
-            
-            foreach(var shiftOperation in _shifts)
+            if(currentSymbol != null)
             {
-                if(shiftOperation.Item1.Equals(currentState) && shiftOperation.Item2.Equals(consumedSymbol))
+                //Logica de preparacion para adecuar el simbolo actual a las operaciones
+                if (currentSymbol.Contains("\'") &&
+                    (currentSymbol.Contains("<") || currentSymbol.Contains(">") || currentSymbol.Contains("(")))
                 {
-                    //return new Tuple<bool, int>(true, shiftOperation.Item3);
-                    return new (true, shiftOperation.Item3);
-                }
-            }
-            return new (false, -1);
-        }
-
-        //private Tuple<bool, int> SearchReduction(int currentState, string consumedSymbol)
-        private (bool tieneReduce, int reducePorLa) SearchReduction(int currentState, string consumedSymbol)
-        {
-            foreach(var reductionOperation in _reductions)
-            {
-                if (reductionOperation.Item1.Equals(currentState) && reductionOperation.Item2.Contains(consumedSymbol))
-                {
-                    //return new Tuple<bool, int>(true, reductionOperation.Item3);
-                    return (true, reductionOperation.Item3);
-                }
-            }
-            // return new Tuple<bool, int>(false, -1);
-            return new (false, -1);
-        }
-        private object DoActions(List<string> actions, string[] production, object[]valuesOfProduction)
-        {
-            // Realizar las actions
-            
-            foreach (var action in actions)
-            {
-                switch(action)
-                {
-                    
-                    case "save_type":
-                        return valuesOfProduction[0];
-                    case "save_string":
-                        return valuesOfProduction[1];
-                    case "save_bool":
-                        return valuesOfProduction[0];
-                    case "save_operator":
-                        return valuesOfProduction[0];
-                    case "save_identifier":
-                        return valuesOfProduction[0];
-                }
-            }
-            return null;
-        }
-        private string TrimSymbol(string symbol)
-        {
-            string currentSymbol = symbol;
-            //Logica de preparacion para adecuar el simbolo actual a las operaciones
-            if (currentSymbol.Contains("\'") &&
-                (currentSymbol.Contains("<") || currentSymbol.Contains(">") || currentSymbol.Contains("(")))
-            {
-                currentSymbol = currentSymbol.Trim().Trim('\'');
-            }
-            else
-            {
-                currentSymbol = currentSymbol.Trim().Trim('\'').Trim('(').Trim('<').Trim('>');
-            }
-            return currentSymbol;
-        }
-
-        private Dictionary<int, List<LALRStateProduction>> GenerateStates()
-        {
-            // Diccionario a llenar
-            Dictionary<int, List<LALRStateProduction>> states = [];
-
-            try
-            {
-
-                // Generar el primer estado, con la produccion inicial
-                LALRStateProduction firstStateProduction = new LALRStateProduction(0, _sectionsManager._startSymbol, _sectionsManager._nonTerminals[_sectionsManager._startSymbol][0], new List<string> { "$" });
-                states.Add(0, new List<LALRStateProduction>());
-
-                // Lógica para generar los estados restantes
-                // Lista para las producciones pendientes de procesar
-                List<LALRStateProduction> pendingStateProductionsList = [firstStateProduction];
-                pendingStateProductionsList.AddRange(GenerateStateProductionsForNonTerminal(TrimSymbol(firstStateProduction.GetCurrentSybol()), firstStateProduction));
-                states[0].AddRange(pendingStateProductionsList);
-                //Se inicia el contador de estados
-                int actualStateIndex = 0;
-                int countOfStateProductionsProcessedInActualStateIndex = 0;
-                while (pendingStateProductionsList.Count > 0) //Mientras haya producciones por procesar en la lista
-                {
-
-                    LALRStateProduction currentProduction = pendingStateProductionsList.ElementAt(0); //Se copia el valor de la produccion al inicio de la lista
-
-                    if (currentProduction._actualIndex < currentProduction.GetProductionLenght()) //Si no se ha procesado completamente la produccion ...
-                    {
-                        //Se determina el simbolo actual
-                        string currentSymbol = TrimSymbol(currentProduction.GetCurrentSybol()); 
-                        //Procesar producciones para un nuevo estado
-                        Tuple<List<LALRStateProduction>, List<LALRStateProduction>> newState_StateProductions = GenerateNewStateProductions(currentProduction, states[actualStateIndex]);
-                        // Eliminar las producciones recien procesadas y extenderlas si es necesario
-                        foreach(var production in newState_StateProductions.Item2)
-                        {
-                            pendingStateProductionsList.Remove(production);
-                            countOfStateProductionsProcessedInActualStateIndex++;
-                        }
-                        List<LALRStateProduction> aux = new List<LALRStateProduction>();
-                        foreach (var production in newState_StateProductions.Item1)
-                        {
-                            string trimProductionSymbol = TrimSymbol(production.GetCurrentSybol());
-                            if (!trimProductionSymbol.Equals("") && _sectionsManager.IsNonTerminal(trimProductionSymbol))
-                            {
-                                aux = GenerateStateProductionsForNonTerminal(trimProductionSymbol, production);
-                            }
-                        }
-                        newState_StateProductions.Item1.AddRange(aux);
-                        // Asegurar que el estado sea unico
-                        Tuple<bool, int> unique = EnsureUniquenessOfStates(newState_StateProductions.Item1, states);
-                        //Si ...
-                        if (unique.Item1)
-                        {// ... es unico se crea un nuevo estado
-                            states.Add(unique.Item2, newState_StateProductions.Item1);
-                            pendingStateProductionsList.AddRange(newState_StateProductions.Item1);
-                        }
-                        GenerateGotosShifts(actualStateIndex, currentSymbol, unique.Item2);
-
-                    }
-                    else
-                    {// ... Si el simbolo esta al final de la produccion
-
-                        countOfStateProductionsProcessedInActualStateIndex++;
-                        pendingStateProductionsList.RemoveAt(0);
-                        
-                        //Reduction
-                        int productionIndex = _sectionsManager._orderedNonTerminals.IndexOf(new Tuple<string, string>(currentProduction._identifier, currentProduction._production));
-                        if (productionIndex >= 0)
-                        {
-                            GenerateReductionForState(actualStateIndex, currentProduction._lookahead, productionIndex);
-                        }
-                        if(_acceptanceReduction == null && productionIndex == 0)
-                        {
-                            if(currentProduction._actualIndex >= currentProduction._production.Split(' ').Length)
-                            {
-                                _acceptanceReduction = new Tuple<int, List<string>, int>(actualStateIndex, currentProduction._lookahead, productionIndex);
-                            }
-                        }
-
-                    }
-                    // Verificar si aun quedan producciones del estado actual dentro de la lista de producciones pendientes
-                    if (countOfStateProductionsProcessedInActualStateIndex >= states[actualStateIndex].Count) 
-                    { 
-                        actualStateIndex++;
-                        countOfStateProductionsProcessedInActualStateIndex = 0;
-                    }
-                }
-                return states;
-            }
-            catch (Exception e)
-            {
-                string mensaje = e.Message;
-                throw;
-            }
-            
-        }
-
-        /// <summary>
-        /// Genera un estado nuevo con las producciones que consumen el mismo simbolo
-        /// </summary>
-        /// <param name="firstStateProduction">Produccion principal</param>
-        /// <param name="currentStateProductions">Listado de producciones del estado anterior</param>
-        /// <returns>Lista de producciones correspondientes al nuevo estado</returns>
-        private Tuple<List<LALRStateProduction>, List<LALRStateProduction>> GenerateNewStateProductions(LALRStateProduction firstStateProduction, List<LALRStateProduction> currentStateProductions)
-        {
-            List<LALRStateProduction> productionsForNewState = new List<LALRStateProduction>();
-            List<LALRStateProduction> processedSateProductions = new List<LALRStateProduction>();
-            //Se determina el simbolo actual de la produccion inicial
-            string consumedSymbol = TrimSymbol(firstStateProduction._production.Split(' ')[firstStateProduction._actualIndex]);
-
-            //Del estado anterior se seleccionan las producciones que ...
-            foreach(var production in currentStateProductions)
-            {
-                string[] productionSplit = production._production.Split(' ');
-                if (production._actualIndex < productionSplit.Length)
-                {
-                    string actualSymbol = TrimSymbol(productionSplit[production._actualIndex]);
-                    // ... consumal el mismo simbolo que el simbolo consumido por la produccion inicial
-                    if(consumedSymbol.Equals(actualSymbol) && !productionsForNewState.Contains(production))
-                    {
-                        processedSateProductions.Add(production);
-                        LALRStateProduction tempProduction = production.Clone();
-                        tempProduction._actualIndex++; // Se aumenta el indice del simbolo actual de la produccion
-                        productionsForNewState.Add(tempProduction);
-                    }
-                }
-            }
-
-            return new Tuple<List<LALRStateProduction>, List<LALRStateProduction>>(productionsForNewState, processedSateProductions);
-        }
-        /// <summary>
-         /// Asegura que el estado prospecto no sea igual a uno ya existente
-         /// </summary>
-         /// <param name="prospectProductions">Listado de producciones que conforman el estado prospecto</param>
-         /// <param name="states">Diccionario de estados actuales</param>
-         /// <returns>True: Si el estado prospecto no es unico False: Si el estado es igual a alguno ya existente</returns>
-        private Tuple<bool, int> EnsureUniquenessOfStates(List<LALRStateProduction> prospectProductions, Dictionary<int, List<LALRStateProduction>> states)
-        {
-            foreach (var stateProductionKey in states.Keys)
-            {
-                List<LALRStateProduction> stateProductions = states[stateProductionKey];
-                if (prospectProductions.Count == stateProductions.Count)
-                {
-                    bool allMatch = true;
-                    foreach (var prospectProduction in prospectProductions)
-                    {
-                        bool found = false;
-                        foreach (var stateProduction in stateProductions)
-                        {
-                            if (prospectProduction.EqualsStateProduction(stateProduction))
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-
-                        if (!found)
-                        {
-                            allMatch = false;
-                            break;
-                        }
-                    }
-
-                    if (allMatch)
-                    {
-                        return new Tuple<bool, int>(false, stateProductionKey);
-                    }
-                }
-            }
-            return new Tuple<bool, int>(true, states.Count);
-
-        }
-        /// <summary>
-        /// Determina todas las produccones relacionadas con el estado actual
-        /// </summary>
-        /// <param name="nonTerminal">Simbolo no terminal, identificador para las nuevas producciones</param>
-        /// <param name="contextStateProduction">Produccion actualmente analizada </param>
-        /// <returns>Lista de producciones estado derivadas de la actual</returns>
-        private List<LALRStateProduction> GenerateStateProductionsForNonTerminal(string nonTerminal, LALRStateProduction contextStateProduction)
-        {
-            // Lista de produccionees estado para el simbolo no terminal
-            List<LALRStateProduction> productionsOfNonTerminal = new List<LALRStateProduction>();
-            Dictionary<string, HashSet<List<string>>>? recursiveLookaheads = null;
-            // Lisado de producciones del simbolo no terminal
-            List<string> crudeProductions = _sectionsManager._nonTerminals[nonTerminal];
-            
-            // Por cada produccion del simbolo no terminal ...
-            foreach(var crudeProduction in crudeProductions)
-            {
-                // Se crea la produccion estado a partir de la produccion
-                LALRStateProduction newStateProduction = new LALRStateProduction(0, nonTerminal, crudeProduction, contextStateProduction._lookahead);
-                string[] splitCrudeProduction = crudeProduction.Split(' ');
-                //Se determina el simbolo actual de la nueva produccion estado
-                string currentSymbol = TrimSymbol(splitCrudeProduction[0]);
-                // Analisis de lookahead en base al contexto
-                string[] splitContextStateProduction = contextStateProduction._production.Split(' ');
-                if (contextStateProduction._actualIndex < splitContextStateProduction.Length - 1)
-                {
-                    newStateProduction._lookahead = ModifyLookaheadForNonTerminalSymbol(false, contextStateProduction, contextStateProduction._actualIndex);
-                }
-
-                // Si la nueva produccion estado contiene al simbolo no terminal debe ajustarse el lookahead incluyendo el lookahead del contexto
-                if (splitCrudeProduction.Contains('<' + nonTerminal + '>'))
-                {
-                    if(recursiveLookaheads == null) 
-                        recursiveLookaheads = new Dictionary<string, HashSet<List<string>>>();
-                    //Se determina la posicion del no terminal en la produccion
-                    int index = 0;
-                    foreach (var symbol in splitCrudeProduction)
-                    {
-                        if (symbol.Equals('<' + nonTerminal + '>'))
-                            break;
-                        index++;
-                    }
-
-                    // La podruccion d contexto tiene almenos un simbolo delante se reduce el lookahead
-                    if (index < splitCrudeProduction.Length - 1)
-                    {
-                        newStateProduction._lookahead = (ModifyLookaheadForNonTerminalSymbol(true, newStateProduction, index));
-                        if (!recursiveLookaheads.Keys.Contains(nonTerminal))
-                            recursiveLookaheads.Add(nonTerminal, new HashSet<List<string>>());
-                        if (!recursiveLookaheads[nonTerminal].Contains(newStateProduction._lookahead))
-                        {
-                            recursiveLookaheads[nonTerminal].Add(newStateProduction._lookahead);
-                        }
-                    }
-                }
-                productionsOfNonTerminal.Add(newStateProduction);
-
-                // Si el simbolo actual es no terminal ...
-                if (_sectionsManager.IsNonTerminal(currentSymbol) && !nonTerminal.Equals(currentSymbol))
-                {
-                    // ... Generar las producciones estado del simbolo no terminal
-                    productionsOfNonTerminal.AddRange(GenerateStateProductionsForNonTerminal(currentSymbol, newStateProduction));
-                }
-            } 
-            // Al existir varios contextos en un solo estado no se conoce de donde deriva el simbolo no terminal
-            // por lo que todas las producciones relacionadas directamente con este simbolo no terminal deben tener el mismo lookahead
-            if(recursiveLookaheads != null)
-            {
-                List<string> newLookahead = new List<string>();
-                foreach(HashSet<List<string>> hashOfLists in recursiveLookaheads.Values)
-                {
-                    foreach(List<string> lookaheadList in hashOfLists)
-                    {
-                        foreach(string symbol in lookaheadList)
-                        {
-                            if(!newLookahead.Contains(symbol))
-                                newLookahead.Add(symbol);
-                        }
-                    }
-                }
-
-                foreach(string nonTerminalKey in recursiveLookaheads.Keys)
-                {
-                    List<LALRStateProduction> newStateProductions = new List<LALRStateProduction>(productionsOfNonTerminal);
-                    foreach (LALRStateProduction stateProduction in newStateProductions)
-                    {
-                        if (stateProduction.EqualsIdentifier(nonTerminalKey) && stateProduction.EqualsStateProduction(contextStateProduction))
-                        {
-                            int index = productionsOfNonTerminal.IndexOf(stateProduction);
-                            productionsOfNonTerminal[index]._lookahead = newLookahead;
-                        }
-                    }
-                }
-            }
-
-            return productionsOfNonTerminal;
-        }
-
-
-        private List<string> ModifyLookaheadForNonTerminalSymbol(bool expand, LALRStateProduction contextState, int nonTerminalIndex)
-        {
-            // Lógica para expandir el lookahead basado en el contexto
-            List<string> newLookahead;
-            if(expand)
-            {
-                newLookahead = contextState._lookahead;
-            }
-            else
-            {
-                newLookahead = new List<string>();
-            }
-            string[] splitContextSateProduction = contextState._production.Split(' ');
-            if (nonTerminalIndex < splitContextSateProduction.Length - 1)
-            {
-                string nextSymbol = TrimSymbol(splitContextSateProduction[nonTerminalIndex + 1]);
-                if (_sectionsManager.IsNonTerminal(nextSymbol))
-                {
-                    HashSet<string> firstOfNonTerminal = _nffTable._first[nextSymbol];
-                    newLookahead.AddRange(AddFirst(newLookahead, firstOfNonTerminal));
-                    if (_nffTable._nullable[nextSymbol] && nonTerminalIndex + 2 < splitContextSateProduction.Length)
-                    {
-                        for(int i = nonTerminalIndex + 2; i < splitContextSateProduction.Length; i++)
-                        {
-                            string nextSymbol2 = splitContextSateProduction[i];
-                            if (_sectionsManager.IsNonTerminal(nextSymbol2))
-                            {
-                                HashSet<string> firstOfNonTerminal2 = _nffTable._first[nextSymbol2];
-                                newLookahead.AddRange(AddFirst(newLookahead, firstOfNonTerminal2));
-                                if (!_nffTable._nullable[nextSymbol2])
-                                    break;
-                            }
-                            else
-                            {
-                                if (!newLookahead.Contains(nextSymbol2))
-                                    newLookahead.Add(nextSymbol2);
-                                break;
-                            }
-                        }
-                    }
+                    currentSymbol = currentSymbol.Trim().Trim('\'');
                 }
                 else
                 {
-                    if (!newLookahead.Contains(nextSymbol))
-                        newLookahead.Add(nextSymbol);
+                    currentSymbol = currentSymbol.Trim().Trim('\'').Trim('(').Trim('<').Trim('>');
                 }
+                return currentSymbol;
             }
-            return newLookahead;
-        }
-        private List<string> AddFirst(List<string> newLookahead, HashSet<string> newSymbols)
-        {
-            List<string> additionalLookahead = new List<string>();
-
-            foreach (string symbol in newSymbols)
-            {
-                if (!newLookahead.Contains(symbol))
-                {
-                    additionalLookahead.Add(symbol);
-                }
-            }
-
-            return additionalLookahead;
-        }
-        private void GenerateReductionForState(int currentStateIndex, List<string> consumedSymbol, int indexOfProduccion)
-        {
-            Tuple<int, List<string>, int> reduction = new Tuple<int, List<string>, int>(currentStateIndex, consumedSymbol, indexOfProduccion);
-            if (!consumedSymbol.Contains("ε"))
-                reduction = new Tuple<int, List<string>, int>(currentStateIndex, consumedSymbol, indexOfProduccion);
-            else
-            {
-                consumedSymbol.Add("");
-                reduction = new Tuple<int, List<string>, int>(currentStateIndex, consumedSymbol, indexOfProduccion);
-            }
-                
-            if (!_reductions.Contains(reduction))
-            {
-                _reductions.Add(reduction);
-            }
-        }
-        private void GenerateGotosShifts(int currentStateIndex, string consumedSymbol, int nextStateIndex)
-        {
-            Tuple<int, string, int> transition;
-            if(!consumedSymbol.Equals("ε"))
-                transition = new Tuple<int, string, int>(currentStateIndex, consumedSymbol, nextStateIndex);
-            else
-                transition = new Tuple<int, string, int>(currentStateIndex, "", nextStateIndex);
-            if (_sectionsManager.IsNonTerminal(consumedSymbol))
-            {
-                if (!_gotos.Contains(transition))
-                {
-                    // Añadir a GoTos
-                    _gotos.Add(transition);
-                }
-            }
-            else
-            {
-                if(!_shifts.Contains(transition))
-                {
-                    //Añadir a Shifts
-                    _shifts.Add(transition);
-                }
-            }
+            return null;
         }
     }
+
+    
 }
