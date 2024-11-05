@@ -19,7 +19,7 @@ class Program
         {
             Console.WriteLine("Ingrese la ruta del archivo (o 'salir' para finalizar):");
             //string filePath = Console.ReadLine();
-            string filePath = "GRMAR.txt";
+            string filePath = "GRMAR3.txt";
 
             if (filePath.ToLower().Equals("salir"))
                 break;
@@ -35,7 +35,7 @@ class Program
                 NFFTableManager nFFTableManager = new(sectionManager);
                 // Calcular la tabla de estados y actions
                 LALRTableManager lALRTableManager = new(sectionManager, nFFTableManager);
-                LALRParser lALRParser = new(lALRTableManager._actionTable, lALRTableManager.TrimSymbol(sectionManager._nonTerminals[sectionManager._startSymbol][0]), sectionManager);
+                LALRParser lALRParser = new(lALRTableManager, sectionManager);
                 /*
                 string input = Console.ReadLine();
                 if (input != null && input.Length > 0)

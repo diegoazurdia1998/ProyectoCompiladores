@@ -17,7 +17,7 @@ namespace ProyectoConsola.Parsing
     public class LALRParser
     {
         private readonly LALRTableManager _lALRTableManager;
-        private readonly Dictionary<int, Dictionary<object, (LALRAction, int)>> _actionTable
+        private readonly Dictionary<int, Dictionary<object, (LALRAction, int)>> _actionTable;
         private readonly string _startSymbol;
         SectionsManager _sectionsManager;
 
