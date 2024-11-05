@@ -68,7 +68,7 @@
               "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\LALRTableManager.cs",
               "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\LALRTableManager.cs",
               "RelativeToolTip": "ProyectoConsola\\Managers\\LALRTableManager.cs",
-              "ViewState": "AQIAAP0BAAAAAAAAAAAAAAsCAABGAAAA",
+              "ViewState": "AQIAAAQBAAAAAAAAAAArwBsBAAAIAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-17T03:10:51.564Z",
               "IsPinned": true,
@@ -84,8 +84,7 @@
               "RelativeToolTip": "ProyectoConsola\\Estructuras\\Production.cs",
               "ViewState": "AQIAACMAAAAAAAAAAAAAwC0AAAAmAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-02T08:04:26.276Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-02T08:04:26.276Z"
             },
             {
               "$type": "Document",
@@ -109,8 +108,7 @@
               "RelativeToolTip": "ProyectoConsola\\Estructuras\\LALRStateProduction.cs",
               "ViewState": "AQIAACMAAAAAAAAAAAAIwC4AAABUAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-22T08:06:24.425Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-22T08:06:24.425Z"
             },
             {
               "$type": "Document",
@@ -122,8 +120,7 @@
               "RelativeToolTip": "ProyectoConsola\\Managers\\SectionsManager.cs",
               "ViewState": "AQIAAF4AAAAAAAAAAAAqwG4AAABmAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-14T07:25:18.913Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-14T07:25:18.913Z"
             },
             {
               "$type": "Document",
@@ -159,8 +156,7 @@
               "RelativeToolTip": "ProyectoConsola\\Program.cs",
               "ViewState": "AQIAAA4AAAAAAAAAAAAgwB8AAAA6AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-12T05:48:51.671Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-12T05:48:51.671Z"
             },
             {
               "$type": "Document",
@@ -172,8 +168,7 @@
               "RelativeToolTip": "ProyectoConsola\\Estructuras\\Item.cs",
               "ViewState": "AQIAACMAAAAAAAAAAAAAwDEAAAAVAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-02T08:02:19.855Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-02T08:02:19.855Z"
             },
             {
               "$type": "Document",
@@ -185,8 +180,7 @@
               "RelativeToolTip": "ProyectoConsola\\Managers\\NFFTableManager.cs",
               "ViewState": "AQIAABYAAAAAAAAAAAA1wCgAAAAEAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-02T05:39:58.66Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-02T05:39:58.66Z"
             },
             {
               "$type": "Document",
@@ -198,8 +192,7 @@
               "RelativeToolTip": "ProyectoConsola\\Estructuras\\State.cs",
               "ViewState": "AQIAAAwAAAAAAAAAAAAiwBkAAAAkAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-02T08:03:01.523Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-02T08:03:01.523Z"
             },
             {
               "$type": "Document",
@@ -211,8 +204,7 @@
               "RelativeToolTip": "ProyectoConsola\\Enumeraciones\\LALRAction.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAEAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-02T08:07:04.294Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-02T08:07:04.294Z"
             }
           ]
         }

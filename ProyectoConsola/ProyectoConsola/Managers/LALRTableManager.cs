@@ -70,19 +70,20 @@ namespace ProyectoConsola.Managers
                     {
                         if (innerPair.Key is string singleSymbol)
                         {
-                            uniqueSymbols.Add(singleSymbol);
+                            uniqueSymbols.Add(TrimSymbol(singleSymbol));
                         }
                         else if (innerPair.Key is List<string> symbolListItem)
                         {
                             foreach (var item in symbolListItem)
                             {
-                                uniqueSymbols.Add(item);
+                                uniqueSymbols.Add(TrimSymbol(item));
                             }
                         }
                     }
                 }
 
                 // Convertir el HashSet a una lista
+                uniqueSymbols.Add("$");
                 symbolList.AddRange(uniqueSymbols);
 
                 // Escribir encabezados de columnas (símbolos)
@@ -120,11 +121,36 @@ namespace ProyectoConsola.Managers
                             };
 
                             // Si el símbolo es un string, inserta en su celda correspondiente
-                            int colIndex = symbolList.IndexOf(symbol) + 2; // +2 porque la primera columna es para estados
-                            if (colIndex > 1) // Asegurarse de que el símbolo se encontró
+                            if(symbol is HashSet<string> symbols)
                             {
-                                worksheet.Cells[row + 2, colIndex].Value = String.Concat(worksheet.Cells[row + 2, colIndex].GetValue<string>(), actionFormatted); // Almacena la acción formateada
+                                foreach(var symbol_i in symbols)
+                                {
+                                    int colIndex = symbolList.IndexOf(symbol_i) + 2; // +2 porque la primera columna es para estados
+                                    if (colIndex > 1) // Asegurarse de que el símbolo se encontró
+                                    {
+                                        if (worksheet.Cells[row + 2, colIndex].GetValue<string>() != null)
+                                        {
+                                            if(!worksheet.Cells[row + 2, colIndex].GetValue<string>().Equals(actionFormatted))
+                                                worksheet.Cells[row + 2, colIndex].Value = String.Concat(worksheet.Cells[row + 2, colIndex].GetValue<string>(), ' ',',',actionFormatted); // Almacena la acción formateada
+                                        }
+                                        else
+                                            worksheet.Cells[row + 2, colIndex].Value = actionFormatted;
+                                    }
+                                }
+                                
                             }
+                            else
+                            {
+                                int colIndex = symbolList.IndexOf(symbol) + 2; // +2 porque la primera columna es para estados
+                                if (colIndex > 1) // Asegurarse de que el símbolo se encontró
+                                {
+                                    if (worksheet.Cells[row + 2, colIndex].GetValue<string>() != null)
+                                        worksheet.Cells[row + 2, colIndex].Value = String.Concat(worksheet.Cells[row + 2, colIndex].GetValue<string>(), ' ', ',', actionFormatted); // Almacena la acción formateada
+                                    else
+                                        worksheet.Cells[row + 2, colIndex].Value = actionFormatted;
+                                }
+                            }
+                            
                         }
                     }
                 }
@@ -254,6 +280,7 @@ namespace ProyectoConsola.Managers
                 }
             }
             ExportStatesToExcel(states, "");
+            ExportToExcel("");
         }
         private void AddAction(int state, object value, LALRAction action, int index)
         {
@@ -295,7 +322,7 @@ namespace ProyectoConsola.Managers
                 State currentState = stateQueue.Dequeue();
                 foreach(var symbol in GetSymbols(currentState.Items))
                 {
-                    State newState = Goto(currentState, symbol);
+                    State newState = Goto(currentState, symbol, states.Count);
                     if(newState.Items.Count > 0)
                     {
                         string newStateKey = GetStateKey(newState);
@@ -311,6 +338,7 @@ namespace ProyectoConsola.Managers
             }
 
             // Paso 3: Combinar estados para LALR
+            //return states;
             return CombineStates(states);
         }
         private string GetStateKey(State state)
@@ -439,10 +467,9 @@ namespace ProyectoConsola.Managers
             }
             return la;
         }
-        private State Goto(State state, string symbol)
+        private State Goto(State state, string symbol, int stateCount)
         {
             List<Item> newItems = new List<Item>();
-            int newSateIndex = state.Index + 1;
             foreach (var item in state.Items)
             {
                 if (!item.ItemProduction.IsAtEnd())
@@ -461,12 +488,12 @@ namespace ProyectoConsola.Managers
                         {
                             item.SetAction(LALRAction.Shift);
                         }
-                        item.SetActionInt(newSateIndex);
+                        item.SetActionInt(stateCount);
                     }
 
                 }
             }
-            return new State(newSateIndex, Closure(newItems));
+            return new State(stateCount, Closure(newItems));
         }
         private bool VerifyAcceptance(Item item, Item initialItem)
         {
