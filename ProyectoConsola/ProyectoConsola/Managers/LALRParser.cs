@@ -360,6 +360,10 @@ namespace ProyectoConsola.Parsing
         // save_procedure_call
         // save_argument_list
         // keep_value
+        private string KeepValue(List<string> values)
+        {
+            return String.Join(" ", values);
+        }
         // save_argument_list_ext
         // keep_value
         // save_io_statement
