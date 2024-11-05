@@ -1,0 +1,86 @@
+COMPILER 
+yoshi.
+UNITS 
+	Uinclude,Ugenera,ValConst,ValExp,RegArray,Proc,ValCond;
+SETS
+	letter = 'A'..'Z'+'a'..'z'+'_';
+	digit = '0'..'9';
+	charset = chr(32)..chr(254);
+TOKENS
+	number = digit digit *;
+	identifier = letter ( letter | digit ) * check;
+	str = charset charset *;
+	'=','<>','<','>','>=','<=' Left;
+	'+','-','OR',';' Left;
+	'"','*','AND','MOD','DIV','/' Left;
+	'NOT' Right;	
+KEYWORDS
+	'PROGRAM','INCLUDE','CONST','TYPE','VAR','RECORD','ARRAY','OF','PROCEDURE',
+	'FUNCTION','IF','THEN','ELSE','FOR','TO','WHILE','DO','EXIT','END','PRINTLN','READLN',
+	'CASE','BREAK','DOWNTO', 'INTEGER', 'REAL', 'BOOLEAN', 'STRING', 'BEGIN';
+	Comments '(*' TO '*)' comentario;
+PRODUCTIONS
+	<program> = 'PROGRAM' identifier ';' <block> '.' {save_program}
+<block> = <declarations> <compound_statement> {save_block}
+<declarations> = <var_declaration> <declarations> {save_declarations}
+<declarations> = <procedure_declaration> <declarations> {save_declarations}
+<declarations> = ε {keep_value}
+<var_declaration> = 'VAR' identifier ':' <type> ';' <var_declaration> {save_var_declaration}
+<var_declaration> = ε {keep_value}
+<procedure_declaration> = 'PROCEDURE' identifier '(' <parameter_list> ')' ';' <block> ';' {save_procedure_declaration}
+<parameter_list> = identifier ':' <type> <parameter_list_ext> {save_parameter_list}
+<parameter_list> = ε {keep_value}
+<parameter_list_ext> = ',' identifier ':' <type> <parameter_list_ext> {save_parameter_list_ext}
+<type> = INTEGER {save_type}
+<type> = REAL {save_type}
+<type> = BOOLEAN {save_type}
+<type> = STRING {save_type}
+<compound_statement> = 'BEGIN' <statement_list> 'END' {save_compound_statement}
+<statement_list> = <statement> {save_statement_list}
+<statement_list> = <statement> <statement_list_ext> {save_statement_list}
+<statement_list_ext> = ';' <statement> <statement_list_ext> {save_statement_list_ext}
+<statement_list_ext> = ε {keep_value}
+<statement> = <assignment> {save_statement}
+<statement> = <if_statement> {save_statement}
+<statement> = <while_statement> {save_statement}
+<statement> = <procedure_call> {save_statement}
+<statement> = <io_statement> {save_statement}
+<assignment> = identifier ':=' <expression> {save_assignment}
+<if_statement> = 'IF' <expression> 'THEN' <statement> <else_statement> {save_if_statement}
+<else_statement> = 'ELSE' <statement> {save_else_statement}
+<else_statement> = ε {keep_value}
+<while_statement> = 'WHILE' <expression> 'DO' <statement> {save_while_statement}
+<procedure_call> = identifier '(' <argument_list> ')' {save_procedure_call}
+<argument_list> = <expression> <argument_list_ext> {save_argument_list}
+<argument_list> = ε {keep_value}
+<argument_list_ext> = ',' <expression> <argument_list_ext> {save_argument_list_ext}
+<argument_list_ext> = ε {keep_value}
+<io_statement> = 'PRINTLN' '(' <expression> ')' {save_io_statement}
+<io_statement> = 'READLN' '(' identifier ')' {save_io_statement}
+<expression> = <simple_expression> <expression_ext> {save_expression}
+<expression_ext> = <relational_operator> <simple_expression> {save_expression_extension}
+<expression_ext> = ε {keep_value}
+<simple_expression> = <term> <additive_operator> <term> {save_simple_expression}
+<simple_expression> = ε {keep_value}
+<term> = <factor> <multiplicative_operator> <factor> {save_term}
+<term> = ε {keep_value}
+<factor> = '(' <expression> ')' {save_factor}
+<factor> = identifier {save_identifier}
+<factor> = number {save_number}
+<factor> = <boolean_constant> {save_operator}
+<factor> = <string_constant> {save_string}
+<relational_operator> = = {save_operator}
+<relational_operator> = <> {save_operator}
+<relational_operator> = < {save_operator}
+<relational_operator> = <= {save_operator}
+<relational_operator> = > {save_operator}
+<relational_operator> = >= {save_operator}
+<additive_operator> = + {save_operator}
+<additive_operator> = - {save_operator}
+<additive_operator> = OR {save_operator}
+<multiplicative_operator> = * {save_operator}
+<multiplicative_operator> = / {save_operator}
+<multiplicative_operator> = AND {save_operator}
+<boolean_constant> = TRUE {save_boolean}
+<boolean_constant> = FALSE {save_boolean}
+<string_constant> = "' str '" {save_string}
