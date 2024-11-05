@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using ProyectoConsola.Managers;
+using ProyectoConsola.Parsing;
 using System.Drawing;
 
 /// <summary>
@@ -30,15 +31,18 @@ class Program
                 // Verificaar e identificar las secciones
                 SectionsManager sectionManager = new(seccionesProcesadas);
                 sectionManager.ExportNonTerminalsToExcel("");
-                // Mostrar secciones
-                //sectionManager.PrintSections();
                 // Construir la tabla de Nullable, First y Follow
                 NFFTableManager nFFTableManager = new(sectionManager);
-                // Mostrar tabla de Nullable, First y Follow
-                //nFFTableManager.PrintTables();
                 // Calcular la tabla de estados y actions
                 LALRTableManager lALRTableManager = new(sectionManager, nFFTableManager);
-
+                LALRParser lALRParser = new(lALRTableManager._actionTable, lALRTableManager.TrimSymbol(sectionManager._nonTerminals[sectionManager._startSymbol][0]), sectionManager);
+                /*
+                string input = Console.ReadLine();
+                if (input != null && input.Length > 0)
+                    lALRParser.Parse(input);
+                else
+                 */
+                lALRParser.Parse("prueba1.txt");
             }
             catch (Exception ex)
             {

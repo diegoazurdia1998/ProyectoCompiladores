@@ -13,6 +13,7 @@ using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 using System.Reflection;
 using ProyectoConsola.Enumeraciones;
+using static OfficeOpenXml.ExcelErrorValue;
 
 namespace ProyectoConsola.Managers
 {
@@ -23,13 +24,13 @@ namespace ProyectoConsola.Managers
     {
         private SectionsManager _sectionsManager;
         private NFFTableManager _nffTable;
-        private Dictionary<int, Dictionary<object, (LALRAction, int)>> actionTable; // Tabla de acción
+        public Dictionary<int, Dictionary<object, (LALRAction, int)>> _actionTable; // Tabla de acción
 
         public LALRTableManager(SectionsManager sectionsManager, NFFTableManager nFFTableManager)
         {
             _sectionsManager = sectionsManager;
             _nffTable = nFFTableManager; 
-            actionTable = new Dictionary<int, Dictionary<object, (LALRAction, int)>>();
+            _actionTable = new Dictionary<int, Dictionary<object, (LALRAction, int)>>();
 
             GenerateParsingTable();
         }
@@ -57,14 +58,14 @@ namespace ProyectoConsola.Managers
                 var worksheet = excelPackage.Workbook.Worksheets.Add("Action Table");
 
                 // Obtener todos los estados
-                var states = new List<int>(actionTable.Keys);
+                var states = new List<int>(_actionTable.Keys);
 
                 // Usar un HashSet para almacenar símbolos únicos
                 var uniqueSymbols = new HashSet<string>();
                 var symbolList = new List<object>();
 
                 // Recorre el diccionario para obtener todos los símbolos únicos
-                foreach (var innerDict in actionTable.Values)
+                foreach (var innerDict in _actionTable.Values)
                 {
                     foreach (var innerPair in innerDict)
                     {
@@ -103,7 +104,7 @@ namespace ProyectoConsola.Managers
                     worksheet.Cells[row + 2, 1].Value = state; // Estado en la primera columna
 
                     // Obtener el diccionario interno para el estado actual
-                    if (actionTable.TryGetValue(state, out var innerDict))
+                    if (_actionTable.TryGetValue(state, out var innerDict))
                     {
                         foreach (var innerPair in innerDict)
                         {
@@ -284,20 +285,30 @@ namespace ProyectoConsola.Managers
         }
         private void AddAction(int state, object value, LALRAction action, int index)
         {
-            if (!actionTable.ContainsKey(state))
+            if (!_actionTable.ContainsKey(state))
             {
-                actionTable[state] = new Dictionary<object, (LALRAction, int)>();
+                _actionTable[state] = new Dictionary<object, (LALRAction, int)>();
             }
             if(value is List<string> sValues)
             {
                 foreach(var svalue in sValues)
                 {
-                    actionTable[state][svalue] = (action, index);
+                    string trim = TrimSymbol(svalue);
+                    _actionTable[state][trim] = (action, index);
+                }
+            }
+            else if(value is HashSet<string> hValues)
+            {
+                foreach (var svalue in hValues)
+                {
+                    string trim = TrimSymbol(svalue);
+                    _actionTable[state][trim] = (action, index);
                 }
             }
             else
             {
-                actionTable[state][value] = (action, index);
+                string trim = TrimSymbol(value.ToString());
+                _actionTable[state][trim] = (action, index);
             }
             
         }
@@ -567,7 +578,7 @@ namespace ProyectoConsola.Managers
 
             return combinedStates;
         }
-        private string TrimSymbol(string currentSymbol)
+        public string TrimSymbol(string currentSymbol)
         {
             if(currentSymbol != null)
             {

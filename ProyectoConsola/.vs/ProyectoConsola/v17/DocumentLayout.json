@@ -3,28 +3,36 @@
   "WorkspaceRootPath": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\managers\\lalrparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\lalrparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\managers\\lalrtablemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\lalrtablemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\estructuras\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\estructuras\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\managers\\sectionsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\sectionsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\estructuras\\lalrstateproduction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\estructuras\\lalrstateproduction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\managers\\sectionsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\sectionsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\estructuras\\production.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\estructuras\\production.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\managers\\filemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\filemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\estructuras\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\estructuras\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\estructuras\\lalrstateproduction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\estructuras\\lalrstateproduction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\estructuras\\state.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -37,10 +45,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\managers\\nfftablemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\nfftablemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\managers\\filemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|solutionrelative:proyectoconsola\\managers\\filemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{03FDBDF3-4D08-457E-A943-9F7770284CB1}|ProyectoConsola\\ProyectoConsola.csproj|c:\\users\\diego\\documents\\1  universidad\\compiladores\\proyectocompiladores\\proyectoconsola\\proyectoconsola\\estructuras\\inputstackitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -63,12 +67,26 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "LALRParser.cs",
+              "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\LALRParser.cs",
+              "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\LALRParser.cs",
+              "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\LALRParser.cs",
+              "RelativeToolTip": "ProyectoConsola\\Managers\\LALRParser.cs",
+              "ViewState": "AQIAAFIAAAAAAAAAAAAmwGEAAAAYAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-05T00:20:07.932Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "LALRTableManager.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\LALRTableManager.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\LALRTableManager.cs",
               "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\LALRTableManager.cs",
               "RelativeToolTip": "ProyectoConsola\\Managers\\LALRTableManager.cs",
-              "ViewState": "AQIAAAQBAAAAAAAAAAArwBsBAAAIAAAA",
+              "ViewState": "AQIAABoBAAAAAAAAAAAIwC0BAAAoAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-17T03:10:51.564Z",
               "IsPinned": true,
@@ -76,31 +94,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Production.cs",
-              "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\Production.cs",
-              "RelativeDocumentMoniker": "ProyectoConsola\\Estructuras\\Production.cs",
-              "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\Production.cs",
-              "RelativeToolTip": "ProyectoConsola\\Estructuras\\Production.cs",
-              "ViewState": "AQIAACMAAAAAAAAAAAAAwC0AAAAmAAAA",
+              "DocumentIndex": 3,
+              "Title": "SectionsManager.cs",
+              "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\SectionsManager.cs",
+              "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\SectionsManager.cs",
+              "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\SectionsManager.cs",
+              "RelativeToolTip": "ProyectoConsola\\Managers\\SectionsManager.cs",
+              "ViewState": "AQIAAOsDAAAAAAAAAIA1wPMDAAAZAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-02T08:04:26.276Z"
+              "WhenOpened": "2024-10-14T07:25:18.913Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 5,
               "Title": "FileManager.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\FileManager.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\FileManager.cs",
               "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\FileManager.cs",
               "RelativeToolTip": "ProyectoConsola\\Managers\\FileManager.cs",
-              "ViewState": "AQIAAAoAAAAAAAAAAAAiwBgAAAAUAAAA",
+              "ViewState": "AQIAAA0AAAAAAAAAAAAgwBgAAAAUAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-23T18:48:43.458Z"
+              "WhenOpened": "2024-10-23T18:48:43.458Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "LALRStateProduction.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\LALRStateProduction.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Estructuras\\LALRStateProduction.cs",
@@ -112,19 +132,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "SectionsManager.cs",
-              "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\SectionsManager.cs",
-              "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\SectionsManager.cs",
-              "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\SectionsManager.cs",
-              "RelativeToolTip": "ProyectoConsola\\Managers\\SectionsManager.cs",
-              "ViewState": "AQIAAF4AAAAAAAAAAAAqwG4AAABmAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-14T07:25:18.913Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "InputStackItem.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\InputStackItem.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Estructuras\\InputStackItem.cs",
@@ -136,7 +144,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "Token.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\Token.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Estructuras\\Token.cs",
@@ -144,23 +152,38 @@
               "RelativeToolTip": "ProyectoConsola\\Estructuras\\Token.cs",
               "ViewState": "AQIAACsAAAAAAAAAAAAIwEEAAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-20T06:16:32.075Z"
+              "WhenOpened": "2024-10-20T06:16:32.075Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Program.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Program.cs",
               "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Program.cs",
               "RelativeToolTip": "ProyectoConsola\\Program.cs",
-              "ViewState": "AQIAAA4AAAAAAAAAAAAgwB8AAAA6AAAA",
+              "ViewState": "AQIAABcAAAAAAAAAAAAQwCwAAAAQAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-12T05:48:51.671Z"
+              "WhenOpened": "2024-08-12T05:48:51.671Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
+              "Title": "Production.cs",
+              "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\Production.cs",
+              "RelativeDocumentMoniker": "ProyectoConsola\\Estructuras\\Production.cs",
+              "ToolTip": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\Production.cs",
+              "RelativeToolTip": "ProyectoConsola\\Estructuras\\Production.cs",
+              "ViewState": "AQIAACMAAAAAAAAAAAAAwC0AAAAmAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-02T08:04:26.276Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "Item.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\Item.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Estructuras\\Item.cs",
@@ -172,7 +195,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "NFFTableManager.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Managers\\NFFTableManager.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Managers\\NFFTableManager.cs",
@@ -184,7 +207,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "State.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Estructuras\\State.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Estructuras\\State.cs",
@@ -196,7 +219,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 9,
               "Title": "LALRAction.cs",
               "DocumentMoniker": "C:\\Users\\diego\\Documents\\1  Universidad\\Compiladores\\ProyectoCompiladores\\ProyectoConsola\\ProyectoConsola\\Enumeraciones\\LALRAction.cs",
               "RelativeDocumentMoniker": "ProyectoConsola\\Enumeraciones\\LALRAction.cs",
