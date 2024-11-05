@@ -32,7 +32,7 @@ namespace ProyectoConsola.Managers
             _nffTable = nFFTableManager; 
             _actionTable = new Dictionary<int, Dictionary<object, (LALRAction, int)>>();
 
-            GenerateParsingTable();
+            GenerateLALRTable();
         }
         public void ExportToExcel(string filePath)
         {
@@ -221,7 +221,7 @@ namespace ProyectoConsola.Managers
                 package.SaveAs(excelFile);
             }
         }
-        private void GenerateParsingTable()
+        private void GenerateLALRTable()
         {
             // Paso 1: Construir el conjunto de estados
             List<State> states = ConstructStates();

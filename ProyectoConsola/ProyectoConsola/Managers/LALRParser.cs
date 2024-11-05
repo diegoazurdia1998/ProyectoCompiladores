@@ -9,6 +9,7 @@ using ProyectoConsola.Enumeraciones;
 using ProyectoConsola.Managers;
 using ProyectoConsola.Estructuras;
 using static System.Collections.Specialized.BitVector32;
+using static OfficeOpenXml.ExcelErrorValue;
 
 namespace ProyectoConsola.Parsing
 {
@@ -45,7 +46,7 @@ namespace ProyectoConsola.Parsing
 
             return result;
         }
-        private List<(LALRAction action, int actionInt)> GetAction(int currentState, string currentSymbol)
+        private List<(LALRAction action, int actionInt)> GetNextAction(int currentState, string currentSymbol)
         {
             if (_actionTable.TryGetValue(currentState, out var actions))
             {
@@ -93,29 +94,40 @@ namespace ProyectoConsola.Parsing
                 case LALRAction.Reduce:
                     Tuple<string, string> production = _sectionsManager._orderedNonTerminals[action.actionInt];
                     string[] splitProduction = production.Item2.Split(' ');
+                    List<string> values = new List<string>();
                     if (splitProduction.Length == 1 && splitProduction[0].Equals("ε"))
                     {
                         
                     }
                     else
                     {
-                        List<string> values = new List<string>();
                         // Realiza la reducción normal
                         foreach (var symbol in splitProduction)
                         {
-                            stateStack.Pop();
-                            (string symbol, string value) symbol_Value = symbolStack.Pop();
-                            values.Add(symbol_Value.value);
+                            stateStack.Pop(); // Remueve el estado
+                            (string symbol, string value) symbol_Value = symbolStack.Pop(); // Remueve el simbolo
+                            if (currentSymbol.Equals(symbol_Value.symbol))
+                            {
+                                values.Add(symbol_Value.value);
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                            
                         }
-                        // Luego empujar el nuevo estado correspondiente
-                        var action1 = GetAction(stateStack.Peek(), production.Item1);
-                        if (action1.ToArray()[0].action.Equals(LALRAction.Goto))
-                        {
-                            int newState = action1.ToArray()[0].actionInt; // Determina el nuevo estado
-                            stateStack.Push(newState);
-                            symbolStack.Push((production.Item1, DoAction(production.Item1, production.Item2, values))); // Empuja el símbolo no terminal
-                        }
-                        
+                    }
+                    // Luego empujar el nuevo estado correspondiente
+                    var action1 = GetNextAction(stateStack.Peek(), production.Item1);
+                    if (action1[0].action.Equals(LALRAction.Goto))
+                    {
+                        int newState = action1[0].actionInt; // Determina el nuevo estado
+                        stateStack.Push(newState);
+                        symbolStack.Push((production.Item1, DoSyntaxActions(production.Item1, production.Item2, values))); // Empuja el símbolo no terminal
+                    }
+                    else
+                    {
+                        return false; 
                     }
                     return true;
 
@@ -128,27 +140,26 @@ namespace ProyectoConsola.Parsing
                     return false;
             }
         }
-        private string DoAction(string nonTerminal,string production,List<string> values)
+        private string DoSyntaxActions(string nonTerminal,string production,List<string> values)
         {
             string result = "";
             List<string> actions ;
-            var actionsDictionary = _sectionsManager._nonTerminalActions;
-            if (actionsDictionary.Keys.Contains(nonTerminal) && actionsDictionary[nonTerminal].Keys.Contains(production))
+            var semanticActionsDictionary = _sectionsManager._nonTerminalActions;
+            if (semanticActionsDictionary.Keys.Contains(nonTerminal) && semanticActionsDictionary[nonTerminal].Keys.Contains(production))
             {
                 actions = _sectionsManager._nonTerminalActions[nonTerminal][production];
-                foreach(var  action in actions)
+                foreach (var action in actions)
                 {
-                    
                     switch (action)
                     {
-
-                        case default:
+                        
+                        default:
+                            // Manejo de caso por defecto
                             break;
                     }
-
                 }
             }
-            return result;
+            return String.Join(" ,", values);
         }
         public bool Parse(string inputString)
         {
@@ -181,7 +192,7 @@ namespace ProyectoConsola.Parsing
             while (true)
             {
                 int currentState = stateStack.Peek();
-                List<(LALRAction action, int actionInt)> actions = GetAction(currentState, currentSymbol);
+                List<(LALRAction action, int actionInt)> actions = GetNextAction(currentState, currentSymbol);
                 if (actions.Count > 1)
                 {
                     var actionsL = actions.ToList();
