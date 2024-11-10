@@ -14,6 +14,8 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Reflection;
 using ProyectoConsola.Enumeraciones;
 using static OfficeOpenXml.ExcelErrorValue;
+using ProyectoConsola.Modelos;
+using ProyectoConsola.JJ;
 
 namespace ProyectoConsola.Managers
 {
@@ -26,144 +28,184 @@ namespace ProyectoConsola.Managers
         private NFFTableManager _nffTable;
         public Dictionary<int, Dictionary<object, (LALRAction, int)>> _actionTable; // Tabla de acción
 
-        public LALRTableManager(SectionsManager sectionsManager, NFFTableManager nFFTableManager)
+        public LALRTableManager(SectionsManager sectionsManager, NFFTableManager nFFTableManager, List<string> archivoDePrueba)
         {
             _sectionsManager = sectionsManager;
             _nffTable = nFFTableManager; 
             _actionTable = new Dictionary<int, Dictionary<object, (LALRAction, int)>>();
 
-            GenerateLALRTable();
-        }
-        public void ExportToExcel(string filePath)
+            // List<AccionModel> listadoDeAcciones = GenerateLALRTable();
+            // ParceoDeTabla parceoDeTabla = new ParceoDeTabla();
+            // parceoDeTabla.Parsear(listadoDeAcciones, archivoDePrueba);
+
+        }   
+
+        //EXPORTA LAS ACCIONES
+        public List<AccionModel> ExportToExcel(string filePath)
         {
-            // Verifica si la ruta es válida
-            if (!Path.IsPathRooted(filePath) || !Directory.Exists(Path.GetDirectoryName(filePath)))
+            try
             {
-                // Si la ruta no es válida, establece la ruta predeterminada
-                string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Actions.xlsx");
-                filePath = defaultPath;
-            }
+                List<AccionModel> listadoAcciones = new();
 
-            // Verifica si el archivo ya existe y lo elimina
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-            // Establecer el contexto de licencia
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // Crea un nuevo paquete Excel
-            using (ExcelPackage excelPackage = new ExcelPackage())
-            {
-                // Agrega una nueva hoja de trabajo
-                var worksheet = excelPackage.Workbook.Worksheets.Add("Action Table");
-
-                // Obtener todos los estados
-                var states = new List<int>(_actionTable.Keys);
-
-                // Usar un HashSet para almacenar símbolos únicos
-                var uniqueSymbols = new HashSet<string>();
-                var symbolList = new List<object>();
-
-                // Recorre el diccionario para obtener todos los símbolos únicos
-                foreach (var innerDict in _actionTable.Values)
+                // Verifica si la ruta es válida
+                if (!Path.IsPathRooted(filePath) || !Directory.Exists(Path.GetDirectoryName(filePath)))
                 {
-                    foreach (var innerPair in innerDict)
-                    {
-                        if (innerPair.Key is string singleSymbol)
-                        {
-                            uniqueSymbols.Add(TrimSymbol(singleSymbol));
-                        }
-                        else if (innerPair.Key is List<string> symbolListItem)
-                        {
-                            foreach (var item in symbolListItem)
-                            {
-                                uniqueSymbols.Add(TrimSymbol(item));
-                            }
-                        }
-                    }
+                    // Si la ruta no es válida, establece la ruta predeterminada
+                    string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Actions.xlsx");
+                    filePath = defaultPath;
                 }
 
-                // Convertir el HashSet a una lista
-                uniqueSymbols.Add("$");
-                symbolList.AddRange(uniqueSymbols);
-
-                // Escribir encabezados de columnas (símbolos)
-                worksheet.Cells[1, 1].Value = "Estado"; // Encabezado de la primera columna
-                int currentColumn = 2; // Comenzar en la columna 2
-
-                foreach (var symbol in symbolList)
+                // Verifica si el archivo ya existe y lo elimina
+                if (File.Exists(filePath))
                 {
-                    worksheet.Cells[1, currentColumn].Value = symbol.ToString(); // Inserta el símbolo en su celda
-                    currentColumn++;
+                    File.Delete(filePath);
                 }
-
-                // Escribir estados y sus acciones
-                for (int row = 0; row < states.Count; row++)
+                // Establecer el contexto de licencia
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                // Crea un nuevo paquete Excel
+                using (ExcelPackage excelPackage = new ExcelPackage())
                 {
-                    int state = states[row];
-                    worksheet.Cells[row + 2, 1].Value = state; // Estado en la primera columna
+                    // Agrega una nueva hoja de trabajo
+                    var worksheet = excelPackage.Workbook.Worksheets.Add("Action Table");
 
-                    // Obtener el diccionario interno para el estado actual
-                    if (_actionTable.TryGetValue(state, out var innerDict))
+                    // Obtener todos los estados
+                    var states = new List<int>(_actionTable.Keys);
+
+                    // Usar un HashSet para almacenar símbolos únicos
+                    var uniqueSymbols = new HashSet<string>();
+                    var symbolList = new List<object>();
+
+                    // Recorre el diccionario para obtener todos los símbolos únicos
+                    foreach (var innerDict in _actionTable.Values)
                     {
                         foreach (var innerPair in innerDict)
                         {
-                            object symbol = innerPair.Key;
-                            (LALRAction action, int index) = innerPair.Value;
-
-                            // Formatear la acción según el tipo
-                            string actionFormatted = action switch
+                            if (innerPair.Key is string singleSymbol)
                             {
-                                LALRAction.Accept => "OK",
-                                LALRAction.Shift => $"S{index}",
-                                LALRAction.Goto => $"G{index}",
-                                LALRAction.Reduce => $"R{index}",
-                                _ => string.Empty // Manejo de acciones no definidas
-                            };
-
-                            // Si el símbolo es un string, inserta en su celda correspondiente
-                            if(symbol is HashSet<string> symbols)
+                                uniqueSymbols.Add(TrimSymbol(singleSymbol));
+                            }
+                            else if (innerPair.Key is List<string> symbolListItem)
                             {
-                                foreach(var symbol_i in symbols)
+                                foreach (var item in symbolListItem)
                                 {
-                                    int colIndex = symbolList.IndexOf(symbol_i) + 2; // +2 porque la primera columna es para estados
+                                    uniqueSymbols.Add(TrimSymbol(item));
+                                }
+                            }
+                        }
+                    }
+
+                    // Convertir el HashSet a una lista
+                    uniqueSymbols.Add("$");
+                    symbolList.AddRange(uniqueSymbols);
+
+                    // Escribir encabezados de columnas (símbolos)
+                    worksheet.Cells[1, 1].Value = "Estado"; // Encabezado de la primera columna
+                    int currentColumn = 2; // Comenzar en la columna 2
+
+                    foreach (var symbol in symbolList)
+                    {
+                        worksheet.Cells[1, currentColumn].Value = symbol.ToString(); // Inserta el símbolo en su celda
+                        currentColumn++;
+                    }
+
+                    // Escribir estados y sus acciones
+                    
+                    for (int row = 0; row < states.Count; row++)
+                    {
+                        int state = states[row];
+                        worksheet.Cells[row + 2, 1].Value = state; // Estado en la primera columna
+
+                        // Obtener el diccionario interno para el estado actual
+                        if (_actionTable.TryGetValue(state, out var innerDict))
+                        {
+                            foreach (var innerPair in innerDict)
+                            {
+                                AccionModel nuevaAccion = new();
+                                object symbol = innerPair.Key;
+                                (LALRAction action, int index) = innerPair.Value;
+
+                                string actionFormatted = "";
+                                nuevaAccion.Columna = innerPair.Key.ToString();
+                                nuevaAccion.Fila = row.ToString();
+                                switch (action)
+                                {
+                                    case LALRAction.Accept:
+                                        actionFormatted = "OK";
+                                        nuevaAccion.Accion = "OK";
+                                        break;
+                                    case LALRAction.Shift:
+                                        actionFormatted = $"S{index}";
+                                        nuevaAccion.Accion = "Shift";
+                                        nuevaAccion.AQueEstado = index.ToString();
+                                        break;
+                                    case LALRAction.Goto:
+                                        actionFormatted = $"G{index}";
+                                        nuevaAccion.Accion = "Goto";
+                                        nuevaAccion.AQueEstado = index.ToString();
+                                        break;
+                                    case LALRAction.Reduce:
+                                        actionFormatted = $"R{index}";
+                                        nuevaAccion.Accion = "Reduce";
+                                        nuevaAccion.AQueEstado = index.ToString();
+                                        break;
+                                }
+
+                                // Si el símbolo es un string, inserta en su celda correspondiente
+                                int colIndex = symbolList.IndexOf(symbol) + 2; // +2 porque la primera columna es para estados
+
+                                if(symbol is HashSet<string> symbols)
+                                {
+                                    foreach(var symbol_i in symbols)
+                                    {
+                                        //int colIndex = symbolList.IndexOf(symbol_i) + 2; // +2 porque la primera columna es para estados
+                                        if (colIndex > 1) // Asegurarse de que el símbolo se encontró
+                                        {
+                                            if (worksheet.Cells[row + 2, colIndex].GetValue<string>() != null)
+                                            {
+                                                if(!worksheet.Cells[row + 2, colIndex].GetValue<string>().Equals(actionFormatted))
+                                                    worksheet.Cells[row + 2, colIndex].Value = String.Concat(worksheet.Cells[row + 2, colIndex].GetValue<string>(), ' ',',',actionFormatted); // Almacena la acción formateada
+                                            }
+                                            else
+                                                worksheet.Cells[row + 2, colIndex].Value = actionFormatted;
+                                        }
+                                    }
+                                    
+                                }
+                                else
+                                {
                                     if (colIndex > 1) // Asegurarse de que el símbolo se encontró
                                     {
                                         if (worksheet.Cells[row + 2, colIndex].GetValue<string>() != null)
-                                        {
-                                            if(!worksheet.Cells[row + 2, colIndex].GetValue<string>().Equals(actionFormatted))
-                                                worksheet.Cells[row + 2, colIndex].Value = String.Concat(worksheet.Cells[row + 2, colIndex].GetValue<string>(), ' ',',',actionFormatted); // Almacena la acción formateada
-                                        }
+                                            worksheet.Cells[row + 2, colIndex].Value = String.Concat(worksheet.Cells[row + 2, colIndex].GetValue<string>(), ' ', ',', actionFormatted); // Almacena la acción formateada
                                         else
                                             worksheet.Cells[row + 2, colIndex].Value = actionFormatted;
                                     }
                                 }
-                                
+                                listadoAcciones.Add(nuevaAccion);
                             }
-                            else
-                            {
-                                int colIndex = symbolList.IndexOf(symbol) + 2; // +2 porque la primera columna es para estados
-                                if (colIndex > 1) // Asegurarse de que el símbolo se encontró
-                                {
-                                    if (worksheet.Cells[row + 2, colIndex].GetValue<string>() != null)
-                                        worksheet.Cells[row + 2, colIndex].Value = String.Concat(worksheet.Cells[row + 2, colIndex].GetValue<string>(), ' ', ',', actionFormatted); // Almacena la acción formateada
-                                    else
-                                        worksheet.Cells[row + 2, colIndex].Value = actionFormatted;
-                                }
-                            }
-                            
                         }
                     }
+
+                    // Ajusta el ancho de las columnas
+                    //worksheet.Cells.AutoFitColumns();
+
+                    // Guarda el archivo
+                    //FileInfo excelFile = new FileInfo(filePath);
+                    //excelPackage.SaveAs(excelFile);
+
+                    return listadoAcciones;
                 }
-
-                // Ajusta el ancho de las columnas
-                worksheet.Cells.AutoFitColumns();
-
-                // Guarda el archivo
-                FileInfo excelFile = new FileInfo(filePath);
-                excelPackage.SaveAs(excelFile);
             }
+            catch (System.Exception e)
+            {
+                string mensaje = e.Message;
+                throw;
+            }
+
+            
         }
+
+        //TABLA DE ESTADOS
         public void ExportStatesToExcel(List<State> states, string filePath)
         {
             // Asegúrate de que EPPlus pueda trabajar con archivos Excel
@@ -221,68 +263,79 @@ namespace ProyectoConsola.Managers
                 package.SaveAs(excelFile);
             }
         }
-        private void GenerateLALRTable()
+        private List<AccionModel> GenerateLALRTable()
         {
-            // Paso 1: Construir el conjunto de estados
-            List<State> states = ConstructStates();
-            // Paso 2: Agregar los reduce y aceptacion
-            foreach (var state in states)
+            try
             {
-                foreach (var item in state.Items)
+                // Paso 1: Construir el conjunto de estados
+                List<State> states = ConstructStates();
+                // Paso 2: Agregar los reduce y aceptacion
+                foreach (var state in states)
                 {
-                    if (item.ItemProduction.IsAtEnd())
+                    foreach (var item in state.Items)
                     {
-                        if(VerifyAcceptance(item, new Item(["$"], _sectionsManager._startSymbol, _sectionsManager._nonTerminals[_sectionsManager._startSymbol][0])))
-                        { 
-                            item.SetAction(LALRAction.Accept); 
+                        if (item.ItemProduction.IsAtEnd())
+                        {
+                            if(VerifyAcceptance(item, new Item(["$"], _sectionsManager._startSymbol, _sectionsManager._nonTerminals[_sectionsManager._startSymbol][0])))
+                            { 
+                                item.SetAction(LALRAction.Accept); 
+                            }
+                            else
+                            {
+                                item.SetAction(LALRAction.Reduce);
+                            }
+                            item.SetActionInt(GetIndexOfReduceProduction(item.ItemProduction));
+
                         }
                         else
                         {
-                            item.SetAction(LALRAction.Reduce);
-                        }
-                        item.SetActionInt(GetIndexOfReduceProduction(item.ItemProduction));
-
-                    }
-                    else
-                    {
-                        string currentSymbol = TrimSymbol(item.ItemProduction.CurrentSymbol());
-                        if (_sectionsManager.IsNonTerminal(currentSymbol))
-                        {
-                            item.SetAction(LALRAction.Goto);
-                        }
-                        else
-                        {
-                            item.SetAction(LALRAction.Shift);
+                            string currentSymbol = TrimSymbol(item.ItemProduction.CurrentSymbol());
+                            if (_sectionsManager.IsNonTerminal(currentSymbol))
+                            {
+                                item.SetAction(LALRAction.Goto);
+                            }
+                            else
+                            {
+                                item.SetAction(LALRAction.Shift);
+                            }
                         }
                     }
                 }
-            }
 
-            // Paso 3: Llenar la tabla de action
-            foreach (var state in states)
-            {
-                foreach (var item in state.Items)
+                // Paso 3: Llenar la tabla de action
+                foreach (var state in states)
                 {
-                    switch (item.ItemAction)
+                    foreach (var item in state.Items)
                     {
-                        case LALRAction.Accept:
-                            AddAction(state.Index, item.Lookahead, item.ItemAction, item.ActionInt);
-                            break;
-                        case LALRAction.Reduce:
-                            AddAction(state.Index, item.Lookahead, item.ItemAction, item.ActionInt);
-                            break;
-                        case LALRAction.Shift:
-                            AddAction(state.Index, item.ItemProduction.CurrentSymbol(), item.ItemAction, item.ActionInt);
-                            break;
-                        case LALRAction.Goto:
-                            AddAction(state.Index, item.ItemProduction.CurrentSymbol(), item.ItemAction, item.ActionInt);
-                            break;
+                        switch (item.ItemAction)
+                        {
+                            case LALRAction.Accept:
+                                AddAction(state.Index, item.Lookahead, item.ItemAction, item.ActionInt);
+                                break;
+                            case LALRAction.Reduce:
+                                AddAction(state.Index, item.Lookahead, item.ItemAction, item.ActionInt);
+                                break;
+                            case LALRAction.Shift:
+                                AddAction(state.Index, item.ItemProduction.CurrentSymbol(), item.ItemAction, item.ActionInt);
+                                break;
+                            case LALRAction.Goto:
+                                AddAction(state.Index, item.ItemProduction.CurrentSymbol(), item.ItemAction, item.ActionInt);
+                                break;
+                        }
                     }
                 }
+                //ExportStatesToExcel(states, "");
+                List<AccionModel> listadoDeAcciones = ExportToExcel("");
+                return listadoDeAcciones;
             }
-            ExportStatesToExcel(states, "");
-            ExportToExcel("");
+            catch (System.Exception e)
+            {
+                string mensaje = e.Message;
+                throw;
+            }
+
         }
+        
         private void AddAction(int state, object value, LALRAction action, int index)
         {
             if (!_actionTable.ContainsKey(state))

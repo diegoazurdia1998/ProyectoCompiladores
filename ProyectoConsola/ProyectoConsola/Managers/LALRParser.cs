@@ -24,10 +24,19 @@ namespace ProyectoConsola.Parsing
 
         public LALRParser(LALRTableManager lALRTableManager, SectionsManager sm)
         {
-            _lALRTableManager = lALRTableManager;
-            _actionTable = lALRTableManager._actionTable;
-            _startSymbol = sm._startSymbol;
-            _sectionsManager = sm;
+            try
+            {
+                _lALRTableManager = lALRTableManager;
+                _actionTable = lALRTableManager._actionTable;
+                _startSymbol = sm._startSymbol;
+                _sectionsManager = sm;
+            }
+            catch (System.Exception e)
+            {
+                string mensaje = e.Message;
+                throw;
+            }
+            
         }
         private List<(string identifier, string production)> RearrangeTokens(List<Token> tuplas)
         {

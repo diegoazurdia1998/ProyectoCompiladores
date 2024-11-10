@@ -101,7 +101,9 @@ namespace ProyectoConsola.Managers
         }
         public void ExportNonTerminalsToExcel(string filePath)
         {
-            List<Tuple<string, string>> orderedNonTerminals = _orderedNonTerminals;
+            try
+            {
+                List<Tuple<string, string>> orderedNonTerminals = _orderedNonTerminals;
             // Asegúrate de que EPPlus pueda trabajar con archivos Excel
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             // Verifica si la ruta es válida
@@ -144,6 +146,14 @@ namespace ProyectoConsola.Managers
                 FileInfo excelFile = new FileInfo(filePath);
                 package.SaveAs(excelFile);
             }
+            }
+            catch (System.Exception e)
+            {
+                string mensaje = e.Message;
+                throw;
+            }
+
+            
         }
         /// <summary>
         /// Imprime las secciones del lenguaje de programación en consola.
