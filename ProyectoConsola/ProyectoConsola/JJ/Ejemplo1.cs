@@ -69,6 +69,7 @@ namespace ProyectoConsola.JJ
             ];
         }
 
+        //No Aceptado, se elimino el ultimo parentesis
         static public List<IdentificadorValorModel> ListadoPrueba(){
             return [
                 new IdentificadorValorModel(){ Id = "(" },
@@ -81,9 +82,68 @@ namespace ProyectoConsola.JJ
                 new IdentificadorValorModel(){ Id = "num", Valor = "4" },
                 new IdentificadorValorModel(){ Id = "*" },
                 new IdentificadorValorModel(){ Id = "num", Valor = "2" },
-                new IdentificadorValorModel(){ Id = ")" },
+                new IdentificadorValorModel(){ Id = "$" },
             ];
         }
+
+        //No Aceptado se eliminio el primer valor de 5
+        // static public List<IdentificadorValorModel> ListadoPrueba(){
+        //     return [
+        //         new IdentificadorValorModel(){ Id = "(" },
+        //         new IdentificadorValorModel(){ Id = "+" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "7" },
+        //         new IdentificadorValorModel(){ Id = ")" },
+        //         new IdentificadorValorModel(){ Id = "*" },
+        //         new IdentificadorValorModel(){ Id = "(" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "4" },
+        //         new IdentificadorValorModel(){ Id = "*" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "2" },
+        //         new IdentificadorValorModel(){ Id = ")" },
+        //         new IdentificadorValorModel(){ Id = "$" },
+        //     ];
+        // }
+
+        //Aceptado
+        // static public List<IdentificadorValorModel> ListadoPrueba(){
+        //     return [
+        //         new IdentificadorValorModel(){ Id = "(" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "5" },
+        //         new IdentificadorValorModel(){ Id = "+" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "7" },
+        //         new IdentificadorValorModel(){ Id = ")" },
+        //         new IdentificadorValorModel(){ Id = "*" },
+        //         new IdentificadorValorModel(){ Id = "(" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "4" },
+        //         new IdentificadorValorModel(){ Id = "*" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "2" },
+        //         new IdentificadorValorModel(){ Id = ")" },
+        //         new IdentificadorValorModel(){ Id = "+" },
+        //         new IdentificadorValorModel(){ Id = "(" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "2" },
+        //         new IdentificadorValorModel(){ Id = "+" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "1" },
+        //         new IdentificadorValorModel(){ Id = ")" },
+        //         new IdentificadorValorModel(){ Id = "$" },
+        //     ];
+        // }
+
+        //Aceptado
+        // static public List<IdentificadorValorModel> ListadoPrueba(){
+        //     return [
+        //         new IdentificadorValorModel(){ Id = "(" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "5" },
+        //         new IdentificadorValorModel(){ Id = "+" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "7" },
+        //         new IdentificadorValorModel(){ Id = ")" },
+        //         new IdentificadorValorModel(){ Id = "*" },
+        //         new IdentificadorValorModel(){ Id = "(" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "4" },
+        //         new IdentificadorValorModel(){ Id = "*" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "2" },
+        //         new IdentificadorValorModel(){ Id = ")" },
+        //         new IdentificadorValorModel(){ Id = "$" },
+        //     ];
+        // }
 
         static public List<ReduccionModel> ListadoDeReducciones(){
             return [

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using OfficeOpenXml.ConditionalFormatting;
 using ProyectoConsola.Modelos;
@@ -22,27 +23,51 @@ namespace ProyectoConsola.JJ
             this.listadoDeReducciones = listadoReducciones;
             IdentificadorValorModel itemInput = archivoDePrueba[0];
             archivoDePrueba.RemoveAt(0);
-            Stack<IdentificadorValorModel> pilaTemporal = new();
-            bool respuesta = false;
             IdentificadorValorModel itemPila = pila.Peek();
             
-            while (archivoDePrueba.Count > 0)
+            while (pila.Count > 0)
             {
-                respuesta = ProcesarCaracter(itemPila, itemInput);
+                RespuestaModel respuesta = ProcesarCaracter(itemPila, itemInput);
 
-                if (respuesta){
-                    itemInput = archivoDePrueba[0];
-                    archivoDePrueba.RemoveAt(0);
-                    itemPila = pila.Peek();
-                }else{
-                    itemPila = pila.Peek();
+                switch (respuesta.Codigo)
+                {
+                    case 0:
+                        itemPila = pila.Peek();
+                    break;
+                    case 1:
+                        itemInput = archivoDePrueba[0];
+                        archivoDePrueba.RemoveAt(0);
+                        itemPila = pila.Peek();
+                    break;
+                    case 3:
+                        Console.WriteLine(respuesta.Mensaje);
+                        Console.WriteLine(respuesta.Contenido);
+                        Environment.Exit(0);
+                    break;
+                    case 99:
+                        pila.Pop();
+                        IdentificadorValorModel rsp = pila.Pop();
+                        Console.WriteLine(respuesta.Mensaje);
+                        Console.WriteLine("El resultado es:" + rsp.Valor);
+                        Environment.Exit(0);
+                    break;
+                    default:
+                        Console.WriteLine("Error no manejado");
+                        Environment.Exit(0);
+                    break;
                 }
             }
+            
+            if (pila.Count > 0){
+                Console.WriteLine("Error: pila con items");
+                
+            }else{
+                Console.WriteLine("Finalizado correctamente");
+            }
 
-            Console.WriteLine("Finalizado correctamente");
         }
 
-        public bool ProcesarCaracter(IdentificadorValorModel itemPila, IdentificadorValorModel itemInput){
+        public RespuestaModel ProcesarCaracter(IdentificadorValorModel itemPila, IdentificadorValorModel itemInput){
             foreach (var accion in listadoDeAcciones)
             {
                 if (accion.Fila!.ToString().Equals(itemPila.Id) && ( accion.Columna!.Equals(itemInput.Id) || accion.Columna.Equals(itemInput.Valor))){
@@ -54,28 +79,29 @@ namespace ProyectoConsola.JJ
                         case "Shift":
                             pila.Push(itemInput);
                             pila.Push(new IdentificadorValorModel(){ Id = queEstado});
-                            return true;
+                            return new RespuestaModel(){ Codigo = 1 };
                         break;
                         case "Goto":
                             pila.Push(new IdentificadorValorModel(){ Id = queEstado});
-                            return false;
+                            return new RespuestaModel(){ Codigo = 0 };
                         break;
                         case "Reduce":
                             RealizarReduce(queEstado);
                             RealizarGoto();
-                            return false;
+                            return new RespuestaModel(){ Codigo = 0 };
                         break;
                         case "OK":
+                            return new RespuestaModel(){ Codigo = 99, Mensaje = "Cadena aceptada"};
                         break;
                         default: 
                             Console.Write("No se encontro accion");
-                            return false;
+                            return new RespuestaModel(){ Codigo = 0 };
                             break;
                     }
                     break;
                 }
             }
-            return false;
+            return new RespuestaModel(){ Codigo = 3, Mensaje = "Produccion no encontrada", Contenido = "Se trato de procesar el estado: " + itemPila.Id + " con: " + itemInput.Id };
         }
 
         public void RealizarGoto(){

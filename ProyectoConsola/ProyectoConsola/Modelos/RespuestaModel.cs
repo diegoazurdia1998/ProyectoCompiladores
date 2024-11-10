@@ -7,9 +7,9 @@ namespace ProyectoConsola.Modelos
 {
     public class RespuestaModel
     {
-        public int Id {get;set;}
-        public string? Mensaje {get;}
-        public string? Contenido {get;}
+        public int Codigo {get;set;}
+        public string? Mensaje {get;set;}
+        public string? Contenido {get;set;}
 
     }
 }
