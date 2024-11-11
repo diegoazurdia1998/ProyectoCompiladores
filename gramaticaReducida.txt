@@ -1,0 +1,34 @@
+	COMPILER yoshi.
+
+SETS
+    letter = 'A'..'Z'+'a'..'z'+'_';
+    digit = '0'..'9';
+
+TOKENS
+    number = digit digit*;
+    identifier = letter (letter | digit)*;
+
+KEYWORDS
+    'PROGRAM', 'VAR', 'BEGIN', 'END', 'INTEGER';
+
+PRODUCTIONS
+    <program> = 'PROGRAM' identifier ';' <declarations> <compound_statement> '.';
+    
+    <declarations> = 'VAR' identifier ':' 'INTEGER' ';' <declarations>
+    <declarations> = ε;
+    
+    <compound_statement> = 'BEGIN' <statement_list> 'END';
+    
+    <statement_list> = <assignment> 
+    <statement_list> = <assignment> ';' <statement_list>;
+    
+    <assignment> = identifier ':=' <expression>;
+    
+    <expression> = <term> '+' <term>
+    <expression> = <term>;
+                 
+    <term> = <factor> '*' <factor>
+    <term> = <factor>;
+
+    <factor> = identifier 
+    <factor> = number;

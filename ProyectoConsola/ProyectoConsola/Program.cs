@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using ProyectoConsola.JJ;
 using ProyectoConsola.Managers;
+using ProyectoConsola.Modelos;
 using ProyectoConsola.Parsing;
 using System.Drawing;
 
@@ -14,16 +15,24 @@ class Program
     /// </summary>
     static void Main()
     {
+        //CodigoTresDirecciones codigoTresDirecciones = new();
+        //RespuestaModel respuesta = codigoTresDirecciones.ValidacionDeLaPruebaConGramatica();
+        //Console.WriteLine(respuesta.Mensaje);
+        //Environment.Exit(0);
+
         ParceoDeTabla parceoDeTabla = new();
         parceoDeTabla.Parsear(Ejemplo1.ListadoDeAcciones(), Ejemplo1.ListadoPrueba(), Ejemplo1.ListadoDeReducciones());
 
         FileManager fileManager = new FileManager();
 
+
+
+
         while (true)
         {
             Console.WriteLine("Ingrese la ruta del archivo (o 'salir' para finalizar):");
             //string filePath = Console.ReadLine();
-            string filePath = "../../GRMAR.txt";
+            string filePath = "../../gramaticaReducida.txt";
 
             if (filePath.ToLower().Equals("salir"))
                 break;
@@ -58,7 +67,8 @@ class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                string mensaje = ex.Message;
+                Console.WriteLine("Error: " + mensaje);
                 Console.WriteLine("\nPresione cualquier tecla para continuar");
                 Console.ReadLine();
             }

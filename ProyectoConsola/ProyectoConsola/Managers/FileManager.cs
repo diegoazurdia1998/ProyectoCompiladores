@@ -100,8 +100,9 @@ public class FileManager
                 }
             }
         }
-        catch (FileNotFoundException)
+        catch (FileNotFoundException e)
         {
+            string mensaje = e.Message;
             // Maneja la excepción si el archivo no existe o no se puede leer.
             Console.Error.WriteLine("El archivo no existe o no se puede leer: " + rutaArchivo);
         }

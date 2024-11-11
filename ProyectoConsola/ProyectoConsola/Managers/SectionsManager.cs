@@ -197,7 +197,7 @@ namespace ProyectoConsola.Managers
         public void StartManagers()
         {
             //Units
-            UnitsManager();
+            //UnitsManager();
             //Sets
             SetsManager();
             //Tokens
@@ -311,6 +311,8 @@ namespace ProyectoConsola.Managers
 
             foreach (string set in setsList)
             {
+                if (string.IsNullOrEmpty(set)) continue;
+
                 Match identifierMatch = identifierRegex.Match(set);
                 if (identifierMatch.Success)
                 {
@@ -338,87 +340,112 @@ namespace ProyectoConsola.Managers
         /// </summary>
         private void IdentifySets()
         {
-            string auxIdentifier, auxRightSide;
-            List<string> setsList = _sections["SETS"];
-            Regex identifierRegex = new(@"\s*[A-Za-z]\w*\s*=\s*"),
-                wordRegex = new(@"[A-Za-z]\w*"),
-                rightSideRegex = new(@"(('[A-Za-z0-9_]'((\.\.|\+)'[A-Za-z0-9_]')+)|(chr\(\d(\d|\d{2})?\)((\.\.|\+)chr(\(\d(\d|\d{2})?\))))\s*);\s*");
-
-            Match universalMatch;
-            MatchCollection universalMatchCollection;
-            foreach (string actualSet in setsList)
+            try
             {
-                universalMatch = identifierRegex.Match(actualSet);
-                int rightSide = universalMatch.Index + universalMatch.Length;
-                auxIdentifier = actualSet.Substring(universalMatch.Index, universalMatch.Length - 2).Trim();
-                _sets.Add(auxIdentifier, new List<string>());
-                auxRightSide = actualSet.Substring(rightSide).Trim();
-                universalMatchCollection = rightSideRegex.Matches(auxRightSide);
-                foreach (Match match in universalMatchCollection)
+                string auxIdentifier, auxRightSide;
+                List<string> setsList = _sections["SETS"];
+                Regex identifierRegex = new(@"\s*[A-Za-z]\w*\s*=\s*"),
+                    wordRegex = new(@"[A-Za-z]\w*"),
+                    rightSideRegex = new(@"(('[A-Za-z0-9_]'((\.\.|\+)'[A-Za-z0-9_]')+)|(chr\(\d(\d|\d{2})?\)((\.\.|\+)chr(\(\d(\d|\d{2})?\))))\s*);\s*");
+
+                Match universalMatch;
+                MatchCollection universalMatchCollection;
+                foreach (string actualSet in setsList)
                 {
-                    if (match.Value.StartsWith("'")) // CASO: ('[A-Za-z0-9_]'((\.\.|\+)'[A-Za-z0-9_]')+)  <-->  'A'..'Z'+'a'..'z'+'_'
+                    if(string.IsNullOrEmpty(actualSet)) continue;
+                    universalMatch = identifierRegex.Match(actualSet);
+                    int rightSide = universalMatch.Index + universalMatch.Length;
+                    auxIdentifier = actualSet.Substring(universalMatch.Index, universalMatch.Length - 2).Trim();
+                    _sets.Add(auxIdentifier, new List<string>());
+                    auxRightSide = actualSet.Substring(rightSide).Trim();
+                    universalMatchCollection = rightSideRegex.Matches(auxRightSide);
+                    foreach (Match match in universalMatchCollection)
                     {
-                        if (match.Value.Contains("+") && match.Value.Contains(".."))
+                        if (match.Value.StartsWith("'")) // CASO: ('[A-Za-z0-9_]'((\.\.|\+)'[A-Za-z0-9_]')+)  <-->  'A'..'Z'+'a'..'z'+'_'
                         {
-                            string[] parts1 = match.Value.Split('+');
-                            foreach (string part in parts1)
+                            if (match.Value.Contains("+") && match.Value.Contains(".."))
                             {
-                                if (part.Contains(".."))
+                                string[] parts1 = match.Value.Split('+');
+                                foreach (string part in parts1)
                                 {
-                                    string[] parts = part.Split("..");
-                                    string aux = '[' + parts[0].Trim('\'') + '-' + parts[1].Trim('\'') + ']';
-                                    _sets[auxIdentifier].Add(aux);
+                                    if (part.Contains(".."))
+                                    {
+                                        string[] parts = part.Split("..");
+                                        string aux = '[' + parts[0].Trim('\'') + '-' + parts[1].Trim('\'') + ']';
+                                        _sets[auxIdentifier].Add(aux);
+                                    }
+                                    else
+                                    {
+                                        string aux = '[' + part.Substring(0, part.Length - 2).Trim('\'') + ']';
+                                        _sets[auxIdentifier].Add(aux);
+                                    }
                                 }
-                                else
+
+                            }
+                            else if (match.Value.Contains("+"))
+                            {
+                                string[] parts = match.Value.Split('+');
+                                foreach (string part in parts)
                                 {
-                                    string aux = '[' + part.Substring(0, part.Length - 2).Trim('\'') + ']';
-                                    _sets[auxIdentifier].Add(aux);
+                                    _sets[auxIdentifier].Add('[' + part.Trim('\'') + ']');
                                 }
                             }
-
-                        }
-                        else if (match.Value.Contains("+"))
-                        {
-                            string[] parts = match.Value.Split('+');
-                            foreach (string part in parts)
-                            {
-                                _sets[auxIdentifier].Add('[' + part.Trim('\'') + ']');
-                            }
-                        }
-                        else if (match.Value.Contains(".."))
-                        {
-                            string[] parts = match.Value.Split("..");
-                            string aux = '[' + parts[0].Trim('\'') + '-' + parts[1].Substring(0, parts[1].Length - 1).Trim('\'') + ']';
-                            _sets[auxIdentifier].Add(aux);
-
-                        }
-                        else
-                        {
-                            _sets[auxIdentifier].Add('[' + match.Value.Trim('\'') + ']');
-                        }
-                    }
-                    else if (match.Value.Contains("chr")) // CASO: (chr\(\d(\d|\d{2})?\)((\.\.|\+)chr(\(\d(\d|\d{2})?\)  <-->  chr(32)..chr(254)
-                    {
-                        if (match.Value.Contains("+") && match.Value.Contains(".."))
-                        {
-                            string[] parts1 = match.Value.Split('+');
-                            foreach (string part in parts1)
+                            else if (match.Value.Contains(".."))
                             {
                                 string[] parts = match.Value.Split("..");
-                                string aux = '[' + parts[0].Substring(4).Trim(')') + '-' + parts[1].Substring(4).Trim(')') + ']';
+                                string aux = '[' + parts[0].Trim('\'') + '-' + parts[1].Substring(0, parts[1].Length - 1).Trim('\'') + ']';
+                                _sets[auxIdentifier].Add(aux);
 
                             }
-                        }
-                        else if (match.Value.Contains("+"))
-                        {
-                            string[] parts = match.Value.Split('+');
-                            foreach (string part in parts)
+                            else
                             {
-                                string aux = part.Substring(4).Trim(')');
+                                _sets[auxIdentifier].Add('[' + match.Value.Trim('\'') + ']');
+                            }
+                        }
+                        else if (match.Value.Contains("chr")) // CASO: (chr\(\d(\d|\d{2})?\)((\.\.|\+)chr(\(\d(\d|\d{2})?\)  <-->  chr(32)..chr(254)
+                        {
+                            if (match.Value.Contains("+") && match.Value.Contains(".."))
+                            {
+                                string[] parts1 = match.Value.Split('+');
+                                foreach (string part in parts1)
+                                {
+                                    string[] parts = match.Value.Split("..");
+                                    string aux = '[' + parts[0].Substring(4).Trim(')') + '-' + parts[1].Substring(4).Trim(')') + ']';
+
+                                }
+                            }
+                            else if (match.Value.Contains("+"))
+                            {
+                                string[] parts = match.Value.Split('+');
+                                foreach (string part in parts)
+                                {
+                                    string aux = part.Substring(4).Trim(')');
+                                    if (int.TryParse(aux, out int asciiCode))
+                                    {
+                                        char asciiValue = Convert.ToChar(asciiCode);
+                                        _sets[auxIdentifier].Add('[' + asciiValue.ToString() + ']');
+                                    }
+                                    else
+                                    {
+                                        // manejar error de conversión
+                                    }
+                                }
+                            }
+                            else if (match.Value.Contains(".."))
+                            {
+                                string[] parts = match.Value.Split("..");
+                                char minLimit = Convert.ToChar(Convert.ToInt32(parts[0].Substring(4).Trim(')'))),
+                                    maxLimit = Convert.ToChar(Convert.ToInt32(parts[1].Substring(4).Trim(';').Trim(')')));
+                                string aux = "[" + minLimit + '-' + maxLimit + ']';
+                                _sets[auxIdentifier].Add(aux);
+                            }
+                            else
+                            {
+                                string aux = match.Value.Substring(4).Trim(';').Trim(')');
                                 if (int.TryParse(aux, out int asciiCode))
                                 {
                                     char asciiValue = Convert.ToChar(asciiCode);
-                                    _sets[auxIdentifier].Add('[' + asciiValue.ToString() + ']');
+                                    _sets[auxIdentifier].Add(asciiValue.ToString());
                                 }
                                 else
                                 {
@@ -426,30 +453,15 @@ namespace ProyectoConsola.Managers
                                 }
                             }
                         }
-                        else if (match.Value.Contains(".."))
-                        {
-                            string[] parts = match.Value.Split("..");
-                            char minLimit = Convert.ToChar(Convert.ToInt32(parts[0].Substring(4).Trim(')'))),
-                                maxLimit = Convert.ToChar(Convert.ToInt32(parts[1].Substring(4).Trim(';').Trim(')')));
-                            string aux = "[" + minLimit + '-' + maxLimit + ']';
-                            _sets[auxIdentifier].Add(aux);
-                        }
-                        else
-                        {
-                            string aux = match.Value.Substring(4).Trim(';').Trim(')');
-                            if (int.TryParse(aux, out int asciiCode))
-                            {
-                                char asciiValue = Convert.ToChar(asciiCode);
-                                _sets[auxIdentifier].Add(asciiValue.ToString());
-                            }
-                            else
-                            {
-                                // manejar error de conversión
-                            }
-                        }
                     }
                 }
             }
+            catch (System.Exception e)
+            {
+                string mensaje = e.Message;
+                throw;
+            }
+            
         }
         /// <summary>
         /// Método que gestiona la sección TOKENS.
@@ -479,8 +491,11 @@ namespace ProyectoConsola.Managers
             Regex identifierRegex = new(@"\s*[A-Za-z]\w*\s*=\s*"),
                 rightSideRegex = new(@"(\s*((\w\s+(\w*\*)?)|(\w\s*\(\s*\w+\s*\|?\s*(\w+\s*\*?\s*)\)\s*\*?)|('.'(,'.')*))(\s*(Left|Right|(c|C)heck)?)\s*);");
 
+            
             foreach (string token in tokensList)
             {
+                if (string.IsNullOrEmpty(token)) continue;
+
                 Match identifierMatch = identifierRegex.Match(token);
                 if (identifierMatch.Success)
                 {
@@ -513,6 +528,7 @@ namespace ProyectoConsola.Managers
             Match universalMatch;
             foreach (string token in tokensList)
             {
+                if(string.IsNullOrEmpty(token)) continue;
                 universalMatch = identifierRegex.Match(token.Trim());
                 if (universalMatch.Success)
                 {
@@ -590,6 +606,7 @@ namespace ProyectoConsola.Managers
             List<string> keywordsList = _sections["KEYWORDS"];
             foreach (string keyword in keywordsList)
             {
+                if(string.IsNullOrEmpty(keyword)) continue;
                 if (!keywordRegex.IsMatch(keyword))
                     throw new Exception($"La seccion 'KEYWORDS' de la gramatica no es válida.\n\nLa palabra reservada '{keyword}' no cumple los requisitos.");
             }
@@ -604,6 +621,7 @@ namespace ProyectoConsola.Managers
             List<string> keywordsList = _sections["KEYWORDS"];
             foreach (string keyword in keywordsList)
             {
+                if(string.IsNullOrEmpty(keyword)) continue;
                 MatchCollection mc = keywordRegex.Matches(keyword);
 
                 if (mc.Count > 0)
@@ -658,6 +676,7 @@ namespace ProyectoConsola.Managers
             Match match;
             foreach (string production in prodictionsList)
             {
+                if (string.IsNullOrEmpty(production)) continue;
                 match = prodictionsRegex.Match(production);
                 if (!match.Success)
                 {
@@ -708,6 +727,7 @@ namespace ProyectoConsola.Managers
 
             foreach (string production in prodictionsList)
             {
+                if(string.IsNullOrEmpty(production)) continue;
                 // Inicializar identificadores
                 match = identifierRegex.Match(production);
                 rightSidendex = match.Index + match.Length;

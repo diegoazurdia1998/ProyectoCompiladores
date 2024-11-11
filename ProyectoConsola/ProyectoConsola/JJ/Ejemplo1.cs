@@ -8,6 +8,30 @@ namespace ProyectoConsola.JJ
 {
     public class Ejemplo1
     { 
+        static public List<string> ListadoDeTerminales(){
+            return ["PROGRAM", "VAR", "BEGIN", "END", "INTEGER"];
+        }
+
+        static public List<IdentificadorValorModel> ListadoDeProducciones(){
+            return [
+                new IdentificadorValorModel(){ Id = "<program>", Valor = "'PROGRAM' identifier ';' <declarations> <compound_statement> '.' ;" },
+                new IdentificadorValorModel(){ Id = "<declarations>", Valor = "'VAR' identifier ':' 'INTEGER' ';' <declarations>" },
+                new IdentificadorValorModel(){ Id = "<declarations>", Valor = "ε ;" },
+                new IdentificadorValorModel(){ Id = "<compound_statement>", Valor = "'BEGIN' <statement_list> 'END' ;" },
+                new IdentificadorValorModel(){ Id = "<statement_list>", Valor = "<assignment>" },
+                new IdentificadorValorModel(){ Id = "<statement_list>", Valor = "<assignment> ';' <statement_list> ;" },
+                new IdentificadorValorModel(){ Id = "<assignment>", Valor = "identifier ':=' <expression> ;" },
+                new IdentificadorValorModel(){ Id = "<expression>", Valor = "<term> '+' <term>" },
+                new IdentificadorValorModel(){ Id = "<expression>", Valor = "<term> ;" },
+                new IdentificadorValorModel(){ Id = "<term>", Valor = "<factor> '*' <factor>" },
+                new IdentificadorValorModel(){ Id = "<term>", Valor = "<factor> ;" },
+                new IdentificadorValorModel(){ Id = "<factor>", Valor = "identifier" },
+                new IdentificadorValorModel(){ Id = "<factor>", Valor = "number" },
+            ];
+        }
+
+
+
         static public List<AccionModel> ListadoDeAcciones(){
             return [
                 new(){ Fila = "0", Columna = "num", Accion = "Shift", AQueEstado = "5" },
@@ -70,21 +94,21 @@ namespace ProyectoConsola.JJ
         }
 
         //No Aceptado, se elimino el ultimo parentesis
-        static public List<IdentificadorValorModel> ListadoPrueba(){
-            return [
-                new IdentificadorValorModel(){ Id = "(" },
-                new IdentificadorValorModel(){ Id = "num", Valor = "5" },
-                new IdentificadorValorModel(){ Id = "+" },
-                new IdentificadorValorModel(){ Id = "num", Valor = "7" },
-                new IdentificadorValorModel(){ Id = ")" },
-                new IdentificadorValorModel(){ Id = "*" },
-                new IdentificadorValorModel(){ Id = "(" },
-                new IdentificadorValorModel(){ Id = "num", Valor = "4" },
-                new IdentificadorValorModel(){ Id = "*" },
-                new IdentificadorValorModel(){ Id = "num", Valor = "2" },
-                new IdentificadorValorModel(){ Id = "$" },
-            ];
-        }
+        // static public List<IdentificadorValorModel> ListadoPrueba(){
+        //     return [
+        //         new IdentificadorValorModel(){ Id = "(" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "5" },
+        //         new IdentificadorValorModel(){ Id = "+" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "7" },
+        //         new IdentificadorValorModel(){ Id = ")" },
+        //         new IdentificadorValorModel(){ Id = "*" },
+        //         new IdentificadorValorModel(){ Id = "(" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "4" },
+        //         new IdentificadorValorModel(){ Id = "*" },
+        //         new IdentificadorValorModel(){ Id = "num", Valor = "2" },
+        //         new IdentificadorValorModel(){ Id = "$" },
+        //     ];
+        // }
 
         //No Aceptado se eliminio el primer valor de 5
         // static public List<IdentificadorValorModel> ListadoPrueba(){
@@ -102,6 +126,16 @@ namespace ProyectoConsola.JJ
         //         new IdentificadorValorModel(){ Id = "$" },
         //     ];
         // }
+
+        static public List<IdentificadorValorModel> ListadoPrueba(){
+            return [
+                new IdentificadorValorModel(){ Id = "num", Valor = "2" },
+                new IdentificadorValorModel(){ Id = "+" },
+                new IdentificadorValorModel(){ Id = "num", Valor = "3" },
+                new IdentificadorValorModel(){ Id = "*" },
+                new IdentificadorValorModel(){ Id = "num", Valor = "4" },
+            ];
+        }
 
         //Aceptado
         // static public List<IdentificadorValorModel> ListadoPrueba(){

@@ -15,6 +15,8 @@ namespace ProyectoConsola.JJ
         public List<AccionModel> listadoDeAcciones = new();
         List<ReduccionModel>  listadoDeReducciones = new();
         public ParceoDeTabla(){
+            
+
             pila.Push(new IdentificadorValorModel() {Id = "0"});
         }
 

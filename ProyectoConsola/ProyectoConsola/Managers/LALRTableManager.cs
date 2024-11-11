@@ -34,7 +34,7 @@ namespace ProyectoConsola.Managers
             _nffTable = nFFTableManager; 
             _actionTable = new Dictionary<int, Dictionary<object, (LALRAction, int)>>();
 
-            // List<AccionModel> listadoDeAcciones = GenerateLALRTable();
+            List<AccionModel> listadoDeAcciones = GenerateLALRTable();
             // ParceoDeTabla parceoDeTabla = new ParceoDeTabla();
             // parceoDeTabla.Parsear(listadoDeAcciones, archivoDePrueba);
 
